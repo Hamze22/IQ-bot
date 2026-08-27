@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "Registered trading bot users and account licenses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "fullName": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "USER"] },
+        "status": { "type": "string" },
+        "approved": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "plan": { "type": "string" },
+        "balance": { "type": "number" },
+        "demoBalance": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "createdTimestamp": { "type": "number" },
+        "lastLoginTimestamp": { "type": "number" },
+        "txid": { "type": "string" },
+        "paymentMethod": { "type": "string" }
+      },
+      "required": ["email", "status"]
+    },
+    "payments": {
+      "title": "Payment",
+      "description": "USDT TRC20 license payment submissions for verification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "txid": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["userEmail", "txid", "status"]
+    }
+  }
+}

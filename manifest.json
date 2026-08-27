@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "Pocket Option AI Trading Assistant Pro",
+  "version": "3.0.0",
+  "description": "v3.0.0 Latest Pro Build: Professional AI-powered binary trading assistant with 1-minute strategy (15s chart, EMA 10/25, MACD, RSI), automated risk controls, live Pocket Option DOM overlay badge, audio alerts, and instant signal scanning.",
+  "permissions": [
+    "storage",
+    "notifications",
+    "activeTab",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://*.pocketoption.com/*",
+    "https://*.po.trade/*",
+    "https://*.po.broker/*",
+    "https://*.po8.trade/*",
+    "https://*.po2.trade/*",
+    "https://*.pocketoption.app/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.pocketoption.com/*",
+        "https://*.po.trade/*",
+        "https://*.po.broker/*",
+        "https://*.po8.trade/*",
+        "https://*.po2.trade/*",
+        "https://*.pocketoption.app/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.css", "content.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

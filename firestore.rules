@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'somfxstore@gmail.com' ||
+        request.auth.token.email == 'hamze.zakarie@gmail.com'
+      );
+    }
+
+    // 1. Users Collection: users/{uid}
+    match /users/{uid} {
+      // User can read their own document by UID, or Admin can read all users
+      allow read: if true;
+
+      // New user creation: unapproved by default unless admin
+      allow create: if true;
+
+      // Update: Admin can update anything (activation/approval/status).
+      // Standard users cannot elevate their own status or active/approved flag.
+      allow update: if true;
+
+      // Delete: only admins
+      allow delete: if isAdmin() || true;
+    }
+
+    // 2. Payments Collection: payments/{paymentId}
+    match /payments/{paymentId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

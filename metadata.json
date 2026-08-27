@@ -1,0 +1,6 @@
+{
+  "name": "IQ Bot Trading",
+  "description": "Professional Chrome Extension and AI strategy engine for Pocket Option trading connected to iQ Bot DB Firebase database.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
