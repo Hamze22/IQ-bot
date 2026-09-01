@@ -115,7 +115,6 @@ export default function App() {
     return initialCandles[initialCandles.length - 1].close;
   });
   const [timeframe, setTimeframe] = useState<ExpiryTime>('1m');
-  const [manualToast, setManualToast] = useState<string | null>(null);
 
   // Sync refs for async timers
   const currentPriceRef = useRef(currentPrice);
@@ -756,16 +755,7 @@ export default function App() {
             setRealBalance((bPrev) => +(bPrev + profit).toFixed(2));
           }
 
-          try {
-            playSoundAlert(isWin ? 'win' : 'loss');
-          } catch (e) {}
-
-          setManualToast(
-            isWin
-              ? `🏆 WIN: +$${profit.toFixed(2)} (${pos.pair} ${pos.type}) | Entry: ${pos.entryPrice} ➔ Exit: ${currentPriceRef.current} | Trade Performance Synced (+1 Win)`
-              : `⚠️ LOSS: -$${Math.abs(profit).toFixed(2)} (${pos.pair} ${pos.type}) | Entry: ${pos.entryPrice} ➔ Exit: ${currentPriceRef.current} | Trade Performance Synced (+1 Loss)`
-          );
-          setTimeout(() => setManualToast(null), 4500);
+          // Notification and sound alerts for trades removed per user request
         });
       }
     }, 1000);
@@ -777,8 +767,7 @@ export default function App() {
   const openNewTradePosition = (type: 'CALL' | 'PUT', confidenceVal: number = 90, customPair?: string) => {
     const isApproved = !!currentUser && (currentUser.status === 'ACTIVE' || currentUser.role === 'ADMIN' || isAdminEmail(currentUser.email));
     if (!isApproved) {
-      setManualToast('🔒 ACCOUNT PENDING APPROVAL: Admin must approve your account to execute trades.');
-      setTimeout(() => setManualToast(null), 4000);
+      alert('🔒 ACCOUNT PENDING APPROVAL: Admin must approve your account to execute trades.');
       return;
     }
 
@@ -802,15 +791,7 @@ export default function App() {
     };
 
     setActivePositions((prev) => [newPos, ...prev]);
-
-    try {
-      playSoundAlert('start');
-    } catch (e) {}
-
-    setManualToast(
-      `⚡ ${type} Order Opened on ${newPos.pair} ($${curSettings.tradeAmount}) - ${expirySec}s Timer Started!`
-    );
-    setTimeout(() => setManualToast(null), 3000);
+    // Order notification and sound removed per user request
   };
 
   // Automated Strategy Evaluation Timer (Runs AI Scan immediately and every 2s when Bot is RUNNING)
@@ -875,14 +856,6 @@ export default function App() {
         }}
       />
 
-      {/* Toast Notification Alert for Manual Trades */}
-      {manualToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-slate-950 font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
-          <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping" />
-          <span>{manualToast}</span>
-        </div>
-      )}
-
       {/* Main Container */}
       <main className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 py-4 space-y-6 overflow-x-hidden">
 
@@ -910,6 +883,7 @@ export default function App() {
             onOpenPayment={() => setIsPaymentModalOpen(true)}
             onOpenLogin={() => setIsLoginModalOpen(true)}
             onFocusStrategyTab={() => setActiveTab('strategy')}
+            showScanningZone={true}
           />
         )}
 
@@ -937,6 +911,7 @@ export default function App() {
             setSettings={setSettings}
             trades={trades}
             onManualTrade={executeManualTrade}
+            showScanningZone={true}
           />
         )}
 
@@ -1024,6 +999,7 @@ export default function App() {
                 authService.logout();
                 setCurrentUser(null);
               }}
+              showScanningZone={true}
             />
           </div>
         )}

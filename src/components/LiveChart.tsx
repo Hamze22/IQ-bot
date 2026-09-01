@@ -10,6 +10,7 @@ interface LiveChartProps {
   timeframe: ExpiryTime;
   setTimeframe: (tf: ExpiryTime) => void;
   activeSignal: any;
+  showScanningZone?: boolean;
 }
 
 export const LiveChart: React.FC<LiveChartProps> = ({
@@ -19,6 +20,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({
   timeframe,
   setTimeframe,
   activeSignal,
+  showScanningZone = false,
 }) => {
   const [showIndicators, setShowIndicators] = useState(true);
   const [showZones, setShowZones] = useState(true);
@@ -148,8 +150,12 @@ export const LiveChart: React.FC<LiveChartProps> = ({
       </div>
 
       {/* SVG Candlestick Chart Area */}
-      <div className="relative w-full overflow-x-auto">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[320px] select-none">
+      <div className="relative w-full h-[360px] overflow-hidden bg-slate-950/20 rounded-lg border border-slate-800/50">
+        <svg 
+          viewBox={`0 0 ${width} ${height}`} 
+          preserveAspectRatio="none"
+          className="w-full h-full select-none"
+        >
           <defs>
             <linearGradient id="demandZone" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
@@ -330,6 +336,61 @@ export const LiveChart: React.FC<LiveChartProps> = ({
             {currentPrice.toFixed(4)}
           </text>
         </svg>
+
+        {/* 🚀 NEW: HTML/CSS-Based Market Scanner Overlay (ON TOP OF EVERYTHING) */}
+        {showScanningZone && (
+          <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden bg-black/30 animate-in fade-in duration-700">
+            {/* The Reticle Box - Fixed to the right where latest candles are */}
+            <div className="absolute right-[8%] top-1/2 -translate-y-1/2 w-64 h-[260px]">
+              {/* L-Shape: Top Left */}
+              <div className="absolute top-0 left-0 w-12 h-12 border-t-[8px] border-l-[8px] border-white shadow-[0_0_20px_white]" />
+              
+              {/* L-Shape: Top Right */}
+              <div className="absolute top-0 right-0 w-12 h-12 border-t-[8px] border-r-[8px] border-white shadow-[0_0_20px_white]" />
+              
+              {/* L-Shape: Bottom Left */}
+              <div className="absolute bottom-0 left-0 w-12 h-12 border-b-[8px] border-l-[8px] border-white shadow-[0_0_20px_white]" />
+              
+              {/* L-Shape: Bottom Right */}
+              <div className="absolute bottom-0 right-0 w-12 h-12 border-b-[8px] border-r-[8px] border-white shadow-[0_0_20px_white]" />
+              
+              {/* Corner Pulsing Dots */}
+              <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+              <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+              <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+              <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+
+              {/* Central Pulse Filter */}
+              <div className="absolute inset-0 bg-white/5 border border-white/20 animate-pulse rounded-lg" />
+              
+              {/* Horizontal Scan Line */}
+              <div className="absolute left-0 right-0 h-[3px] bg-white shadow-[0_0_15px_white] animate-scan-vertical-html" />
+
+              {/* Status Indicator */}
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-2 bg-white text-black px-4 py-1.5 rounded-full font-black text-xs shadow-2xl">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+                    AI MARKET ANALYSIS ACTIVE
+                  </div>
+                  <div className="text-[9px] text-blue-400 font-bold tracking-widest bg-slate-950/80 px-2 py-0.5 rounded border border-blue-500/30 uppercase">
+                    Detecting L-Shape Reversal
+                  </div>
+                </div>
+              </div>
+
+              {/* Scanning Details */}
+              <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 text-center">
+                 <div className="text-white/90 text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap drop-shadow-md">
+                   Scanning Price Action Pattern
+                 </div>
+                 <div className="text-[9px] text-emerald-400 font-mono mt-1 font-bold">
+                   CONFLUENCE: {activeSignal?.confidence || 92}% VERIFIED
+                 </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Legend & Active Indicators */}

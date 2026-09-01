@@ -54,6 +54,7 @@ interface ExtensionStorefrontViewProps {
   onOpenPayment: () => void;
   onOpenLogin: () => void;
   onFocusStrategyTab: () => void;
+  showScanningZone?: boolean;
 }
 
 export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = ({
@@ -78,6 +79,7 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
   onOpenPayment,
   onOpenLogin,
   onFocusStrategyTab,
+  showScanningZone = true,
 }) => {
   const isAdmin = isAdminEmail(currentUser?.email) || currentUser?.role === 'ADMIN';
   const isActive = currentUser && currentUser.status === 'ACTIVE';

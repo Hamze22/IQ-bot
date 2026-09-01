@@ -180,9 +180,11 @@ class AuthService {
               const computedStatus: AccountStatus =
                 isApproved || isActive ? 'ACTIVE' :
                 rawStatus === 'PENDING' ? 'PENDING' :
+                rawStatus === 'UNPAID' ? 'UNPAID' :
                 rawStatus === 'SUSPENDED' ? 'SUSPENDED' :
                 rawStatus === 'REJECTED' ? 'REJECTED' :
-                isUserAdmin ? 'ACTIVE' : 'PENDING';
+                (item.txid || item.cardDetails || item.paymentDate) ? 'PENDING' :
+                isUserAdmin ? 'ACTIVE' : 'UNPAID';
 
               const uid = item.uid || item.id || getCanonicalUID(email);
 
@@ -239,9 +241,11 @@ class AuthService {
           const computedStatus: AccountStatus = 
             isApproved || isActive ? 'ACTIVE' :
             rawStatus === 'PENDING' ? 'PENDING' :
+            rawStatus === 'UNPAID' ? 'UNPAID' :
             rawStatus === 'SUSPENDED' ? 'SUSPENDED' :
             rawStatus === 'REJECTED' ? 'REJECTED' :
-            isUserAdmin ? 'ACTIVE' : 'PENDING';
+            (data.txid || data.cardDetails || data.paymentDate) ? 'PENDING' :
+            isUserAdmin ? 'ACTIVE' : 'UNPAID';
 
           const uid = data.uid || docSnap.id || getCanonicalUID(email);
 
@@ -399,9 +403,11 @@ class AuthService {
             const computedStatus: AccountStatus =
               isApproved || isActive ? 'ACTIVE' :
               rawStatus === 'PENDING' ? 'PENDING' :
+              rawStatus === 'UNPAID' ? 'UNPAID' :
               rawStatus === 'SUSPENDED' ? 'SUSPENDED' :
               rawStatus === 'REJECTED' ? 'REJECTED' :
-              isUserAdmin ? 'ACTIVE' : 'PENDING';
+              (data.txid || data.cardDetails || data.paymentDate) ? 'PENDING' :
+              isUserAdmin ? 'ACTIVE' : 'UNPAID';
 
             const uid = data.uid || docSnap.id || getCanonicalUID(email);
 
@@ -690,9 +696,11 @@ class AuthService {
           const computedStatus: AccountStatus =
             isApproved || isActive ? 'ACTIVE' :
             rawStatus === 'PENDING' ? 'PENDING' :
+            rawStatus === 'UNPAID' ? 'UNPAID' :
             rawStatus === 'SUSPENDED' ? 'SUSPENDED' :
             rawStatus === 'REJECTED' ? 'REJECTED' :
-            isUserAdmin ? 'ACTIVE' : 'PENDING';
+            (data.txid || data.cardDetails || data.paymentDate) ? 'PENDING' :
+            isUserAdmin ? 'ACTIVE' : 'UNPAID';
 
           const userObj: UserAccount = {
             id: uid,
@@ -1093,6 +1101,18 @@ class AuthService {
     user.txid = txid.trim();
     user.paymentAmountUSDT = amountUSDT;
     user.paymentDate = new Date().toISOString();
+
+    // 🚀 FIX: Auto-approve admins for instant testing access
+    if (isAdminEmail(user.email)) {
+      user.status = 'ACTIVE';
+      user.approved = true;
+      user.active = true;
+      user.expiresAt = new Date(Date.now() + 3650 * 24 * 3600 * 1000).toISOString();
+      newPay.status = 'APPROVED';
+      newPay.approvedAt = new Date().toISOString();
+      this.syncPaymentToFirestore(newPay);
+    }
+
     this.saveUsers();
     this.syncUserToFirestore(user);
     this.currentUser = user;
@@ -1135,6 +1155,14 @@ class AuthService {
     user.plan = plan;
     user.paymentAmountUSDT = 50;
     user.paymentDate = new Date().toISOString();
+
+    // 🚀 FIX: Auto-approve admins for instant testing access
+    if (isAdminEmail(user.email)) {
+      user.status = 'ACTIVE';
+      user.approved = true;
+      user.active = true;
+      user.expiresAt = new Date(Date.now() + 3650 * 24 * 3600 * 1000).toISOString(); // 10 years
+    }
     
     this.saveUsers();
     this.syncUserToFirestore(user);

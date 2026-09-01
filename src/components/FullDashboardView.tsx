@@ -54,6 +54,7 @@ interface FullDashboardViewProps {
   trades: Trade[];
   onOpenSettingsModal?: () => void;
   onManualTrade?: (type: 'CALL' | 'PUT') => void;
+  showScanningZone?: boolean;
 }
 
 export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
@@ -79,6 +80,7 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
   trades,
   onOpenSettingsModal,
   onManualTrade,
+  showScanningZone = true,
 }) => {
   const [activeSidebarNav, setActiveSidebarNav] = useState<string>('Dashboard');
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState<boolean>(false);
@@ -286,6 +288,7 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
                 timeframe={timeframe}
                 setTimeframe={setTimeframe}
                 activeSignal={activeSignal}
+                showScanningZone={showScanningZone}
               />
 
               {/* Performance & Win/Loss Breakdown below chart */}

@@ -810,10 +810,10 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
 
                 <div className="space-y-1">
                   <h3 className="text-sm font-black text-white uppercase tracking-wider">
-                    SCANNING MARKET & WAITING FOR SIGNAL...
+                    SCANNING MARKET...
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Analyzing live order flow for <strong className="text-cyan-300">{activePair}</strong>
+                    AI Analysis Engine looking for confluence on <strong className="text-cyan-300">{activePair}</strong>
                   </p>
                 </div>
 

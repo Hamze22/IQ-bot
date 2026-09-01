@@ -1,0 +1,71 @@
+.po-chart-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.po-candle-highlight {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.po-candle-highlight .corner {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.po-candle-highlight .corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.po-candle-highlight .corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+.po-candle-highlight .corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+.po-candle-highlight .corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+.po-selector-controls {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.po-selector-controls h4 {
+    margin: 0 0 8px 0;
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.po-selector-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.po-selector-btn {
+    padding: 4px 8px;
+    background: #334155;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+.po-selector-btn:hover {
+    background: #475569;
+}
+
+.po-selector-btn.active {
+    background: #2563eb;
+    border-color: #60a5fa;
+}

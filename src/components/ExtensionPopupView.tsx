@@ -765,7 +765,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                     ? `⚡ ACTIVE TRADE IN PROGRESS (${activeTrade.direction})`
                     : cooldownCandlesRemaining > 0 
                       ? 'AI REST & SCANNING'
-                      : botStatus === 'RUNNING' ? 'AI SCANNING 3-CANDLE PATTERN' : 'SCANNER STANDBY'}
+                      : botStatus === 'RUNNING' ? 'AI ANALYZING LAST 10 CANDLES' : 'SCANNER STANDBY'}
                 </span>
               </div>
               <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -799,11 +799,11 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                   </span>
                 ) : botStatus === 'RUNNING' ? (
                   candleSec > 40 ? (
-                    <span className="text-amber-300">🔍 Filtering Candle 1/3: Price Action & Support</span>
+                    <span className="text-amber-300">🔍 Analyzing last 10 candles: Detecting SMC liquidity sweeps...</span>
                   ) : candleSec > 20 ? (
-                    <span className="text-blue-300">🔍 Filtering Candle 2/3: RSI & MACD Momentum</span>
+                    <span className="text-blue-300">🔍 Analyzing last 10 candles: Calculating RSI & EMA momentum...</span>
                   ) : (
-                    <span className="text-emerald-400 font-bold">⚡ Candle 3/3: Safe Entry Signal Triggered!</span>
+                    <span className="text-emerald-400 font-bold">⚡ Analyzing last 10 candles: Entry confirmation triggered!</span>
                   )
                 ) : (
                   <span className="text-slate-400">⏸️ Start Bot to stream 3-candle safe trade signals</span>

@@ -555,9 +555,67 @@ function createOverlayWidget() {
           '▼ LOWER (PUT)' +
         '</button>' +
       '</div>' +
+
+      '<!-- CANDLE SELECTOR CONTROLS -->' +
+      '<div class="po-selector-controls">' +
+        '<h4>Candle Chart Selector</h4>' +
+        '<div class="po-selector-row">' +
+          '<label style="flex: 1; color: #94a3b8; font-weight: bold;">Enable Selector:</label>' +
+          '<button id="po-toggle-selector" class="po-selector-btn" style="font-weight: 900;">OFF</button>' +
+        '</div>' +
+        '<div id="po-selector-options" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">' +
+          '<div class="po-selector-row" style="justify-content: space-between;">' +
+            '<span style="color: #64748b; font-weight: bold;">Type:</span>' +
+            '<div style="display: flex; gap: 4px;">' +
+              '<button id="po-select-current" class="po-selector-btn active" style="font-size: 9px;">Current</button>' +
+              '<button id="po-select-prev" class="po-selector-btn" style="font-size: 9px;">Prev</button>' +
+              '<button id="po-select-range" class="po-selector-btn" style="font-size: 9px;">Range</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="po-selector-row" style="justify-content: space-between;">' +
+            '<span style="color: #64748b; font-weight: bold;">Candles:</span>' +
+            '<input type="number" id="po-candle-count" value="1" min="1" max="50" style="width: 50px; background: #020617; border: 1px solid #1e293b; color: #f8fafc; border-radius: 4px; padding: 2px 6px; font-family: monospace; font-weight: bold;">' +
+          '</div>' +
+          '<button id="po-clear-selector" class="po-selector-btn" style="width: 100%; font-weight: bold; background: rgba(244,63,94,0.1); color: #fb7185; border-color: rgba(244,63,94,0.2);">Clear Selection</button>' +
+        '</div>' +
+      '</div>' +
     '</div>';
 
   document.body.appendChild(widget);
+
+  // 🚀 ADDED: L-Shape Market Scanner Overlay for real Pocket Option chart
+  const scannerOverlay = document.createElement('div');
+  scannerOverlay.id = 'po-ai-scanner-overlay';
+  scannerOverlay.style.cssText = 'position: fixed; inset: 0; pointer-events: none; z-index: 9999998; display: none; overflow: hidden; background: rgba(0,0,0,0.2);';
+  scannerOverlay.innerHTML = `
+    <div id="po-scanner-reticle" style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); width: 280px; height: 320px; transition: all 0.5s ease;">
+      <div style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-top: 6px solid #fff; border-left: 6px solid #fff; filter: drop-shadow(0 0 10px #fff);"></div>
+      <div style="position: absolute; top: 0; right: 0; width: 40px; height: 40px; border-top: 6px solid #fff; border-right: 6px solid #fff; filter: drop-shadow(0 0 10px #fff);"></div>
+      <div style="position: absolute; bottom: 0; left: 0; width: 40px; height: 40px; border-bottom: 6px solid #fff; border-left: 6px solid #fff; filter: drop-shadow(0 0 10px #fff);"></div>
+      <div style="position: absolute; bottom: 0; right: 0; width: 40px; height: 40px; border-bottom: 6px solid #fff; border-right: 6px solid #fff; filter: drop-shadow(0 0 10px #fff);"></div>
+      <div style="position: absolute; inset: 0; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); animation: po-pulse 2s infinite;"></div>
+      <div id="po-scan-line" style="position: absolute; left: 0; right: 0; height: 2px; background: #fff; box-shadow: 0 0 15px #fff; animation: po-scan 3s linear infinite;"></div>
+      <div style="position: absolute; -top: 50px; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #fff; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: 900; font-size: 10px; display: flex; align-items: center; gap: 6px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
+        <span style="width: 8px; height: 8px; background: #2563eb; border-radius: 50%; animation: pulse 1s infinite;"></span>
+        AI ANALYZING MARKET STRUCTURE
+      </div>
+    </div>
+    <style>
+      @keyframes po-scan { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+      @keyframes po-pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.3; } }
+    </style>
+  `;
+  document.body.appendChild(scannerOverlay);
+
+  // Toggle scanner with bot status or dedicated button
+  function updateScannerVisibility() {
+    if (botRunning) {
+      scannerOverlay.style.display = 'block';
+    } else {
+      scannerOverlay.style.display = 'none';
+    }
+  }
+  updateScannerVisibility();
 
   // Initialize overlay stats display
   updateOverlayStatsUI();
@@ -625,6 +683,55 @@ function createOverlayWidget() {
   document.getElementById('po-exec-put').addEventListener('click', () => {
     executePocketOptionTrade('PUT');
   });
+
+  // --- Candle Selector Feature Integration ---
+  let selectorEnabled = false;
+  const toggleBtn = document.getElementById('po-toggle-selector');
+  const optionsDiv = document.getElementById('po-selector-options');
+  const countInput = document.getElementById('po-candle-count');
+
+  toggleBtn.addEventListener('click', () => {
+    selectorEnabled = !selectorEnabled;
+    toggleBtn.textContent = selectorEnabled ? 'ON' : 'OFF';
+    toggleBtn.style.background = selectorEnabled ? '#2563eb' : '#334155';
+    toggleBtn.style.color = selectorEnabled ? '#ffffff' : '#94a3b8';
+    optionsDiv.style.display = selectorEnabled ? 'flex' : 'none';
+    
+    if (selectorEnabled) {
+      if (window.ChartOverlay) window.ChartOverlay.init();
+      updateSelection();
+    } else {
+      if (window.CandleSelector) window.CandleSelector.clearSelection();
+    }
+  });
+
+  function updateSelection() {
+    if (!selectorEnabled || !window.CandleSelector) return;
+    const type = document.querySelector('.po-selector-btn.active').id;
+    const count = parseInt(countInput.value) || 1;
+    
+    if (type === 'po-select-current') {
+      window.CandleSelector.selectCandle(0); // Index 0 is current
+    } else if (type === 'po-select-prev') {
+      window.CandleSelector.selectCandle(1); // Index 1 is prev
+    } else if (type === 'po-select-range') {
+      window.CandleSelector.selectCandles(0, count - 1);
+    }
+  }
+
+  ['po-select-current', 'po-select-prev', 'po-select-range'].forEach(id => {
+    document.getElementById(id).addEventListener('click', (e) => {
+      document.querySelectorAll('.po-selector-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      updateSelection();
+    });
+  });
+
+  countInput.addEventListener('change', updateSelection);
+  document.getElementById('po-clear-selector').addEventListener('click', () => {
+    if (window.CandleSelector) window.CandleSelector.clearSelection();
+  });
+  // ------------------------------------------
 
   // Initial scan & real-time pair sync interval
   scanMarketAndComputeSignal();

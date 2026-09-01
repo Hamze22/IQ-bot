@@ -40,6 +40,7 @@ interface SplitComparisonViewProps {
   onManualTrade?: (type: 'CALL' | 'PUT') => void;
   onDownloadZip?: () => void;
   onScanSignal?: () => void;
+  showScanningZone?: boolean;
 }
 
 export const SplitComparisonView: React.FC<SplitComparisonViewProps> = ({
@@ -68,6 +69,7 @@ export const SplitComparisonView: React.FC<SplitComparisonViewProps> = ({
   onManualTrade,
   onDownloadZip,
   onScanSignal,
+  showScanningZone = true,
 }) => {
   return (
     <div className="space-y-8">
@@ -166,6 +168,7 @@ export const SplitComparisonView: React.FC<SplitComparisonViewProps> = ({
             setSettings={setSettings}
             trades={trades}
             onManualTrade={onManualTrade}
+            showScanningZone={showScanningZone}
           />
         </div>
 
@@ -217,6 +220,7 @@ export const SplitComparisonView: React.FC<SplitComparisonViewProps> = ({
           onManualTrade={onManualTrade}
           onDownloadZip={onDownloadZip}
           onScanSignal={onScanSignal}
+          showScanningZone={showScanningZone}
         />
       </div>
 

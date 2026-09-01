@@ -45,8 +45,15 @@
         "https://*.po2.trade/*",
         "https://*.pocketoption.app/*"
       ],
-      "js": ["content.js"],
-      "css": ["content.css"],
+      "js": [
+        "candle-selector/chart-detector.js",
+        "candle-selector/candle-detector.js",
+        "candle-selector/candle-mapper.js",
+        "candle-selector/candle-selector.js",
+        "candle-selector/chart-overlay.js",
+        "content.js"
+      ],
+      "css": ["candle-selector/selector.css", "content.css"],
       "run_at": "document_idle"
     }
   ],

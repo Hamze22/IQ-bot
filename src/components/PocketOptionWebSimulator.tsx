@@ -63,6 +63,7 @@ interface PocketOptionWebSimulatorProps {
   onOpenPayment?: () => void;
   onLogout?: () => void;
   onOpenDashboard?: () => void;
+  showScanningZone?: boolean;
 }
 
 export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> = ({
@@ -91,6 +92,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
   onOpenPayment,
   onLogout,
   onOpenDashboard,
+  showScanningZone = false,
 }) => {
   const activeUser = authService.getCurrentUser() || currentUser;
   const isAdmin = isAdminEmail(activeUser?.email);
@@ -316,12 +318,25 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
       </div>
 
       {/* 2. PO AI Overlay Live Widget Stage */}
-      <div className="flex-1 relative min-h-[580px] bg-[#070b14] flex flex-col items-center justify-center p-6 overflow-hidden">
-        {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
+      <div className="flex-1 relative min-h-[580px] bg-[#070b14] flex flex-col items-center justify-center overflow-hidden">
+        {/* Real-time Chart background for the simulator */}
+        <div className={`absolute inset-0 z-0 transition-all duration-1000 ${showScanningZone ? 'opacity-100 scale-[1.02]' : 'opacity-40'}`}>
+          <LiveChart
+            pair={activePair}
+            candles={candles}
+            currentPrice={currentPrice}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            activeSignal={activeSignal}
+            showScanningZone={showScanningZone}
+          />
+        </div>
+
+        {/* Subtle grid background pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none z-1" />
 
         {/* Active Asset & Live Tick Header Bar */}
-        <div className="w-full max-w-lg flex items-center justify-between gap-2 mb-6 bg-[#0d1424] px-4 py-2.5 rounded-2xl border border-slate-800 shadow-lg relative z-10">
+        <div className="w-full max-w-lg flex items-center justify-between gap-2 mb-6 bg-[#0d1424]/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-lg relative z-10">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-slate-400">ACTIVE PAIR:</span>
             <span className="text-sm font-mono font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30">

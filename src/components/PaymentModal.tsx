@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Copy, Check, ShieldCheck, Clock, Send, Wallet, X, Zap, CheckCircle2, Sparkles, CreditCard, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Copy, Check, ShieldCheck, Clock, Send, Wallet, X, Zap, CheckCircle2, Sparkles, CreditCard, Lock, RotateCcw } from 'lucide-react';
 import { OFFICIAL_USDT_TRC20_ADDRESS, SubscriptionPlan, UserAccount, CardDetails } from '../types';
 import { authService } from '../services/authService';
 import { IQBotLogo } from './IQBotLogo';
@@ -32,6 +32,33 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [remainingCooldownSeconds, setRemainingCooldownSeconds] = useState<number>(0);
+
+  // 10-minute cooldown calculator (600 seconds)
+  useEffect(() => {
+    if (!isOpen || !currentUser) {
+      setRemainingCooldownSeconds(0);
+      return;
+    }
+
+    const checkCooldown = () => {
+      if (currentUser.paymentDate) {
+        const submittedMs = new Date(currentUser.paymentDate).getTime();
+        const nowMs = Date.now();
+        const diffSec = Math.floor((nowMs - submittedMs) / 1000);
+        const cooldownTotal = 10 * 60; // 10 minutes = 600 seconds
+        if (diffSec >= 0 && diffSec < cooldownTotal) {
+          setRemainingCooldownSeconds(cooldownTotal - diffSec);
+          return;
+        }
+      }
+      setRemainingCooldownSeconds(0);
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+    return () => clearInterval(interval);
+  }, [isOpen, currentUser]);
 
   if (!isOpen) return null;
 
@@ -44,6 +71,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const handleSubmitTxid = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (remainingCooldownSeconds > 0) {
+      setErrorMsg(`Please wait ${Math.floor(remainingCooldownSeconds / 60)}m ${remainingCooldownSeconds % 60}s before re-submitting payment.`);
+      return;
+    }
 
     if (!txidInput.trim() || txidInput.trim().length < 8) {
       setErrorMsg('Please enter a valid TRC20 Transaction Hash (TXID).');
@@ -68,6 +100,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const handleCardPayment = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (remainingCooldownSeconds > 0) {
+      setErrorMsg(`Please wait ${Math.floor(remainingCooldownSeconds / 60)}m ${remainingCooldownSeconds % 60}s before submitting a new payment.`);
+      return;
+    }
 
     if (!cardData.cardHolderName || !cardData.cardNumber || !cardData.expiryDate || !cardData.pin) {
       setErrorMsg('Please fill in all card details correctly.');
@@ -98,6 +135,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     setShowSuccessPopup(false);
     onClose();
   };
+
+  const isUnderReview = currentUser?.status === 'PENDING' && remainingCooldownSeconds > 0;
+  const cooldownMinutes = Math.floor(remainingCooldownSeconds / 60);
+  const cooldownSecondsFormatted = String(remainingCooldownSeconds % 60).padStart(2, '0');
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-3 animate-in fade-in duration-200">
@@ -197,19 +238,31 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     Close / Back to Dashboard
                   </button>
                 </div>
-              ) : currentUser?.status === 'PENDING' ? (
+              ) : isUnderReview ? (
                 <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 flex flex-col items-center gap-2.5 text-center animate-in fade-in zoom-in duration-300">
-                  <Clock className="w-10 h-10 animate-pulse" />
+                  <Clock className="w-10 h-10 animate-pulse text-amber-400" />
                   <div>
                     <p className="font-black text-sm uppercase">Payment Under Review</p>
-                    <p className="text-[10px] opacity-80 mt-1">We have received your payment request. Our team is currently verifying the transaction. This usually takes 1-10 minutes.</p>
+                    <p className="text-[10px] opacity-80 mt-1">We have received your payment request. Our team is currently verifying the transaction.</p>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 border border-amber-500/40 rounded-full font-mono text-xs font-bold text-amber-300">
+                      <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Re-try available in: {cooldownMinutes}:{cooldownSecondsFormatted}</span>
+                    </div>
                   </div>
                   <button onClick={onClose} className="mt-2 w-full py-2 bg-amber-500 text-slate-950 rounded-xl font-black text-[11px] uppercase cursor-pointer active:scale-95 transition">
-                    Check Later
+                    Check Later / Close
                   </button>
                 </div>
               ) : (
                 <>
+                  {currentUser?.status === 'PENDING' && (
+                    <div className="p-2.5 bg-blue-500/10 border border-blue-500/30 rounded-xl text-blue-300 text-[11px] flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <RotateCcw className="w-3.5 h-3.5 text-blue-400" />
+                        <span>10-min verification window passed. You may re-submit payment details below.</span>
+                      </span>
+                    </div>
+                  )}
                   {/* Logged-in info */}
                   {currentUser && (
                 <div className="p-2 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center justify-between text-[11px]">
@@ -221,33 +274,56 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       currentUser.status === 'ACTIVE'
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : currentUser.status === 'PENDING'
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse'
-                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : 'bg-slate-700/40 text-slate-300 border border-slate-600/50'
                     }`}
                   >
-                    {currentUser.status}
+                    {currentUser.status || 'UNPAID'}
                   </span>
                 </div>
               )}
 
-              {/* Selected Lifetime Plan Box */}
-              <div className="p-3 rounded-xl border border-emerald-500/40 bg-slate-950 flex items-center justify-between relative overflow-hidden">
-                <div>
-                  <div className="text-xs font-black text-slate-100 flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Lifetime Pro Access</span>
+                  {/* Selected Lifetime Plan Box */}
+                  <div className="p-3 rounded-xl border border-emerald-500/40 bg-slate-950 flex items-center justify-between relative overflow-hidden">
+                    <div>
+                      <div className="text-xs font-black text-slate-100 flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Lifetime Pro Access</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        Live Signals, Auto-Bot & Extension
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-black text-emerald-400 font-mono">$50 USDT</div>
+                      <div className="text-[9px] text-emerald-500 font-bold uppercase">TRC-20</div>
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">
-                    Live Signals, Auto-Bot & Extension
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-black text-emerald-400 font-mono">$50 USDT</div>
-                  <div className="text-[9px] text-emerald-500 font-bold uppercase">TRC-20</div>
-                </div>
-              </div>
 
-              {/* PAYMENT FORMS */}
+                  {/* ADMIN DIRECT ACTIVATION BYPASS */}
+                  {currentUser && (currentUser.email === 'somfxstore@gmail.com' || currentUser.email === 'hamze.zakarie@gmail.com') && (
+                    <div className="p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl space-y-2">
+                      <div className="flex items-center gap-2 text-indigo-400 font-black text-[10px] uppercase">
+                        <ShieldCheck className="w-4 h-4" />
+                        Admin Test Tools
+                      </div>
+                      <button
+                        onClick={() => {
+                          const res = authService.approveUser(currentUser.email);
+                          if (res) {
+                            onPaymentSubmitted();
+                            onClose();
+                            alert('Admin Account Activated Instantly!');
+                          }
+                        }}
+                        className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-black uppercase transition cursor-pointer shadow-lg"
+                      >
+                        ⚡ Instant Admin Activation
+                      </button>
+                    </div>
+                  )}
+
+                  {/* PAYMENT FORMS */}
               {paymentMethod === 'USDT' ? (
                 <>
                   {/* TRC20 Wallet Address & Copy */}
