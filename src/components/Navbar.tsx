@@ -150,6 +150,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             SMC Strategies
           </button>
 
+          <button
+            onClick={() => handleTabClick('chatgptbot')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              activeTab === 'chatgptbot'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <Brain className="w-3.5 h-3.5 text-cyan-400" />
+            <span>ChatGPT AI</span>
+            <span className="text-[8px] font-black bg-blue-500/20 text-cyan-400 border border-blue-500/30 px-1 rounded animate-pulse">NEW</span>
+          </button>
+
           {isAdmin && (
             <button
               onClick={() => handleTabClick('admin')}

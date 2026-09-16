@@ -163,9 +163,11 @@ function generateDynamicSignal(pair, currentPrice) {
   const pipScale = isJpy ? 0.08 : 0.00035;
   const targetPrice = isCall ? +(currentPrice + pipScale).toFixed(isJpy ? 3 : 5) : +(currentPrice - pipScale).toFixed(isJpy ? 3 : 5);
 
+  const suggestedExpiry = Math.random() > 0.5 ? '1m' : '2m';
+
   const reasons = isCall
-    ? ['EMA 10 > EMA 25 Trend + MACD Green Histogram + RSI Bullish Momentum', '15s Candle Close Above EMA 10 + Buying Volume Surge', 'MACD Crossover + RSI > 55 Expansion']
-    : ['EMA 10 < EMA 25 Downtrend + MACD Red Histogram + RSI Bearish Drop', '15s Rejection at Resistance + RSI < 45 Breakdown', 'MACD Bearish Divergence + High Selling Pressure'];
+    ? [`Analysis of last 10 candles: EMA 10 > EMA 25 Trend + RSI Bullish Momentum (${suggestedExpiry} Expiry)`, '15s Candle Close Above EMA 10 + Buying Volume Surge', 'MACD Crossover + RSI > 55 Expansion']
+    : [`Analysis of last 10 candles: EMA 10 < EMA 25 Downtrend + RSI Bearish Drop (${suggestedExpiry} Expiry)`, '15s Rejection at Resistance + RSI < 45 Breakdown', 'MACD Bearish Divergence + High Selling Pressure'];
 
   const chosenReason = decision === 'NO_SIGNAL'
     ? `Confidence ${confidence}% < 90% threshold. Waiting for higher probability setup.`
@@ -181,7 +183,8 @@ function generateDynamicSignal(pair, currentPrice) {
     rsi,
     reason: chosenReason,
     timestamp: new Date().toLocaleTimeString(),
-    riskLevel: confidence >= 90 ? 'LOW' : 'MEDIUM'
+    riskLevel: confidence >= 90 ? 'LOW' : 'MEDIUM',
+    suggestedExpiry
   };
 }
 

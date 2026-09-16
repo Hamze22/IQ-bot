@@ -256,8 +256,8 @@ export const ChatGptMobileBotPreview: React.FC<ChatGptMobileBotPreviewProps> = (
               <h3 className="text-sm sm:text-base font-black text-white leading-none">
                 ChatGPT-4o Cloud Bot
               </h3>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-black border border-amber-500/40 animate-pulse">
-                COMING SOON
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 text-[10px] font-mono font-black border border-blue-500/40 animate-pulse">
+                NEW
               </span>
             </div>
             <p className="text-xs text-slate-400 font-mono mt-1">

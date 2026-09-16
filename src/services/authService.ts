@@ -1075,14 +1075,14 @@ class AuthService {
 
     this.currentUser = user;
 
-    const amountUSDT = 50;
+    const amountUSDT = plan === 'MONTHLY_PRO' ? 35 : 50;
     const uid = user.uid || user.id || getCanonicalUID(user.email);
     const newPay: CryptoPaymentRequest = {
       id: `pay-${Date.now()}`,
       userId: uid,
       userEmail: user.email,
       amountUSDT,
-      plan: 'LIFETIME',
+      plan: plan || 'LIFETIME',
       network: 'USDT_TRC20',
       walletAddress: OFFICIAL_USDT_TRC20_ADDRESS,
       txid: txid.trim(),

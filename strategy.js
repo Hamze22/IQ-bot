@@ -1,9 +1,11 @@
 // 1-Minute High Win-Rate Binary Options Strategy Engine v3.5 (Confluence Matrix)
 export async function evaluateMarketStrategy(settings = {}) {
-  const candles = generateSampleCandles();
+  const analysisCount = settings.analysisCandleCount || 10;
+  const candles = generateSampleCandles(Math.max(20, analysisCount + 5));
+  const analysisWindow = candles.slice(-analysisCount);
 
-  const lastCandle = candles[candles.length - 1];
-  const prevCandle = candles[candles.length - 2];
+  const lastCandle = analysisWindow[analysisWindow.length - 1];
+  const prevCandle = analysisWindow[analysisWindow.length - 2];
 
   // 1. Triple EMA Trend Alignment (EMA 10 > EMA 25 > EMA 50)
   const isEmaBullish = lastCandle.ema10 > lastCandle.ema25 && lastCandle.ema25 > lastCandle.ema50;
@@ -47,6 +49,9 @@ export async function evaluateMarketStrategy(settings = {}) {
     else if (isPut) decision = 'PUT';
   }
 
+  // Suggest 1 or 2 candle expiry based on trend strength
+  const suggestedExpiry = isTrendStrong ? '1m' : '2m';
+
   return {
     id: Date.now().toString(),
     timestamp: new Date().toLocaleTimeString(),
@@ -56,16 +61,17 @@ export async function evaluateMarketStrategy(settings = {}) {
     reason: confluences.length > 0 ? confluences.join(' + ') : 'Market Ranging (Awaiting Confluence)',
     confluences,
     riskLevel: confidence >= 90 ? 'VERY LOW' : 'LOW',
-    suggestedExpiry: '1m',
+    suggestedExpiry,
     trendDirection: isEmaBullish ? 'STRONG BULLISH' : isEmaBearish ? 'STRONG BEARISH' : 'NEUTRAL',
     price: lastCandle.close,
-    winRateProjection: confidence >= 90 ? '92.5%' : '88.0%'
+    winRateProjection: confidence >= 90 ? '92.5%' : '88.0%',
+    analysisWindow: analysisCount
   };
 }
 
-function generateSampleCandles() {
+function generateSampleCandles(count = 20) {
   let p = 1.08500;
-  return Array.from({ length: 20 }).map((_, i) => {
+  return Array.from({ length: count }).map((_, i) => {
     p += (Math.random() - 0.48) * 0.00015;
     return {
       close: p,

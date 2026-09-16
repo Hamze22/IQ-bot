@@ -228,17 +228,17 @@ export const ChatGptExtensionPopup: React.FC<ChatGptExtensionPopupProps> = ({ on
       {/* 2. BODY CONTENT */}
       <div className="p-3.5 space-y-3 text-xs">
 
-        {/* UNDER REVIEW / COMING SOON BANNER WITH WAITLIST ACTION */}
-        <div className="bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-blue-500/15 border border-indigo-500/40 rounded-xl p-2 flex items-center justify-between text-[11px] font-mono shadow-sm">
+        {/* NEW STABLE RELEASE BANNER WITH UPDATE ACTION */}
+        <div className="bg-gradient-to-r from-blue-500/15 via-indigo-500/15 to-cyan-500/15 border border-blue-500/40 rounded-xl p-2 flex items-center justify-between text-[11px] font-mono shadow-sm">
           <div className="flex items-center gap-1.5 text-cyan-300 font-bold">
-            <Clock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-            <span>Store Review • Coming Soon</span>
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+            <span>Stable Release • NEW</span>
           </div>
           <button
             onClick={onOpenWaitlist}
-            className="text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-2 py-0.5 rounded font-black border border-amber-400/60 shadow-sm transition active:scale-95 cursor-pointer"
+            className="text-[10px] bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white px-2 py-0.5 rounded font-black border border-blue-400/60 shadow-sm transition active:scale-95 cursor-pointer"
           >
-            Join Waitlist
+            Check Updates
           </button>
         </div>
 

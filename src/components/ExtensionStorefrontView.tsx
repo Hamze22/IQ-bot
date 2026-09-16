@@ -213,7 +213,7 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
         </div>
       </section>
 
-      {/* NEW NEXT-GEN CHATGPT-4O POWERED BOT SHOWCASE (COMING SOON / UNDER REVIEW) */}
+      {/* NEW NEXT-GEN CHATGPT-4O POWERED BOT SHOWCASE (STABLE RELEASE) */}
       <ChatGptBotShowcase
         currentUser={currentUser}
         onOpenLogin={onOpenLogin}

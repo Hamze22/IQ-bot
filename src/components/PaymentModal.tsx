@@ -19,7 +19,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   currentUser,
   onPaymentSubmitted,
 }) => {
-  const [selectedPlan] = useState<SubscriptionPlan>('LIFETIME');
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>('MONTHLY_PRO');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('USDT');
   const [txidInput, setTxidInput] = useState('');
   const [cardData, setCardData] = useState<CardDetails>({
@@ -33,6 +33,33 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [remainingCooldownSeconds, setRemainingCooldownSeconds] = useState<number>(0);
+  const [offerCountdown, setOfferCountdown] = useState({ hours: 23, minutes: 59, seconds: 59 });
+
+  // Urgency Discount Timer (24h rolling)
+  useEffect(() => {
+    const calculateTime = () => {
+      const now = new Date();
+      // Reset point: 24h from the start of the current day
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      if (diff <= 0) {
+        setOfferCountdown({ hours: 23, minutes: 59, seconds: 59 });
+        return;
+      }
+
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setOfferCountdown({ hours: h, minutes: m, seconds: s });
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // 10-minute cooldown calculator (600 seconds)
   useEffect(() => {
@@ -193,7 +220,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-mono font-bold flex items-center gap-1 mr-6">
                 <Zap className="w-3 h-3" />
-                $50 LIFETIME
+                ${selectedPlan === 'MONTHLY_PRO' ? '35 YEARLY' : '50 LIFETIME'}
               </span>
             </div>
 
@@ -283,20 +310,88 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               )}
 
-                  {/* Selected Lifetime Plan Box */}
-                  <div className="p-3 rounded-xl border border-emerald-500/40 bg-slate-950 flex items-center justify-between relative overflow-hidden">
+                  {/* PLAN SELECTION (NEW) */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setSelectedPlan('MONTHLY_PRO')}
+                      className={`p-3 rounded-xl border transition-all text-left relative overflow-hidden ${
+                        selectedPlan === 'MONTHLY_PRO' 
+                          ? 'border-blue-500 bg-blue-500/10' 
+                          : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black text-slate-100 uppercase">Yearly Pro</span>
+                        {selectedPlan === 'MONTHLY_PRO' && <CheckCircle2 className="w-3 h-3 text-blue-400" />}
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="text-lg font-black text-white font-mono">$35</span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">/ Year</span>
+                      </div>
+                      <div className="text-[8px] text-slate-500 mt-0.5">365 Days Access</div>
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedPlan('LIFETIME')}
+                      className={`p-3 rounded-xl border transition-all text-left relative overflow-hidden ${
+                        selectedPlan === 'LIFETIME' 
+                          ? 'border-emerald-500 bg-emerald-500/10' 
+                          : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black text-slate-100 uppercase">Lifetime VIP</span>
+                        {selectedPlan === 'LIFETIME' && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-1.5">
+                        <span className="text-lg font-black text-white font-mono">$50</span>
+                        <span className="text-[10px] text-slate-500 line-through font-bold font-mono">$100</span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">/ Once</span>
+                      </div>
+                      <div className="text-[8px] text-slate-500 mt-0.5">Infinity Access</div>
+                      <div className="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-[7px] font-black px-1.5 py-0.5 rounded-bl-lg uppercase tracking-tighter flex items-center gap-1">
+                        <Zap className="w-2 h-2" />
+                        50% OFF VIP
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* URGENCY TIMER BANNER */}
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center">
+                        <Clock className="w-3.5 h-3.5 text-rose-500" />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-rose-500 uppercase tracking-wider">Limited Discount Offer</p>
+                        <p className="text-[8px] text-slate-400">Price returns to $99 soon!</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 font-mono text-xs font-black text-white bg-rose-600 px-2 py-1 rounded-lg shadow-lg shadow-rose-900/20">
+                      <span>{String(offerCountdown.hours).padStart(2, '0')}</span>
+                      <span className="animate-pulse">:</span>
+                      <span>{String(offerCountdown.minutes).padStart(2, '0')}</span>
+                      <span className="animate-pulse">:</span>
+                      <span>{String(offerCountdown.seconds).padStart(2, '0')}</span>
+                    </div>
+                  </div>
+
+                  {/* Selected Plan Details Display */}
+                  <div className="p-3 rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-between relative overflow-hidden">
                     <div>
                       <div className="text-xs font-black text-slate-100 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Lifetime Pro Access</span>
+                        <Sparkles className={`w-3.5 h-3.5 ${selectedPlan === 'LIFETIME' ? 'text-emerald-400' : 'text-blue-400'}`} />
+                        <span>{selectedPlan === 'LIFETIME' ? 'Lifetime Pro Access' : 'Yearly Pro Access'}</span>
                       </div>
                       <div className="text-[10px] text-slate-400 mt-0.5">
                         Live Signals, Auto-Bot & Extension
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-black text-emerald-400 font-mono">$50 USDT</div>
-                      <div className="text-[9px] text-emerald-500 font-bold uppercase">TRC-20</div>
+                      <div className={`text-lg font-black font-mono ${selectedPlan === 'LIFETIME' ? 'text-emerald-400' : 'text-blue-400'}`}>
+                        ${selectedPlan === 'LIFETIME' ? '50' : '35'} USDT
+                      </div>
+                      <div className={`text-[9px] font-bold uppercase ${selectedPlan === 'LIFETIME' ? 'text-emerald-500' : 'text-blue-500'}`}>TRC-20</div>
                     </div>
                   </div>
 
@@ -331,7 +426,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       <span className="flex items-center gap-1 text-slate-300">
                         <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                        Send $50 USDT (TRC-20) To:
+                        Send ${selectedPlan === 'MONTHLY_PRO' ? '35' : '50'} USDT (TRC-20) To:
                       </span>
                       <span className="text-emerald-400 font-mono">TRON NETWORK</span>
                     </div>

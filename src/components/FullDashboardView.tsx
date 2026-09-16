@@ -53,6 +53,7 @@ interface FullDashboardViewProps {
   setSettings: React.Dispatch<React.SetStateAction<TradingSettings>>;
   trades: Trade[];
   onOpenSettingsModal?: () => void;
+  onOpenPaymentModal?: () => void;
   onManualTrade?: (type: 'CALL' | 'PUT') => void;
   showScanningZone?: boolean;
 }
@@ -79,6 +80,7 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
   setSettings,
   trades,
   onOpenSettingsModal,
+  onOpenPaymentModal,
   onManualTrade,
   showScanningZone = true,
 }) => {
@@ -491,7 +493,7 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[11px] mb-1">Expiry Time</label>
+                    <label className="block text-slate-400 text-[11px] mb-1">Trade Timing (Candles)</label>
                     <select
                       value={settings.expiryTime}
                       onChange={(e) =>
@@ -499,9 +501,27 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
                       }
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-100 font-mono text-xs focus:outline-none"
                     >
-                      <option value="30s">30 Seconds</option>
-                      <option value="1m">1 Minute</option>
-                      <option value="5m">5 Minutes</option>
+                      <option value="1m">1 Candle (1 Minute)</option>
+                      <option value="2m">2 Candles (2 Minutes)</option>
+                      <option value="3m">3 Candles (3 Minutes)</option>
+                      <option value="5m">5 Candles (5 Minutes)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 text-[11px] mb-1">Analysis Window (Recent Candles)</label>
+                    <select
+                      value={settings.analysisCandleCount || 10}
+                      onChange={(e) =>
+                        setSettings((p) => ({ ...p, analysisCandleCount: Number(e.target.value) }))
+                      }
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-100 font-mono text-xs focus:outline-none"
+                    >
+                      <option value={5}>Last 5 Candles</option>
+                      <option value={10}>Last 10 Candles (Recommended)</option>
+                      <option value={15}>Last 15 Candles</option>
+                      <option value={20}>Last 20 Candles</option>
+                      <option value={50}>Last 50 Candles</option>
                     </select>
                   </div>
 

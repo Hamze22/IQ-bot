@@ -204,6 +204,7 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
 
   // Real-time candle countdown
   const [secondsLeft, setSecondsLeft] = useState(30);
+  const lastScannedSecRef = useRef<number>(-1);
 
   const getTimeframeDurationSeconds = (tf: ExpiryTime): number => {
     if (tf === '30s') return 30;
@@ -241,18 +242,29 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
     }
   }, [activeSignal, timeframe, soundEnabled, activePair]);
 
+  // Stabilize callbacks and props used in interval
+  const onScanSignalRef = useRef(onScanSignal);
+  onScanSignalRef.current = onScanSignal;
+  const botStatusRef = useRef(botStatus);
+  botStatusRef.current = botStatus;
+  const localSignalRef = useRef(localSignal);
+  localSignalRef.current = localSignal;
+  const soundEnabledRef = useRef(soundEnabled);
+  soundEnabledRef.current = soundEnabled;
+
   // Real-time candle timer and signal countdown loop based on real clock timestamps
   useEffect(() => {
     const timer = setInterval(() => {
       // 1. Candle timer countdown
       const sec = getRealtimeCandleSeconds(timeframe);
-      setSecondsLeft(sec);
+      setSecondsLeft((prev) => (prev !== sec ? sec : prev));
 
       // 2. Active Signal countdown & auto-expire back to scanning
       if (signalExpiryEndTimeRef.current > 0 && !isExpiringRef.current) {
         const remainingMs = signalExpiryEndTimeRef.current - Date.now();
         const remSec = Math.max(0, Math.ceil(remainingMs / 1000));
-        setSignalExpirySeconds(remSec);
+        
+        setSignalExpirySeconds((prev) => (prev !== remSec ? remSec : prev));
 
         if (remainingMs <= 0) {
           isExpiringRef.current = true;
@@ -261,19 +273,27 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
           setIsScanning(true);
           setTimeout(() => {
             setIsScanning(false);
-            onScanSignal();
+            onScanSignalRef.current();
           }, 1500);
         }
       }
 
-      if (sec === 1 && botStatus === 'RUNNING' && !localSignal && !isExpiringRef.current) {
-        if (soundEnabled) playSoundAlert('signal');
-        onScanSignal();
+      // 3. Automated trigger when a new candle starts (sec === 1) and no active signal exists
+      if (sec === 1 && botStatusRef.current === 'RUNNING' && !localSignalRef.current && !isExpiringRef.current) {
+        // Prevent multiple rapid calls within the same second
+        if (lastScannedSecRef.current !== sec) {
+          lastScannedSecRef.current = sec;
+          if (soundEnabledRef.current) playSoundAlert('signal');
+          onScanSignalRef.current();
+        }
+      } else if (sec !== 1) {
+        // Reset the scanned sec tracker when we move away from sec 1
+        lastScannedSecRef.current = -1;
       }
     }, 250);
 
     return () => clearInterval(timer);
-  }, [timeframe, botStatus, soundEnabled, localSignal, onScanSignal]);
+  }, [timeframe]);
 
   // Trigger manual or automatic scan with animation
   const triggerScan = () => {
@@ -461,7 +481,7 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
   return (
     <div className="w-full max-w-xl mx-auto py-2 sm:py-4 px-2 sm:px-4 flex flex-col space-y-3.5 select-none">
       
-      {/* AI ENGINE SELECTOR (Gemini 3.7 Pro LIVE on Left vs ChatGPT-4o COMING SOON on Right) */}
+      {/* AI ENGINE SELECTOR (Gemini 3.7 Pro LIVE on Left vs ChatGPT-4o NEW on Right) */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-1.5 flex items-center justify-between gap-1 shadow-lg">
         {/* Left Side: Gemini 3.7 Pro (LIVE Active Engine) */}
         <button
@@ -480,7 +500,7 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
           </span>
         </button>
 
-        {/* Right Side: ChatGPT-4o (COMING SOON) */}
+        {/* Right Side: ChatGPT-4o (NEW) */}
         <button
           onClick={() => setSelectedAiEngine('chatgpt')}
           className={`flex-1 py-2 px-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
@@ -491,8 +511,8 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
         >
           <Bot className="w-3.5 h-3.5 text-emerald-400" />
           <span>ChatGPT-4o</span>
-          <span className="text-[8px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black">
-            COMING SOON
+          <span className="text-[8px] font-mono px-1.5 py-0.2 rounded bg-blue-500/20 text-cyan-300 border border-blue-500/40 font-black">
+            NEW
           </span>
         </button>
       </div>
@@ -501,8 +521,8 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
         <div className="space-y-4">
           <div className="p-3 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-amber-950/40 border border-amber-500/40 rounded-2xl flex items-center justify-between gap-2 shadow-lg">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-black border border-amber-500/40 animate-pulse">
-                COMING SOON
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 text-[10px] font-mono font-black border border-blue-500/40 animate-pulse">
+                NEW
               </span>
               <span className="text-xs font-bold text-slate-200">
                 ChatGPT-4o Cloud Bot Preview
@@ -861,7 +881,7 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
 
       </div>
 
-      {/* CHATGPT-4O CLOUD BOT COMING SOON PROMO CARD */}
+      {/* CHATGPT-4O CLOUD BOT NEW PROMO CARD */}
       <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-teal-950/60 border border-emerald-500/40 rounded-2xl p-3.5 shadow-xl flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-md shrink-0">
@@ -870,8 +890,8 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-black text-white">ChatGPT-4o Cloud Bot</span>
-              <span className="text-[8px] font-mono font-black px-1.5 py-0.2 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded">
-                COMING SOON
+              <span className="text-[8px] font-mono font-black px-1.5 py-0.2 bg-blue-500/20 text-cyan-300 border border-blue-500/40 rounded">
+                NEW
               </span>
             </div>
             <p className="text-[10px] text-slate-300">

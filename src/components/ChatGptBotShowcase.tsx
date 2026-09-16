@@ -151,13 +151,13 @@ export const ChatGptBotShowcase: React.FC<ChatGptBotShowcaseProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-cyan-300 animate-spin" />
               NEW: CHATGPT-4O PRO AI TRADING COPILOT
             </motion.span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
-            <Clock className="w-3 h-3 text-amber-400" />
-            COMING SOON
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-500/20 text-cyan-300 border border-blue-500/40">
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            NEW
           </span>
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-indigo-500/20 text-cyan-300 border border-indigo-500/40">
             <ShieldCheck className="w-3 h-3 text-cyan-400" />
-            UNDER WEB STORE REVIEW
+            STABLE RELEASE
           </span>
         </div>
 
@@ -212,8 +212,8 @@ export const ChatGptBotShowcase: React.FC<ChatGptBotShowcaseProps> = ({
                   <Chrome className="w-4 h-4" />
                   <span>Chrome Extension v4.0</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Coming Soon
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-cyan-300 border border-blue-500/30">
+                  NEW
                 </span>
               </div>
               <p className="text-xs text-slate-300 leading-snug">
@@ -244,8 +244,8 @@ export const ChatGptBotShowcase: React.FC<ChatGptBotShowcaseProps> = ({
                   <Smartphone className="w-4 h-4" />
                   <span>Mobile Cloud Bot</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Coming Soon
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-cyan-300 border border-blue-500/30">
+                  NEW
                 </span>
               </div>
               <p className="text-xs text-slate-300 leading-snug">

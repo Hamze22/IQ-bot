@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navbar, NavTabType } from './components/Navbar';
 import { ExtensionStorefrontView } from './components/ExtensionStorefrontView';
 import { SplitComparisonView } from './components/SplitComparisonView';
@@ -117,6 +117,8 @@ export default function App() {
   const [timeframe, setTimeframe] = useState<ExpiryTime>('1m');
 
   // Sync refs for async timers
+  const balance = mode === 'DEMO' ? demoBalance : realBalance;
+
   const currentPriceRef = useRef(currentPrice);
   currentPriceRef.current = currentPrice;
 
@@ -128,8 +130,6 @@ export default function App() {
 
   const candlesRef = useRef(candles);
   candlesRef.current = candles;
-
-  const balance = mode === 'DEMO' ? demoBalance : realBalance;
 
   const [settings, setSettings] = useState<TradingSettings>({
     tradeAmount: 10,
@@ -144,6 +144,7 @@ export default function App() {
     payoutRate: 88,
     soundAlerts: true,
     desktopNotifications: true,
+    analysisCandleCount: 10,
   });
 
   const [strategyFlags, setStrategyFlags] = useState<StrategyFlags>({
@@ -187,6 +188,9 @@ export default function App() {
   });
 
   const [isTelegramModalOpen, setIsTelegramModalOpen] = useState<boolean>(false);
+
+  const activeSignalRef = useRef(activeSignal);
+  activeSignalRef.current = activeSignal;
 
   // Initial Sample Trades matching 14 Wins / 2 Losses = 16 Trades, 87.5% Win Rate
   const [trades, setTrades] = useState<Trade[]>(() => {
@@ -486,35 +490,42 @@ export default function App() {
   // Daily profit calculation: sum of all settled trades profit
   const profitToday = +trades.reduce((acc, t) => acc + (t.profit || 0), 0).toFixed(2);
 
-  // Sync state to chrome.storage.local & localStorage for seamless overlay/extension popup sync
+  // Sync state to chrome.storage.local & localStorage with debouncing
   useEffect(() => {
-    const statsObj = {
-      wins: totalWins,
-      losses: totalLosses,
-      total: totalTrades,
-      winRate: winRate + '%',
-      profitToday,
-      resetCountdown,
-    };
-    try {
-      localStorage.setItem('po_trade_stats', JSON.stringify(statsObj));
-      localStorage.setItem('po_trades_list', JSON.stringify(trades));
-      localStorage.setItem('po_execution_mode', mode);
-      localStorage.setItem('po_demo_balance', demoBalance.toString());
-      localStorage.setItem('po_real_balance', realBalance.toString());
+    const syncToStorage = () => {
+      const statsObj = {
+        wins: totalWins,
+        losses: totalLosses,
+        total: totalTrades,
+        winRate: winRate + '%',
+        profitToday,
+        resetCountdown,
+      };
+      try {
+        localStorage.setItem('po_trade_stats', JSON.stringify(statsObj));
+        localStorage.setItem('po_trades_list', JSON.stringify(trades));
+        localStorage.setItem('po_execution_mode', mode);
+        localStorage.setItem('po_demo_balance', demoBalance.toString());
+        localStorage.setItem('po_real_balance', realBalance.toString());
 
-      const winChrome = (window as any).chrome;
-      if (winChrome && winChrome.storage && winChrome.storage.local) {
-        winChrome.storage.local.set({
-          overlayTradeStats: statsObj,
-          overlayTradesList: trades,
-          executionMode: mode,
-          demoBalance,
-          realBalance,
-        });
-      }
-    } catch (e) {}
-  }, [totalWins, totalLosses, totalTrades, winRate, profitToday, resetCountdown, mode, demoBalance, realBalance, trades]);
+        const winChrome = (window as any).chrome;
+        if (winChrome && winChrome.storage && winChrome.storage.local) {
+          winChrome.storage.local.set({
+            overlayTradeStats: statsObj,
+            overlayTradesList: trades,
+            executionMode: mode,
+            demoBalance,
+            realBalance,
+            signals,
+            botStatus
+          });
+        }
+      } catch (e) {}
+    };
+
+    const timeout = setTimeout(syncToStorage, 500);
+    return () => clearTimeout(timeout);
+  }, [totalWins, totalLosses, totalTrades, winRate, profitToday, resetCountdown, mode, demoBalance, realBalance, trades, signals, botStatus]);
 
   // 1. Dynamic Pair Switch Handler: Reset price, candles & fetch live AI signal
   useEffect(() => {
@@ -606,7 +617,7 @@ export default function App() {
   settingsRef.current = settings;
 
   // Real-time AI Market Signal Scanner with Candle Signal Locking & Automatic Execution
-  const scanMarketSignal = async () => {
+  const scanMarketSignal = useCallback(async () => {
     const pairVal = activePairRef.current;
     const priceVal = currentPriceRef.current;
     const curSettings = settingsRef.current;
@@ -617,20 +628,20 @@ export default function App() {
     const isUnderCooldown = currentCandleId < cooldownUntilCandleIdRef.current;
     setIsCooldownActive(isUnderCooldown);
 
-    if (lastEvaluatedCandleIdRef.current === currentCandleId && activeSignal) {
+    if (lastEvaluatedCandleIdRef.current === currentCandleId && activeSignalRef.current) {
       // If bot is running and hasn't traded this candle yet, attempt auto execution only if NOT in cooldown
       if (
         botStatusRef.current === 'RUNNING' &&
         !isUnderCooldown &&
         lastExecutedTradeCandleIdRef.current !== currentCandleId &&
         activePositionsRef.current.length === 0 &&
-        activeSignal.decision !== 'NO_SIGNAL' &&
-        activeSignal.confidence >= curSettings.minConfidence
+        activeSignalRef.current.decision !== 'NO_SIGNAL' &&
+        activeSignalRef.current.confidence >= curSettings.minConfidence
       ) {
         lastExecutedTradeCandleIdRef.current = currentCandleId;
         // Enforce 2-3 candles rest cooldown (180 seconds) after this trade to ensure quality setups
         cooldownUntilCandleIdRef.current = currentCandleId + 180000; // 3 candles cooldown
-        openNewTradePosition(activeSignal.decision as 'CALL' | 'PUT', activeSignal.confidence, pairVal);
+        openNewTradePosition(activeSignalRef.current.decision as 'CALL' | 'PUT', activeSignalRef.current.confidence, pairVal);
       }
       return;
     }
@@ -694,7 +705,7 @@ export default function App() {
     } catch (err) {
       console.warn('Real-time signal scan error:', err);
     }
-  };
+  }, [botStatus]);
 
   // Active Positions Ticker & Expiry Countdown Engine
   useEffect(() => {
@@ -764,7 +775,7 @@ export default function App() {
   }, []);
 
   // Open New Active Trade Position
-  const openNewTradePosition = (type: 'CALL' | 'PUT', confidenceVal: number = 90, customPair?: string) => {
+  const openNewTradePosition = useCallback((type: 'CALL' | 'PUT', confidenceVal: number = 90, customPair?: string) => {
     const isApproved = !!currentUser && (currentUser.status === 'ACTIVE' || currentUser.role === 'ADMIN' || isAdminEmail(currentUser.email));
     if (!isApproved) {
       alert('🔒 ACCOUNT PENDING APPROVAL: Admin must approve your account to execute trades.');
@@ -792,7 +803,7 @@ export default function App() {
 
     setActivePositions((prev) => [newPos, ...prev]);
     // Order notification and sound removed per user request
-  };
+  }, [currentUser]);
 
   // Automated Strategy Evaluation Timer (Runs AI Scan immediately and every 2s when Bot is RUNNING)
   useEffect(() => {
@@ -812,10 +823,10 @@ export default function App() {
     };
   }, [botStatus]);
 
-  const executeManualTrade = (type: 'CALL' | 'PUT') => {
+  const executeManualTrade = useCallback((type: 'CALL' | 'PUT') => {
     const confidenceVal = Math.floor(Math.random() * 10) + 88;
     openNewTradePosition(type, confidenceVal, activePair);
-  };
+  }, [openNewTradePosition, activePair]);
 
   // Direct Extension ZIP Download Handler
   const handleDownloadZip = () => {
@@ -911,6 +922,7 @@ export default function App() {
             setSettings={setSettings}
             trades={trades}
             onManualTrade={executeManualTrade}
+            onOpenPaymentModal={() => setIsPaymentModalOpen(true)}
             showScanningZone={true}
           />
         )}

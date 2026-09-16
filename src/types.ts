@@ -43,6 +43,7 @@ export interface TradingSettings {
   telegramChatId?: string;
   soundAlerts: boolean;
   desktopNotifications: boolean;
+  analysisCandleCount: number; // e.g. 10 or 20
 }
 
 export interface ConfluenceScoreBreakdown {
@@ -201,7 +202,7 @@ export interface ExtensionFile {
 
 export type UserRole = 'ADMIN' | 'USER';
 export type AccountStatus = 'ACTIVE' | 'PENDING' | 'REJECTED' | 'EXPIRED' | 'SUSPENDED' | 'UNPAID';
-export type SubscriptionPlan = 'MONTHLY_1' | 'MONTHLY_3' | 'LIFETIME' | 'CUSTOM';
+export type SubscriptionPlan = 'MONTHLY_1' | 'MONTHLY_3' | 'LIFETIME' | 'CUSTOM' | 'MONTHLY_PRO';
 
 export interface UserAccount {
   id: string;

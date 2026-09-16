@@ -118,6 +118,10 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
   const [resetCountdown, setResetCountdown] = useState<string>('24:00:00');
   const [winsOffset, setWinsOffset] = useState<number>(0);
   const [lossesOffset, setLossesOffset] = useState<number>(0);
+  const totalWinsRef = useRef(totalWins);
+  totalWinsRef.current = totalWins;
+  const totalLossesRef = useRef(totalLosses);
+  totalLossesRef.current = totalLosses;
 
   // Auto-reset check every second & countdown calculation
   useEffect(() => {
@@ -133,8 +137,8 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
         try {
           localStorage.setItem('po_24h_last_reset_time', freshTime.toString());
         } catch (e) {}
-        setWinsOffset(totalWins);
-        setLossesOffset(totalLosses);
+        setWinsOffset(totalWinsRef.current);
+        setLossesOffset(totalLossesRef.current);
       }
 
       // Calculate remaining time until next 24h reset
@@ -150,7 +154,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
     update24hTimer();
     const interval = setInterval(update24hTimer, 1000);
     return () => clearInterval(interval);
-  }, [lastResetTime, totalWins, totalLosses]);
+  }, [lastResetTime]);
 
   const handleManual24hReset = () => {
     const now = Date.now();
@@ -657,10 +661,10 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
                   </span>
                 </div>
 
-                {/* 1m Candle Timer */}
+                {/* 1-2 Candle Timer */}
                 <div className="bg-slate-950 border border-cyan-500/30 p-1.5 rounded-lg">
                   <div className="flex items-center justify-between text-[8px] font-bold text-cyan-400 font-mono">
-                    <span className="flex items-center gap-1">⏰ 1m CANDLE TIMER</span>
+                    <span className="flex items-center gap-1">⏰ 1-2 CANDLE TIMER</span>
                     <span className="font-black text-cyan-300 text-[11px]">{formatCandleTimer(candleSec)}</span>
                   </div>
                   <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden mt-1 border border-slate-800">
@@ -678,7 +682,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
 
                 {/* Target Close Price */}
                 <div className="text-[8px] font-mono font-bold bg-slate-950 border border-slate-800 py-1 px-2 rounded-lg text-center text-rose-400">
-                  Target Close (1m): {(decision === 'CALL' ? currentPrice + 0.00035 : currentPrice - 0.00035).toFixed(activePair.includes('JPY') ? 3 : 5)} ({decision === 'CALL' ? '+3.5' : '-3.5'} pips)
+                  Target Close (1-2m): {(decision === 'CALL' ? currentPrice + 0.00035 : currentPrice - 0.00035).toFixed(activePair.includes('JPY') ? 3 : 5)} ({decision === 'CALL' ? '+3.5' : '-3.5'} pips)
                 </div>
 
                 {/* Signal Banner */}
@@ -693,9 +697,9 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
                 >
                   <div className="text-sm font-black tracking-wider flex items-center justify-center gap-1">
                     {decision === 'CALL'
-                      ? '▲ CALL SIGNAL (ACTIVE 1M CANDLE)'
+                      ? '▲ CALL SIGNAL (ACTIVE 1-2 CANDLES)'
                       : decision === 'PUT'
-                      ? '▼ PUT SIGNAL (ACTIVE 1M CANDLE)'
+                      ? '▼ PUT SIGNAL (ACTIVE 1-2 CANDLES)'
                       : '⏳ SCANNING MARKET...'}
                   </div>
                 </div>
@@ -711,7 +715,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
                 </button>
 
                 <div className="text-[7px] text-slate-400 font-mono text-center">
-                  ⚡ Signal Active for 1m Candle | {activeSignal?.timestamp || '11:24:00 AM'}
+                  ⚡ Signal Active for 1-2 Candles | {activeSignal?.timestamp || '11:24:00 AM'}
                 </div>
               </div>
 

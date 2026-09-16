@@ -32,7 +32,7 @@ let dbInstance;
 try {
   const dbId = firebaseConfig.firestoreDatabaseId;
   const settings = {
-    experimentalForceLongPolling: true,
+    experimentalForceLongPolling: true, // Use long polling for sandbox stability
     useFetchStreams: false,
   };
   dbInstance = dbId ? initializeFirestore(app, settings, dbId) : initializeFirestore(app, settings);
@@ -42,17 +42,27 @@ try {
 
 export const db = dbInstance;
 
-// Test connection early as per skill guidelines
+/**
+ * Robust connection test that fails gracefully without blocking the UI
+ */
 async function testConnection() {
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error('Firestore connection timed out')), 5000)
+  );
+
   try {
     // Attempting to read a non-existent doc from server to force connection check
-    await getDocFromServer(doc(db, '_internal_health_', 'connectivity'));
-    console.log("Firestore connection verified.");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Firestore connectivity issue: Please check your Firebase configuration or network.");
+    await Promise.race([
+      getDocFromServer(doc(db, '_internal_health_', 'connectivity')),
+      timeoutPromise
+    ]);
+    console.log("✓ Firestore connection verified.");
+  } catch (error: any) {
+    if (error.message === 'Firestore connection timed out' || error.message?.includes('the client is offline')) {
+      console.warn("⚠️ Firestore is in offline mode. Changes will sync once connection is restored.");
     } else {
-      console.warn("Firestore connectivity test (expected miss):", error);
+      // Common warning for the expected 404 miss on health check
+      console.debug("Firestore connectivity heartbeat:", error.message);
     }
   }
 }
