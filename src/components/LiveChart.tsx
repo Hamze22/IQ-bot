@@ -24,6 +24,8 @@ export const LiveChart: React.FC<LiveChartProps> = ({
 }) => {
   const [showIndicators, setShowIndicators] = useState(true);
   const [showZones, setShowZones] = useState(true);
+  const [lShapeActive, setLShapeActive] = useState<boolean>(true);
+  const [lShapeCandleCount, setLShapeCandleCount] = useState<number>(2);
   const [candleSec, setCandleSec] = useState<number>(() => getRealtimeCandleSeconds(timeframe));
 
   useEffect(() => {
@@ -119,6 +121,30 @@ export const LiveChart: React.FC<LiveChartProps> = ({
                 {tf}
               </button>
             ))}
+          </div>
+
+          {/* L-Shape Candle Selector Button */}
+          <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+            <button
+              onClick={() => setLShapeActive(!lShapeActive)}
+              className={`p-1.5 rounded-md text-xs flex items-center gap-1 font-mono font-bold transition cursor-pointer ${
+                lShapeActive
+                  ? 'bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Toggle L-Shape Pattern Candle Selector"
+            >
+              <span>📐 L-Shape: {lShapeActive ? `${lShapeCandleCount}C` : 'OFF'}</span>
+            </button>
+            {lShapeActive && (
+              <button
+                onClick={() => setLShapeCandleCount((prev) => (prev >= 4 ? 2 : prev + 1))}
+                className="px-1.5 py-0.5 text-[10px] font-mono font-black bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded transition cursor-pointer"
+                title="Change candle count (2 to 4 candles)"
+              >
+                +{lShapeCandleCount}C
+              </button>
+            )}
           </div>
 
           <button
@@ -256,7 +282,12 @@ export const LiveChart: React.FC<LiveChartProps> = ({
             const centerX = x + candleWidth / 2;
 
             return (
-              <g key={i} className="cursor-pointer hover:opacity-80">
+              <g 
+                key={i} 
+                onClick={() => setLShapeCandleCount(Math.max(2, Math.min(8, candles.length - i)))}
+                className="cursor-pointer hover:opacity-80"
+                title={`Candle #${i + 1}: Click to select with L-Shape (${candles.length - i} candles)`}
+              >
                 {/* Wick */}
                 <line
                   x1={centerX}
@@ -306,6 +337,103 @@ export const LiveChart: React.FC<LiveChartProps> = ({
               </g>
             );
           })}
+
+          {/* 📐 INTERACTIVE L-SHAPE SELECTION RETICLE */}
+          {lShapeActive && (() => {
+            const selectedCount = Math.min(lShapeCandleCount, candles.length);
+            const lStartIndex = Math.max(0, candles.length - selectedCount);
+            const lStartX = 30 + lStartIndex * (candleWidth + 3) - 4;
+            const lEndX = 30 + (candles.length - 1) * (candleWidth + 3) + candleWidth + 4;
+            const selCandles = candles.slice(-selectedCount);
+            const selHigh = Math.max(...selCandles.map((c) => c.high));
+            const selLow = Math.min(...selCandles.map((c) => c.low));
+            const lTopY = Math.max(16, getY(selHigh) - 18);
+            const lBottomY = Math.min(height - 24, getY(selLow) + 18);
+            const lArm = Math.min(18, Math.max(10, (lEndX - lStartX) / 3));
+
+            return (
+              <g className="transition-all duration-300">
+                {/* Shaded Box */}
+                <rect
+                  x={lStartX}
+                  y={lTopY}
+                  width={lEndX - lStartX}
+                  height={lBottomY - lTopY}
+                  fill="#0284c7"
+                  fillOpacity="0.12"
+                  stroke="#38bdf8"
+                  strokeWidth="1.2"
+                  strokeDasharray="4 2"
+                  rx="4"
+                />
+
+                {/* Glowing L-Shape Corner Brackets (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
+                {/* Top-Left L */}
+                <path
+                  d={`M ${lStartX + lArm} ${lTopY} L ${lStartX} ${lTopY} L ${lStartX} ${lTopY + lArm}`}
+                  stroke="#38bdf8"
+                  strokeWidth="3.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Top-Right L */}
+                <path
+                  d={`M ${lEndX - lArm} ${lTopY} L ${lEndX} ${lTopY} L ${lEndX} ${lTopY + lArm}`}
+                  stroke="#38bdf8"
+                  strokeWidth="3.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Bottom-Left L */}
+                <path
+                  d={`M ${lStartX} ${lBottomY - lArm} L ${lStartX} ${lBottomY} L ${lStartX + lArm} ${lBottomY}`}
+                  stroke="#38bdf8"
+                  strokeWidth="3.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                {/* Bottom-Right L */}
+                <path
+                  d={`M ${lEndX} ${lBottomY - lArm} L ${lEndX} ${lBottomY} L ${lEndX - lArm} ${lBottomY}`}
+                  stroke="#38bdf8"
+                  strokeWidth="3.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+
+                {/* Pulsing Corner Dots */}
+                <circle cx={lStartX} cy={lTopY} r="3" fill="#38bdf8" />
+                <circle cx={lEndX} cy={lTopY} r="3" fill="#38bdf8" />
+                <circle cx={lStartX} cy={lBottomY} r="3" fill="#38bdf8" />
+                <circle cx={lEndX} cy={lBottomY} r="3" fill="#38bdf8" />
+
+                {/* Floating Signal Label Badge above L-Shape */}
+                <g transform={`translate(${lStartX + (lEndX - lStartX) / 2}, ${Math.max(12, lTopY - 6)})`}>
+                  <rect
+                    x="-80"
+                    y="-11"
+                    width="160"
+                    height="16"
+                    rx="4"
+                    fill="#0369a1"
+                    stroke="#38bdf8"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x="0"
+                    y="1"
+                    textAnchor="middle"
+                    fill="#ffffff"
+                    fontSize="8.5"
+                    fontWeight="bold"
+                    fontFamily="monospace"
+                  >
+                    📐 L-SHAPE SIGNAL ({selectedCount} CANDLES)
+                  </text>
+                </g>
+              </g>
+            );
+          })()}
 
           {/* Current Live Price Horizontal Line */}
           <line

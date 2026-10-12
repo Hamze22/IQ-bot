@@ -212,7 +212,7 @@ class AuthService {
             const uniqueById = new Map<string, UserAccount>();
             userMap.forEach(u => uniqueById.set(u.id, u));
             this.users = Array.from(uniqueById.values());
-            this.saveUsers();
+            this.saveUsers(false);
           }
         }
       } catch (restErr) {
@@ -277,7 +277,7 @@ class AuthService {
         const uniqueById = new Map<string, UserAccount>();
         userMap.forEach(u => uniqueById.set(u.id, u));
         this.users = Array.from(uniqueById.values());
-        this.saveUsers();
+        this.saveUsers(false);
       }
 
       if (paySnap.status === 'fulfilled' && !paySnap.value.empty) {
@@ -307,7 +307,7 @@ class AuthService {
         });
 
         this.payments = Array.from(payMap.values());
-        this.savePayments();
+        this.savePayments(false);
       }
     } catch (err) {
       // Graceful fallback

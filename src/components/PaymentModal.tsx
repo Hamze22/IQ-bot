@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Check, ShieldCheck, Clock, Send, Wallet, X, Zap, CheckCircle2, Sparkles, CreditCard, Lock, RotateCcw } from 'lucide-react';
-import { OFFICIAL_USDT_TRC20_ADDRESS, SubscriptionPlan, UserAccount, CardDetails } from '../types';
+import { Copy, Check, ShieldCheck, Clock, Send, Wallet, X, Zap, CheckCircle2, Sparkles, RotateCcw } from 'lucide-react';
+import { OFFICIAL_USDT_TRC20_ADDRESS, SubscriptionPlan, UserAccount } from '../types';
 import { authService } from '../services/authService';
 import { IQBotLogo } from './IQBotLogo';
-
-type PaymentMethod = 'USDT' | 'MASTERCARD';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -20,14 +18,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onPaymentSubmitted,
 }) => {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>('MONTHLY_PRO');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('USDT');
   const [txidInput, setTxidInput] = useState('');
-  const [cardData, setCardData] = useState<CardDetails>({
-    cardHolderName: '',
-    cardNumber: '',
-    expiryDate: '',
-    pin: ''
-  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -124,40 +115,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
-  const handleCardPayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-
-    if (remainingCooldownSeconds > 0) {
-      setErrorMsg(`Please wait ${Math.floor(remainingCooldownSeconds / 60)}m ${remainingCooldownSeconds % 60}s before submitting a new payment.`);
-      return;
-    }
-
-    if (!cardData.cardHolderName || !cardData.cardNumber || !cardData.expiryDate || !cardData.pin) {
-      setErrorMsg('Please fill in all card details correctly.');
-      return;
-    }
-
-    if (!currentUser?.email) {
-      setErrorMsg('Please log in or register before paying.');
-      return;
-    }
-
-    setIsProcessing(true);
-    
-    // Simulate beautiful processing state
-    setTimeout(() => {
-      const res = authService.submitCardPayment(cardData, selectedPlan, currentUser.email);
-      setIsProcessing(false);
-      if (res.success) {
-        setShowSuccessPopup(true);
-        onPaymentSubmitted();
-      } else {
-        setErrorMsg(res.error || 'Card payment failed.');
-      }
-    }, 2000);
-  };
-
   const handleCloseAll = () => {
     setShowSuccessPopup(false);
     onClose();
@@ -224,30 +181,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </span>
             </div>
 
-            {/* Payment Method Switcher */}
-            <div className="flex p-1 mx-4 mt-4 bg-slate-950 border border-slate-800 rounded-xl">
-              <button
-                onClick={() => setPaymentMethod('USDT')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black rounded-lg transition ${
-                  paymentMethod === 'USDT' 
-                    ? 'bg-slate-800 text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Wallet className="w-3.5 h-3.5 text-emerald-400" />
-                USDT TRC20
-              </button>
-              <button
-                onClick={() => setPaymentMethod('MASTERCARD')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black rounded-lg transition ${
-                  paymentMethod === 'MASTERCARD' 
-                    ? 'bg-slate-800 text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <CreditCard className="w-3.5 h-3.5 text-rose-400" />
-                MASTERCARD
-              </button>
+            {/* Official Payment Method Badge */}
+            <div className="flex items-center justify-between p-2.5 mx-4 mt-3 bg-slate-950 border border-slate-800 rounded-xl">
+              <div className="flex items-center gap-2 text-xs font-black text-emerald-400 font-mono">
+                <Wallet className="w-4 h-4 text-emerald-400" />
+                <span>OFFICIAL USDT (TRC20) PAYMENT</span>
+              </div>
+              <span className="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">
+                TRON (TRC20)
+              </span>
             </div>
 
             {/* Compact Modal Content */}
@@ -418,9 +360,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </div>
                   )}
 
-                  {/* PAYMENT FORMS */}
-              {paymentMethod === 'USDT' ? (
-                <>
+                  {/* PAYMENT FORM (USDT TRC-20 ONLY) */}
                   {/* TRC20 Wallet Address & Copy */}
                   <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -469,102 +409,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       </button>
                     </div>
                   </form>
-                </>
-              ) : (
-                <form onSubmit={handleCardPayment} className="space-y-3 p-4 bg-slate-950 border border-slate-800 rounded-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-3 opacity-10">
-                    <CreditCard className="w-16 h-16 text-rose-500 rotate-12" />
-                  </div>
-                  
-                  <div className="space-y-3 relative z-10">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                        <Check className="w-3 h-3 text-rose-400" />
-                        Cardholder Name
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="NAME ON CARD"
-                        value={cardData.cardHolderName}
-                        onChange={(e) => setCardData({...cardData, cardHolderName: e.target.value})}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                        <CreditCard className="w-3 h-3 text-rose-400" />
-                        Card Number
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="0000 0000 0000 0000"
-                        value={cardData.cardNumber}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').substring(0, 16);
-                          setCardData({...cardData, cardNumber: val});
-                        }}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                          Valid Date (MM/YY)
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="MM/YY"
-                          value={cardData.expiryDate}
-                          onChange={(e) => {
-                            let val = e.target.value.replace(/\D/g, '').substring(0, 4);
-                            if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2);
-                            setCardData({...cardData, expiryDate: val});
-                          }}
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition text-center"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-center gap-1">
-                          <Lock className="w-3 h-3" />
-                          PIN
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          maxLength={4}
-                          placeholder="****"
-                          value={cardData.pin}
-                          onChange={(e) => setCardData({...cardData, pin: e.target.value.replace(/\D/g, '').substring(0, 4)})}
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 transition text-center tracking-widest"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isProcessing}
-                      className="w-full py-2.5 mt-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer uppercase"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                          <span>Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5" />
-                          <span>Pay $50 via Mastercard</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              )}
 
               {errorMsg && (
                 <div className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[11px]">

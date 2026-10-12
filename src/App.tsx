@@ -450,17 +450,21 @@ export default function App() {
   });
 
   const [resetCountdown, setResetCountdown] = useState<string>('24:00:00');
+  const lastResetTimeRef = useRef(lastResetTime);
+  lastResetTimeRef.current = lastResetTime;
 
   useEffect(() => {
     const update24hTimer = () => {
       const now = Date.now();
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-      const timeElapsed = now - lastResetTime;
+      const prevReset = lastResetTimeRef.current;
+      const timeElapsed = now - prevReset;
 
       // Reset trade performance stats automatically every 24 hours or on new day
-      if (timeElapsed >= ONE_DAY_MS || new Date(now).toDateString() !== new Date(lastResetTime).toDateString()) {
+      if (timeElapsed >= ONE_DAY_MS || new Date(now).toDateString() !== new Date(prevReset).toDateString()) {
         const freshTime = now;
         setLastResetTime(freshTime);
+        lastResetTimeRef.current = freshTime;
         try {
           localStorage.setItem('po_24h_last_reset_time', freshTime.toString());
         } catch (e) {}
@@ -479,7 +483,7 @@ export default function App() {
     update24hTimer();
     const interval = setInterval(update24hTimer, 1000);
     return () => clearInterval(interval);
-  }, [lastResetTime]);
+  }, []);
 
   // Compute Account Analytics (Dynamic Win/Loss/Daily P/L Tracking)
   const totalWins = trades.filter((t) => t.outcome === 'WIN').length;
@@ -523,9 +527,9 @@ export default function App() {
       } catch (e) {}
     };
 
-    const timeout = setTimeout(syncToStorage, 500);
+    const timeout = setTimeout(syncToStorage, 1000);
     return () => clearTimeout(timeout);
-  }, [totalWins, totalLosses, totalTrades, winRate, profitToday, resetCountdown, mode, demoBalance, realBalance, trades, signals, botStatus]);
+  }, [totalWins, totalLosses, totalTrades, winRate, profitToday, mode, demoBalance, realBalance, trades, signals, botStatus]);
 
   // 1. Dynamic Pair Switch Handler: Reset price, candles & fetch live AI signal
   useEffect(() => {
@@ -639,8 +643,9 @@ export default function App() {
         activeSignalRef.current.confidence >= curSettings.minConfidence
       ) {
         lastExecutedTradeCandleIdRef.current = currentCandleId;
-        // Enforce 2-3 candles rest cooldown (180 seconds) after this trade to ensure quality setups
-        cooldownUntilCandleIdRef.current = currentCandleId + 180000; // 3 candles cooldown
+        // ⚡ 2-CANDLE PACING: Enforce exactly 1 trade every 2 candles (2 * candleDurationMs)
+        const candleDurationMs = curSettings.expiryTime === '30s' ? 30000 : curSettings.expiryTime === '5m' ? 300000 : 60000;
+        cooldownUntilCandleIdRef.current = currentCandleId + (candleDurationMs * 2);
         openNewTradePosition(activeSignalRef.current.decision as 'CALL' | 'PUT', activeSignalRef.current.confidence, pairVal);
       }
       return;
@@ -688,7 +693,7 @@ export default function App() {
       setActiveSignal(fullSig);
       setSignals((prev) => [fullSig, ...prev.slice(0, 19)]);
 
-      // 🤖 Automatic Trade Execution when Bot is RUNNING and NOT in Cooldown
+      // 🤖 Automatic Trade Execution when Bot is RUNNING and NOT in Cooldown (1 Trade / 2 Candles)
       if (
         botStatusRef.current === 'RUNNING' &&
         !isUnderCooldown &&
@@ -698,8 +703,9 @@ export default function App() {
         fullSig.confidence >= curSettings.minConfidence
       ) {
         lastExecutedTradeCandleIdRef.current = currentCandleId;
-        // Enforce 2-3 candles rest cooldown (180 seconds) after this trade to ensure quality setups
-        cooldownUntilCandleIdRef.current = currentCandleId + 180000;
+        // ⚡ 2-CANDLE PACING: Enforce exactly 1 trade every 2 candles (2 * candleDurationMs)
+        const candleDurationMs = curSettings.expiryTime === '30s' ? 30000 : curSettings.expiryTime === '5m' ? 300000 : 60000;
+        cooldownUntilCandleIdRef.current = currentCandleId + (candleDurationMs * 2);
         openNewTradePosition(fullSig.decision as 'CALL' | 'PUT', fullSig.confidence, pairVal);
       }
     } catch (err) {
