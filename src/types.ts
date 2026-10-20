@@ -44,6 +44,15 @@ export interface TradingSettings {
   soundAlerts: boolean;
   desktopNotifications: boolean;
   analysisCandleCount: number; // e.g. 10 or 20
+  martingale?: MartingaleSettings;
+}
+
+export interface MartingaleSettings {
+  enabled: boolean;
+  baseAmount: number;
+  multiplier: number;
+  maxSteps: number;
+  currentStep: number;
 }
 
 export interface ConfluenceScoreBreakdown {

@@ -18,6 +18,8 @@ import {
   Lock,
   Smartphone,
   Brain,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { ExecutionMode, BotStatus, UserAccount, ADMIN_EMAIL, isAdminEmail } from '../types';
 import { IQBotLogo } from './IQBotLogo';
@@ -40,6 +42,8 @@ interface NavbarProps {
   onOpenLogin: () => void;
   onOpenPayment: () => void;
   onLogout: () => void;
+  theme?: 'dark' | 'light';
+  onToggleTheme?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -58,6 +62,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLogin,
   onOpenPayment,
   onLogout,
+  theme = 'dark',
+  onToggleTheme,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isAdmin = isAdminEmail(currentUser?.email);
@@ -218,6 +224,42 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
+          {/* ☀️ / 🌙 PC/Laptop Dual Theme Switcher (Light Brown-White vs Dark) */}
+          {onToggleTheme && (
+            <div className="flex items-center bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl shadow-sm shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (theme !== 'light') onToggleTheme();
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-[#f7f4ed] text-[#3c2a1e] font-black shadow-md border border-[#dfd7ca]'
+                    : 'text-slate-400 hover:text-amber-300'
+                }`}
+                title="Light Mode (Warm Brown-White)"
+              >
+                <Sun className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-amber-600' : 'text-amber-400'}`} />
+                <span className="text-[10px] font-bold">Light</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (theme !== 'dark') onToggleTheme();
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-blue-600 text-white font-black shadow-md shadow-blue-600/30 border border-blue-400/40'
+                    : 'text-slate-400 hover:text-blue-300'
+                }`}
+                title="Dark Mode"
+              >
+                <Moon className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-cyan-300' : 'text-slate-400'}`} />
+                <span className="text-[10px] font-bold">Dark</span>
+              </button>
+            </div>
+          )}
+
           {/* Telegram Alert / Notification Button */}
           <button
             onClick={onOpenTelegramModal}
@@ -358,6 +400,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                 Admin Console
               </span>
               <span className="text-[10px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">ADMIN</span>
+            </button>
+          )}
+
+          {/* Light / Dark Mode Toggle button inside mobile drawer */}
+          {onToggleTheme && (
+            <button
+              onClick={() => {
+                onToggleTheme();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 bg-slate-900 text-slate-200 border border-slate-800 font-bold text-xs rounded-xl"
+            >
+              <span className="flex items-center gap-2">
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-400" />}
+                <span>{theme === 'dark' ? 'Switch to Light Mode (Brown-White)' : 'Switch to Dark Mode'}</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-bold">
+                {theme === 'dark' ? 'Light' : 'Dark'}
+              </span>
             </button>
           )}
 

@@ -18,6 +18,7 @@ import { fetchAiSignal } from './services/aiService';
 import { downloadExtensionZip } from './utils/extensionExporter';
 import { playSoundAlert } from './utils/audioAlert';
 import { getRealtimeCandleSeconds, formatCandleTimer, getCurrentCandleId } from './utils/candleTimer';
+import { Sun, Moon } from 'lucide-react';
 import {
   BotStatus,
   ExecutionMode,
@@ -89,6 +90,36 @@ export default function App() {
   const [demoBalance, setDemoBalance] = useState<number>(1248.75);
   const [realBalance, setRealBalance] = useState<number>(2450.00);
 
+  // ☀️ Light Mode / 🌙 Dark Mode Theme State (Brown-White Theme vs Dark)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      const saved = localStorage.getItem('po_theme');
+      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+    } catch (e) {
+      return 'dark';
+    }
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('po_theme', next);
+      } catch (e) {}
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('theme-light');
+      document.body.classList.add('theme-light');
+    } else {
+      document.documentElement.classList.remove('theme-light');
+      document.body.classList.remove('theme-light');
+    }
+  }, [theme]);
+
   // Authentication & Payment Modals State
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => authService.getCurrentUser());
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -145,6 +176,13 @@ export default function App() {
     soundAlerts: true,
     desktopNotifications: true,
     analysisCandleCount: 10,
+    martingale: {
+      enabled: true,
+      baseAmount: 10,
+      multiplier: 2.2,
+      maxSteps: 3,
+      currentStep: 1,
+    },
   });
 
   const [strategyFlags, setStrategyFlags] = useState<StrategyFlags>({
@@ -772,6 +810,25 @@ export default function App() {
             setRealBalance((bPrev) => +(bPrev + profit).toFixed(2));
           }
 
+          // Martingale step progression (Laptop / Extension)
+          setSettings((sPrev) => {
+            if (!sPrev.martingale || !sPrev.martingale.enabled) return sPrev;
+            if (isWin) {
+              return {
+                ...sPrev,
+                martingale: { ...sPrev.martingale, currentStep: 1 },
+              };
+            } else {
+              const nextStep = sPrev.martingale.currentStep < sPrev.martingale.maxSteps
+                ? sPrev.martingale.currentStep + 1
+                : 1;
+              return {
+                ...sPrev,
+                martingale: { ...sPrev.martingale, currentStep: nextStep },
+              };
+            }
+          });
+
           // Notification and sound alerts for trades removed per user request
         });
       }
@@ -792,12 +849,20 @@ export default function App() {
     const curSettings = settingsRef.current;
     const expirySec = curSettings.expiryTime === '30s' ? 10 : curSettings.expiryTime === '1m' ? 15 : 30;
 
+    let tradeStake = curSettings.tradeAmount;
+    if (curSettings.martingale?.enabled) {
+      const step = curSettings.martingale.currentStep || 1;
+      const mult = curSettings.martingale.multiplier || 2.2;
+      const base = curSettings.martingale.baseAmount || 10;
+      tradeStake = +(base * Math.pow(mult, step - 1)).toFixed(2);
+    }
+
     const newPos: ActivePosition = {
       id: makeUniqueId('pos'),
       timestamp: new Date().toLocaleTimeString(),
       pair: tradePair === '⚡ Auto-Sync (Pocket Option Chart)' ? 'EUR/USD (Pocket Option Sync)' : tradePair,
       type,
-      amount: curSettings.tradeAmount,
+      amount: tradeStake,
       entryPrice: currentPriceRef.current,
       currentPrice: currentPriceRef.current,
       remainingSeconds: expirySec,
@@ -850,7 +915,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white">
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${theme === 'light' ? 'bg-[#f7f4ed] text-[#2b231d] theme-light' : 'bg-slate-950 text-slate-100'} font-sans selection:bg-blue-600 selection:text-white transition-colors duration-300`}>
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -871,6 +936,8 @@ export default function App() {
           authService.logout();
           setCurrentUser(null);
         }}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Main Container */}
@@ -1022,27 +1089,64 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3.75: Mobile Website Bot App (Dedicated Smartphone UI, AI Signals, Fast Execution without balance/performance/profit) */}
+        {/* Tab 3.75: Mobile Website Bot App (Dedicated Smartphone UI) */}
+        {/* On PC/Laptop: Wrapped in phone mockup chassis. On real mobile devices: Native fluid full-width! */}
         {activeTab === 'mobilebot' && (
-          <div className="py-2">
-            <MobileBotView
-              botStatus={botStatus}
-              setBotStatus={setBotStatus}
-              activePair={activePair}
-              setActivePair={setActivePair}
-              activeSignal={activeSignal}
-              candles={candles}
-              currentPrice={currentPrice}
-              timeframe={timeframe}
-              setTimeframe={setTimeframe}
-              onManualTrade={executeManualTrade}
-              onScanSignal={scanMarketSignal}
-              currentUser={currentUser}
-              onOpenLogin={() => setIsLoginModalOpen(true)}
-              onOpenPayment={() => setIsPaymentModalOpen(true)}
-              onOpenTelegramModal={() => setIsTelegramModalOpen(true)}
-              activePositions={activePositions}
-            />
+          <div className="py-2 w-full flex flex-col items-center justify-center">
+            {/* Header info shown only on PC/Laptop */}
+            <div className="hidden md:flex items-center justify-between w-full max-w-[430px] mb-3 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] font-mono text-slate-300 shadow-md">
+              <span className="flex items-center gap-1.5 font-bold">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span>📱 MOBILE BOT PREVIEW (PC / LAPTOP FRAME)</span>
+              </span>
+              <span className="text-[10px] text-cyan-400 font-extrabold bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/30">
+                PWA FRAME
+              </span>
+            </div>
+
+            {/* Smartphone Chassis: active only on md: screens and above; on mobile devices (<md) it has no chassis borders */}
+            <div className="w-full md:max-w-[420px] md:rounded-[48px] md:border-[10px] md:border-slate-800 md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_0_2px_rgba(100,116,139,0.3)] md:relative md:overflow-hidden md:bg-black transition-all">
+              {/* Smartphone Dynamic Island Notch / Speaker (PC / Laptop View Only) */}
+              <div className="hidden md:flex items-center justify-between px-6 pt-3 pb-1 bg-black text-[10px] text-slate-400 font-mono select-none">
+                <span className="font-bold">09:41</span>
+                {/* Dynamic Island pill */}
+                <div className="w-24 h-5 rounded-full bg-slate-950 border border-slate-800/80 flex items-center justify-center gap-2 px-2 shadow-inner">
+                  <span className="w-2 h-2 rounded-full bg-slate-800 border border-slate-700" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>5G</span>
+                  <span className="text-emerald-400 font-bold">100%</span>
+                </div>
+              </div>
+
+              {/* The Actual MobileBotView */}
+              <div className="w-full md:max-h-[820px] md:overflow-y-auto custom-scrollbar">
+                <MobileBotView
+                  botStatus={botStatus}
+                  setBotStatus={setBotStatus}
+                  activePair={activePair}
+                  setActivePair={setActivePair}
+                  activeSignal={activeSignal}
+                  candles={candles}
+                  currentPrice={currentPrice}
+                  timeframe={timeframe}
+                  setTimeframe={setTimeframe}
+                  onManualTrade={executeManualTrade}
+                  onScanSignal={scanMarketSignal}
+                  currentUser={currentUser}
+                  onOpenLogin={() => setIsLoginModalOpen(true)}
+                  onOpenPayment={() => setIsPaymentModalOpen(true)}
+                  onOpenTelegramModal={() => setIsTelegramModalOpen(true)}
+                  activePositions={activePositions}
+                />
+              </div>
+
+              {/* Smartphone Home Bar (PC / Laptop View Only) */}
+              <div className="hidden md:flex justify-center pb-2 pt-1 bg-black">
+                <div className="w-32 h-1 rounded-full bg-slate-600/70" />
+              </div>
+            </div>
           </div>
         )}
 
@@ -1123,6 +1227,38 @@ export default function App() {
           refreshUserData();
         }}
       />
+
+      {/* ☀️ / 🌙 Floating Quick Theme Switcher (Light Brown-White vs Dark) */}
+      <aside aria-label="Theme switcher" className="fixed bottom-4 right-4 z-50 pointer-events-auto">
+        <div className="flex items-center bg-slate-950/95 border-2 border-slate-700/80 p-1 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
+          <button
+            type="button"
+            onClick={() => theme !== 'light' && toggleTheme()}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer ${
+              theme === 'light'
+                ? 'bg-[#f7f4ed] text-[#2b231d] border border-[#dfd7ca] font-black shadow'
+                : 'text-slate-400 hover:text-amber-300'
+            }`}
+            title="Switch to Light Mode (Brown-White)"
+          >
+            <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-amber-600 animate-spin' : 'text-amber-400'}`} style={{ animationDuration: '8s' }} />
+            <span>Light Mode</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => theme !== 'dark' && toggleTheme()}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-blue-600 text-white font-black shadow-md shadow-blue-600/40 border border-blue-400/40'
+                : 'text-slate-400 hover:text-blue-300'
+            }`}
+            title="Switch to Dark Mode"
+          >
+            <Moon className="w-4 h-4 text-cyan-300" />
+            <span>Dark Mode</span>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }

@@ -867,18 +867,56 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 block">
             MANUAL SIGNAL EXECUTION ($25)
           </span>
+          {/* Martingale Money Management Card (Laptop Extension View) */}
+          <div className="bg-slate-900 border border-amber-500/30 rounded-xl p-2 font-mono text-[9px] space-y-1">
+            <div className="flex items-center justify-between font-bold">
+              <div className="flex items-center gap-1.5">
+                <span className="text-amber-400 font-black">📈 MARTINGALE:</span>
+                <button
+                  onClick={() => {
+                    const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                    setSettings({ ...settings, martingale: { ...cur, enabled: !cur.enabled } });
+                  }}
+                  className={`px-1.5 py-0.2 rounded text-[7.5px] font-black transition cursor-pointer ${
+                    settings.martingale?.enabled
+                      ? 'bg-amber-500 text-slate-950 shadow-sm'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}
+                >
+                  {settings.martingale?.enabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+              <span className="text-cyan-300">
+                Step {settings.martingale?.currentStep || 1}/{settings.martingale?.maxSteps || 3} ({settings.martingale?.multiplier || 2.2}x)
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-slate-300 pt-0.5 border-t border-slate-800">
+              <span>Next Stake: <strong className="text-emerald-400 font-black">${(settings.martingale?.enabled ? +(settings.martingale.baseAmount * Math.pow(settings.martingale.multiplier, (settings.martingale.currentStep || 1) - 1)).toFixed(2) : settings.tradeAmount)}</strong></span>
+              <button
+                onClick={() => {
+                  const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                  const nextStep = cur.currentStep >= cur.maxSteps ? 1 : cur.currentStep + 1;
+                  setSettings({ ...settings, martingale: { ...cur, currentStep: nextStep } });
+                }}
+                className="text-[7.5px] text-amber-300 hover:text-amber-200 underline cursor-pointer"
+              >
+                Cycle Step
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handleTradeWithCooldown('CALL')}
-              className="py-2 px-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1"
+              className="py-2 px-3 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1 cursor-pointer"
             >
-              MANUAL CALL ▲
+              MANUAL CALL ▲ (${(settings.martingale?.enabled ? +(settings.martingale.baseAmount * Math.pow(settings.martingale.multiplier, (settings.martingale.currentStep || 1) - 1)).toFixed(2) : settings.tradeAmount)})
             </button>
             <button
               onClick={() => handleTradeWithCooldown('PUT')}
-              className="py-2 px-3 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-rose-500/20 transition flex items-center justify-center gap-1"
+              className="py-2 px-3 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-rose-500/20 transition flex items-center justify-center gap-1 cursor-pointer"
             >
-              MANUAL PUT ▼
+              MANUAL PUT ▼ (${(settings.martingale?.enabled ? +(settings.martingale.baseAmount * Math.pow(settings.martingale.multiplier, (settings.martingale.currentStep || 1) - 1)).toFixed(2) : settings.tradeAmount)})
             </button>
           </div>
         </div>
@@ -1040,6 +1078,75 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                   onChange={(e) => setSettings({ ...settings, maxDailyLoss: parseFloat(e.target.value) || 100 })}
                   className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-rose-400 font-bold"
                 />
+              </div>
+            </div>
+
+            {/* Martingale Configuration Inputs */}
+            <div className="pt-2 border-t border-slate-800/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-amber-400 uppercase tracking-wide">
+                  📈 Martingale Recovery System (Laptop / Extension)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                    setSettings({ ...settings, martingale: { ...cur, enabled: !cur.enabled } });
+                  }}
+                  className={`px-2 py-0.5 rounded text-[8px] font-black transition cursor-pointer ${
+                    settings.martingale?.enabled
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                      : 'bg-slate-800 text-slate-400'
+                  }`}
+                >
+                  {settings.martingale?.enabled ? 'ENABLED' : 'DISABLED'}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-slate-400 font-semibold block mb-0.5">Base Stake ($)</label>
+                  <input
+                    type="number"
+                    value={settings.martingale?.baseAmount || 10}
+                    onChange={(e) => {
+                      const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                      setSettings({ ...settings, martingale: { ...cur, baseAmount: parseFloat(e.target.value) || 10 } });
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-emerald-400 font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400 font-semibold block mb-0.5">Multiplier</label>
+                  <select
+                    value={settings.martingale?.multiplier || 2.2}
+                    onChange={(e) => {
+                      const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                      setSettings({ ...settings, martingale: { ...cur, multiplier: parseFloat(e.target.value) || 2.2 } });
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-cyan-400 font-bold"
+                  >
+                    <option value={2.0}>2.0x</option>
+                    <option value={2.2}>2.2x</option>
+                    <option value={2.5}>2.5x</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-slate-400 font-semibold block mb-0.5">Max Steps</label>
+                  <select
+                    value={settings.martingale?.maxSteps || 3}
+                    onChange={(e) => {
+                      const cur = settings.martingale || { enabled: true, baseAmount: 10, multiplier: 2.2, maxSteps: 3, currentStep: 1 };
+                      setSettings({ ...settings, martingale: { ...cur, maxSteps: parseInt(e.target.value) || 3 } });
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-mono text-amber-400 font-bold"
+                  >
+                    <option value={2}>2 Steps</option>
+                    <option value={3}>3 Steps</option>
+                    <option value={4}>4 Steps</option>
+                    <option value={5}>5 Steps</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
