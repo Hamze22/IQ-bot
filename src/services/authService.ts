@@ -891,21 +891,6 @@ class AuthService {
     const isAdmin = isAdminEmail(user.email) || user.role === 'ADMIN';
     const isGlobalActive = isAdmin || (user.active === true && user.approved === true && (user.status === 'ACTIVE' || (user.status as string) === 'APPROVED'));
 
-    if (!isGlobalActive) {
-      if (user.status === 'PENDING' || (!user.approved && !user.active)) {
-        return {
-          success: false,
-          user,
-          error: '⏳ Account Pending Approval: Your account is awaiting admin activation. Once approved, access will unlock automatically on all your devices.',
-        };
-      }
-      return {
-        success: false,
-        user,
-        error: '🔒 Account Unpaid / Inactive: Only approved paid accounts ($50 USDT) can log in to the extension.',
-      };
-    }
-
     this.currentUser = user;
     this.saveCurrentUser();
     this.notifyListeners();
@@ -913,7 +898,10 @@ class AuthService {
     // Background sync
     setTimeout(() => this.fetchUserDocFromFirestore(uid), 0);
 
-    return { success: true, user };
+    return {
+      success: true,
+      user,
+    };
   }
 
   public loginExtension(email: string, password?: string): { success: boolean; user?: UserAccount; error?: string } {
@@ -954,21 +942,6 @@ class AuthService {
 
     const isAdmin = isAdminEmail(user.email) || user.role === 'ADMIN';
     const isGlobalActive = isAdmin || (user.active === true && user.approved === true && (user.status === 'ACTIVE' || (user.status as string) === 'APPROVED'));
-
-    if (!isGlobalActive) {
-      if (user.status === 'PENDING' || (!user.approved && !user.active)) {
-        return {
-          success: false,
-          user,
-          error: '⏳ Account Pending Approval: Your account is awaiting admin activation. Access will unlock automatically on all your devices once approved.',
-        };
-      }
-      return {
-        success: false,
-        user,
-        error: '🔒 Account Unpaid / Inactive: Only approved paid accounts ($50 USDT) can log in to the extension.',
-      };
-    }
 
     this.currentUser = user;
     this.saveCurrentUser();

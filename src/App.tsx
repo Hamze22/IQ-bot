@@ -13,6 +13,9 @@ import { TelegramNotificationModal } from './components/TelegramNotificationModa
 import { LoginModal } from './components/LoginModal';
 import { PaymentModal } from './components/PaymentModal';
 import { AdminDashboardView } from './components/AdminDashboardView';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { MobileAccountView } from './components/MobileAccountView';
+import { ChatGptBotShowcase } from './components/ChatGptBotShowcase';
 import { authService } from './services/authService';
 import { fetchAiSignal } from './services/aiService';
 import { downloadExtensionZip } from './utils/extensionExporter';
@@ -90,25 +93,18 @@ export default function App() {
   const [demoBalance, setDemoBalance] = useState<number>(1248.75);
   const [realBalance, setRealBalance] = useState<number>(2450.00);
 
-  // ☀️ Light Mode / 🌙 Dark Mode Theme State (Brown-White Theme vs Dark)
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    try {
-      const saved = localStorage.getItem('po_theme');
-      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
-    } catch (e) {
-      return 'dark';
-    }
-  });
+  // ☀️ Light Mode / 🌙 Dark Mode Theme State (Default: Dark Mode)
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      try {
-        localStorage.setItem('po_theme', next);
-      } catch (e) {}
-      return next;
-    });
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
+
+  useEffect(() => {
+    try {
+      localStorage.removeItem('po_theme');
+    } catch (e) {}
+  }, []);
 
   useEffect(() => {
     if (theme === 'light') {
@@ -840,8 +836,8 @@ export default function App() {
   // Open New Active Trade Position
   const openNewTradePosition = useCallback((type: 'CALL' | 'PUT', confidenceVal: number = 90, customPair?: string) => {
     const isApproved = !!currentUser && (currentUser.status === 'ACTIVE' || currentUser.role === 'ADMIN' || isAdminEmail(currentUser.email));
-    if (!isApproved) {
-      alert('🔒 ACCOUNT PENDING APPROVAL: Admin must approve your account to execute trades.');
+    // Silent check without blocking popup modal
+    if (!isApproved && modeRef.current !== 'DEMO') {
       return;
     }
 
@@ -915,7 +911,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${theme === 'light' ? 'bg-[#f7f4ed] text-[#2b231d] theme-light' : 'bg-slate-950 text-slate-100'} font-sans selection:bg-blue-600 selection:text-white transition-colors duration-300`}>
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden ${theme === 'light' ? 'bg-[#ede5d8] text-[#0d0b09] theme-light' : 'bg-slate-950 text-slate-100'} font-sans selection:bg-blue-600 selection:text-white transition-colors duration-300`}>
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -941,7 +937,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 py-4 space-y-6 overflow-x-hidden">
+      <main className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 pt-3 pb-24 min-[1050px]:py-4 space-y-6 overflow-x-hidden">
 
         {/* Extension Storefront View (Default Main View focused on Extension Sales & Download) */}
         {activeTab === 'split' && (
@@ -1002,7 +998,27 @@ export default function App() {
 
         {/* Tab 3: Extension Popup Standalone View */}
         {activeTab === 'popup' && (
-          <div className="py-8 space-y-6">
+          <div className="py-4 min-[1050px]:py-8 space-y-5">
+            {/* Mobile & Tablet Extension Sub-View Switcher (< 1050px ONLY) */}
+            <div className="flex min-[1050px]:hidden items-center justify-center">
+              <div className="inline-flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('popup')}
+                  className="px-4 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm cursor-pointer min-h-[38px]"
+                >
+                  Chrome Extension
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('simulator')}
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white cursor-pointer min-h-[38px]"
+                >
+                  Chart Overlay
+                </button>
+              </div>
+            </div>
+
             <div className="text-center max-w-xl mx-auto space-y-2">
               <h2 className="text-lg font-black text-slate-100">
                 1. EXTENSION POPUP (Small)
@@ -1043,6 +1059,26 @@ export default function App() {
         {/* Tab 3.5: Pocket Option Web Tab Interactive Simulator with Draggable Overlay */}
         {activeTab === 'simulator' && (
           <div className="py-4 space-y-4">
+            {/* Mobile & Tablet Extension Sub-View Switcher (< 1050px ONLY) */}
+            <div className="flex min-[1050px]:hidden items-center justify-center">
+              <div className="inline-flex items-center gap-1 p-1 bg-slate-900 border border-slate-800 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('popup')}
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white cursor-pointer min-h-[38px]"
+                >
+                  Chrome Extension
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('simulator')}
+                  className="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm cursor-pointer min-h-[38px]"
+                >
+                  Chart Overlay
+                </button>
+              </div>
+            </div>
+
             <div className="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
               <div>
                 <h2 className="text-sm font-black text-emerald-400 uppercase tracking-wide flex items-center gap-2">
@@ -1089,12 +1125,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3.75: Mobile Website Bot App (Dedicated Smartphone UI) */}
-        {/* On PC/Laptop: Wrapped in phone mockup chassis. On real mobile devices: Native fluid full-width! */}
+        {/* Tab 3.75: Mobile Website Bot App (Dedicated Smartphone & Tablet UI) */}
+        {/* On PC/Laptop (>=1050px): Wrapped in phone mockup chassis. On Mobile & Tablet/iPad (<1050px): Native fluid responsive width! */}
         {activeTab === 'mobilebot' && (
           <div className="py-2 w-full flex flex-col items-center justify-center">
             {/* Header info shown only on PC/Laptop */}
-            <div className="hidden md:flex items-center justify-between w-full max-w-[430px] mb-3 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] font-mono text-slate-300 shadow-md">
+            <div className="hidden min-[1050px]:flex items-center justify-between w-full max-w-[430px] mb-3 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] font-mono text-slate-300 shadow-md">
               <span className="flex items-center gap-1.5 font-bold">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span>📱 MOBILE BOT PREVIEW (PC / LAPTOP FRAME)</span>
@@ -1104,10 +1140,10 @@ export default function App() {
               </span>
             </div>
 
-            {/* Smartphone Chassis: active only on md: screens and above; on mobile devices (<md) it has no chassis borders */}
-            <div className="w-full md:max-w-[420px] md:rounded-[48px] md:border-[10px] md:border-slate-800 md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_0_2px_rgba(100,116,139,0.3)] md:relative md:overflow-hidden md:bg-black transition-all">
+            {/* Smartphone Chassis: active only on Desktop (>=1050px); on Mobile & Tablet/iPad (<1050px) it uses fluid responsive layout */}
+            <div className="w-full max-w-3xl min-[1050px]:max-w-[420px] min-[1050px]:rounded-[48px] min-[1050px]:border-[10px] min-[1050px]:border-slate-800 min-[1050px]:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_0_2px_rgba(100,116,139,0.3)] min-[1050px]:relative min-[1050px]:overflow-hidden min-[1050px]:bg-black transition-all">
               {/* Smartphone Dynamic Island Notch / Speaker (PC / Laptop View Only) */}
-              <div className="hidden md:flex items-center justify-between px-6 pt-3 pb-1 bg-black text-[10px] text-slate-400 font-mono select-none">
+              <div className="hidden min-[1050px]:flex items-center justify-between px-6 pt-3 pb-1 bg-black text-[10px] text-slate-400 font-mono select-none">
                 <span className="font-bold">09:41</span>
                 {/* Dynamic Island pill */}
                 <div className="w-24 h-5 rounded-full bg-slate-950 border border-slate-800/80 flex items-center justify-center gap-2 px-2 shadow-inner">
@@ -1121,7 +1157,7 @@ export default function App() {
               </div>
 
               {/* The Actual MobileBotView */}
-              <div className="w-full md:max-h-[820px] md:overflow-y-auto custom-scrollbar">
+              <div className="w-full min-[1050px]:max-h-[820px] min-[1050px]:overflow-y-auto custom-scrollbar">
                 <MobileBotView
                   botStatus={botStatus}
                   setBotStatus={setBotStatus}
@@ -1143,7 +1179,7 @@ export default function App() {
               </div>
 
               {/* Smartphone Home Bar (PC / Laptop View Only) */}
-              <div className="hidden md:flex justify-center pb-2 pt-1 bg-black">
+              <div className="hidden min-[1050px]:flex justify-center pb-2 pt-1 bg-black">
                 <div className="w-32 h-1 rounded-full bg-slate-600/70" />
               </div>
             </div>
@@ -1197,7 +1233,50 @@ export default function App() {
             </div>
           )
         )}
+
+        {/* Tab 7: ChatGPT AI Showcase */}
+        {activeTab === 'chatgptbot' && (
+          <ChatGptBotShowcase
+            currentUser={currentUser}
+            onOpenLogin={() => setIsLoginModalOpen(true)}
+            onOpenPayment={() => setIsPaymentModalOpen(true)}
+            onOpenTelegramModal={() => setIsTelegramModalOpen(true)}
+          />
+        )}
+
+        {/* Tab 8: Mobile & Tablet Account, Payment & Settings Hub */}
+        {activeTab === 'account' && (
+          <MobileAccountView
+            currentUser={currentUser}
+            balance={balance}
+            profitToday={profitToday}
+            winRate={winRate}
+            mode={mode}
+            setMode={setMode}
+            settings={settings}
+            setSettings={setSettings}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onOpenLogin={() => setIsLoginModalOpen(true)}
+            onOpenPayment={() => setIsPaymentModalOpen(true)}
+            onOpenTelegramModal={() => setIsTelegramModalOpen(true)}
+            onDownloadZip={handleDownloadZip}
+            onLogout={() => {
+              authService.logout();
+              setCurrentUser(null);
+            }}
+            setActiveTab={setActiveTab}
+          />
+        )}
       </main>
+
+      {/* Mobile & Tablet/iPad Bottom Navigation Bar (< 1050px ONLY) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentUser={currentUser}
+        theme={theme}
+      />
 
       {/* Telegram & Sound Notification Modal */}
       <TelegramNotificationModal
@@ -1228,18 +1307,18 @@ export default function App() {
         }}
       />
 
-      {/* ☀️ / 🌙 Floating Quick Theme Switcher (Light Brown-White vs Dark) */}
-      <aside aria-label="Theme switcher" className="fixed bottom-4 right-4 z-50 pointer-events-auto">
+      {/* ☀️ / 🌙 Floating Quick Theme Switcher (Desktop >= 1050px Only so it never overlaps Mobile/Tablet Bottom Nav) */}
+      <aside aria-label="Theme switcher" className="hidden min-[1050px]:block fixed bottom-4 right-4 z-50 pointer-events-auto">
         <div className="flex items-center bg-slate-950/95 border-2 border-slate-700/80 p-1 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
           <button
             type="button"
             onClick={() => theme !== 'light' && toggleTheme()}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer ${
               theme === 'light'
-                ? 'bg-[#f7f4ed] text-[#2b231d] border border-[#dfd7ca] font-black shadow'
+                ? 'bg-[#dfd2bf] text-[#0d0b09] border border-[#c2b199] font-black shadow'
                 : 'text-slate-400 hover:text-amber-300'
             }`}
-            title="Switch to Light Mode (Brown-White)"
+            title="Switch to Light Mode (Dusty Brown-White)"
           >
             <Sun className={`w-4 h-4 ${theme === 'light' ? 'text-amber-600 animate-spin' : 'text-amber-400'}`} style={{ animationDuration: '8s' }} />
             <span>Light Mode</span>

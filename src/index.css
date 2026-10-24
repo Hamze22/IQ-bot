@@ -90,58 +90,379 @@
   }
 }
 
-/* ☀️ High-Priority Light Mode (Warm Brown-White / Ivory Cream Theme) */
+/* ☀️ Light Mode: Dusty Warm Off-White Background (#ede5d8) + Warm Brown Sections (#dfd2bf) + Background-Matched Inner Boxes (#ede5d8) */
 html.theme-light,
 body.theme-light,
 .theme-light,
 .theme-light #root {
-  background-color: #f7f4ed !important;
-  color: #2b231d !important;
+  background-color: #ede5d8 !important;
+  color: #0a0807 !important;
 }
 
-.theme-light header,
-.theme-light nav,
-.theme-light .bg-\[\#020617\],
-.theme-light .bg-slate-950,
-.theme-light .bg-slate-950\/95,
-.theme-light .bg-slate-950\/90 {
-  background-color: #f3efe6 !important;
+/* Page Outer Wrapper & Main Container */
+.theme-light main,
+.theme-light div[class*="min-h-screen"] {
+  background-color: #ede5d8 !important;
+  color: #0a0807 !important;
 }
 
-.theme-light .bg-slate-900,
-.theme-light .bg-slate-900\/90,
-.theme-light .bg-slate-900\/95,
-.theme-light .bg-slate-900\/80,
-.theme-light .bg-slate-900\/60 {
-  background-color: #ffffff !important;
+/* Top Site Header & Desktop/Mobile Navbars */
+.theme-light > div > header,
+.theme-light header.sticky {
+  background-color: #e4d8c6 !important;
+  border-bottom-color: #bfa98e !important;
+  box-shadow: 0 2px 12px rgba(65, 45, 25, 0.06) !important;
 }
 
-.theme-light .bg-\[\#0b101d\],
-.theme-light .bg-\[\#070b14\],
-.theme-light .bg-\[\#0f172a\] {
-  background-color: #f5f0e6 !important;
+.theme-light nav {
+  background-color: #d8c9b5 !important;
+  border-color: #bfa98e !important;
 }
 
-.theme-light .border-slate-800,
-.theme-light .border-slate-800\/80,
-.theme-light .border-slate-800\/90,
-.theme-light .border-slate-700 {
-  border-color: #dfd7ca !important;
+.theme-light #mobile-bottom-nav {
+  background-color: #e4d8c6 !important;
+  border-top-color: #bfa98e !important;
+  box-shadow: 0 -4px 16px rgba(65, 45, 25, 0.08) !important;
 }
 
+/* ========================================================================= */
+/* TIER 1: OUTER SECTIONS & PRIMARY SECTION CARDS (Distinct Warm Brown)      */
+/* ========================================================================= */
+.theme-light section[class*="bg-"],
+.theme-light section[class*="from-"],
+.theme-light [class*="bg-slate-900"],
+.theme-light .bg-\[\#0b101d\] {
+  background-color: #dfd2bf !important;
+  background-image: none !important;
+  border-color: #b8a287 !important;
+  box-shadow: 0 6px 20px -4px rgba(60, 40, 20, 0.09), 0 2px 6px -1px rgba(60, 40, 20, 0.04) !important;
+}
+
+/* ========================================================================= */
+/* TIER 2: DARK/BLACK PARTS INSIDE SECTIONS -> SAME COLOR AS PAGE BACKGROUND */
+/* (#ede5d8) with crisp warm borders so sections & inner boxes separate!     */
+/* ========================================================================= */
+.theme-light [class*="bg-slate-950"]:not(html):not(body):not(#root):not(header):not(.fixed),
+.theme-light [class*="bg-black"]:not(.fixed),
+.theme-light [class*="bg-slate-800"],
+.theme-light [class*="bg-indigo-950"],
+.theme-light [class*="bg-indigo-900"],
+.theme-light [class*="bg-purple-950"],
+.theme-light [class*="bg-purple-900"],
+.theme-light [class*="bg-blue-950"],
+.theme-light [class*="bg-blue-900"],
+.theme-light [class*="bg-cyan-950"],
+.theme-light [class*="bg-cyan-900"],
+.theme-light [class*="bg-amber-950"],
+.theme-light [class*="bg-\[\#020617\]"],
+.theme-light [class*="bg-\[\#070b14\]"],
+.theme-light [class*="bg-\[\#0d1424\]"],
+.theme-light [class*="bg-\[\#0f172a\]"],
+.theme-light section[class*="bg-"] [class*="bg-slate-900"],
+.theme-light section[class*="from-"] [class*="bg-slate-900"],
+.theme-light section[class*="bg-"] [class*="from-slate-9"]:not(.bg-clip-text),
+.theme-light section[class*="bg-"] [class*="to-slate-9"]:not(.bg-clip-text),
+.theme-light section[class*="from-"] [class*="from-slate-9"]:not(.bg-clip-text),
+.theme-light section[class*="from-"] [class*="to-slate-9"]:not(.bg-clip-text),
+.theme-light [class*="bg-slate-900"] [class*="bg-slate-900"],
+.theme-light [class*="bg-slate-900"] [class*="from-slate-9"]:not(.bg-clip-text),
+.theme-light [class*="bg-slate-900"] [class*="to-slate-9"]:not(.bg-clip-text),
+.theme-light [class*="from-slate-950"]:not(section):not(.bg-clip-text),
+.theme-light [class*="to-slate-950"]:not(section):not(.bg-clip-text),
+.theme-light [class*="from-indigo-9"]:not(section),
+.theme-light [class*="via-indigo-9"]:not(section),
+.theme-light [class*="to-indigo-9"]:not(section),
+.theme-light [class*="from-purple-9"]:not(section),
+.theme-light [class*="to-purple-9"]:not(section),
+.theme-light [class*="from-blue-9"]:not(section),
+.theme-light [class*="to-blue-9"]:not(section),
+.theme-light [class*="from-cyan-9"]:not(section),
+.theme-light [class*="to-cyan-9"]:not(section),
+.theme-light [class*="from-amber-9"]:not(section),
+.theme-light [class*="to-amber-9"]:not(section) {
+  background-color: #ede5d8 !important;
+  background-image: none !important;
+  border-color: #bfa98e !important;
+  box-shadow: 0 2px 6px rgba(60, 40, 20, 0.04) !important;
+}
+
+/* ========================================================================= */
+/* TIER 3 & 4: DEEPLY NESTED BOXES INSIDE #ede5d8 INNER CONTAINERS           */
+/* Alternates #e3d6c4 -> #ede5d8 so nested sub-cards stay cleanly separated! */
+/* ========================================================================= */
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-900"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-800"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-black"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="from-slate-9"]:not(.bg-clip-text),
+.theme-light [class*="to-slate-950"]:not(section) [class*="bg-slate-900"],
+.theme-light [class*="to-slate-950"]:not(section) [class*="bg-slate-950"],
+.theme-light [class*="to-slate-950"]:not(section) [class*="bg-slate-800"],
+.theme-light [class*="bg-\[\#070b14\]"] [class*="bg-slate-950"],
+.theme-light [class*="bg-\[\#070b14\]"] [class*="bg-slate-900"] {
+  background-color: #e3d6c4 !important;
+  background-image: none !important;
+  border-color: #b8a287 !important;
+}
+
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="bg-slate-900"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="bg-slate-950"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="bg-slate-800"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="from-slate-9"]:not(.bg-clip-text),
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="from-purple-9"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="from-blue-9"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-900"] [class*="bg-slate-950"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="from-slate-9"] [class*="bg-slate-950"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="from-slate-9"] [class*="bg-slate-900"],
+.theme-light [class*="bg-\[\#070b14\]"] [class*="bg-slate-950"] [class*="bg-slate-900"],
+.theme-light [class*="bg-\[\#070b14\]"] [class*="bg-slate-950"] [class*="bg-slate-950"],
+.theme-light [class*="bg-\[\#070b14\]"] [class*="bg-slate-950"] [class*="bg-black"] {
+  background-color: #ede5d8 !important;
+  background-image: none !important;
+  border-color: #bfa98e !important;
+}
+
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="from-slate-9"] [class*="bg-slate-950"],
+.theme-light [class*="bg-slate-950"]:not(header):not(.fixed) [class*="bg-slate-950"] [class*="from-slate-9"] [class*="bg-slate-900"] {
+  background-color: #e3d6c4 !important;
+  background-image: none !important;
+  border-color: #b8a287 !important;
+}
+
+/* Inner headers (e.g., inside Extension Popup) stay transparent instead of top-bar brown */
+.theme-light main header {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-bottom-color: #bfa98e !important;
+}
+
+/* Hover States for Interactive Rows & Sub-Cards */
+.theme-light .hover\:bg-slate-800:hover,
+.theme-light .hover\:bg-slate-800\/50:hover,
+.theme-light .hover\:bg-slate-800\/60:hover,
+.theme-light .hover\:bg-slate-700:hover,
+.theme-light .hover\:bg-slate-900:hover,
+.theme-light .hover\:bg-slate-900\/80:hover {
+  background-color: #d6c5ae !important;
+}
+
+/* Borders & Dividers for Clean Section & Nested Card Separation */
+.theme-light [class*="border-slate-800"],
+.theme-light [class*="border-slate-700"],
+.theme-light [class*="border-slate-900"],
+.theme-light [class*="border-white\/"],
+.theme-light .divide-slate-800,
+.theme-light .divide-slate-700 {
+  border-color: #bfa98e !important;
+}
+
+/* Typography: Crisp, High-Contrast Black & Deep Espresso Text */
+.theme-light h1,
+.theme-light h2,
+.theme-light h3,
+.theme-light h4,
+.theme-light h5,
+.theme-light h6,
+.theme-light strong,
+.theme-light b {
+  color: #0a0807 !important;
+}
+
+.theme-light .text-white,
 .theme-light .text-slate-100,
-.theme-light .text-white {
-  color: #2b231d !important;
+.theme-light .text-slate-50 {
+  color: #0a0807 !important;
+}
+
+/* Keep crisp white label text on vibrant solid action buttons */
+.theme-light button.bg-blue-600,
+.theme-light button.bg-blue-600 *,
+.theme-light button.bg-emerald-600,
+.theme-light button.bg-emerald-600 *,
+.theme-light button.bg-rose-500,
+.theme-light button.bg-rose-500 *,
+.theme-light button.bg-rose-600,
+.theme-light button.bg-rose-600 *,
+.theme-light button[class*="from-blue-600"],
+.theme-light button[class*="from-blue-600"] *,
+.theme-light button[class*="from-blue-500"],
+.theme-light button[class*="from-blue-500"] *,
+.theme-light button[class*="from-indigo-600"],
+.theme-light button[class*="from-indigo-600"] *,
+.theme-light button[class*="from-purple-500"],
+.theme-light button[class*="from-purple-500"] *,
+.theme-light div.bg-blue-600,
+.theme-light div.bg-rose-500 {
+  color: #ffffff !important;
+}
+
+/* High-contrast gradient display titles on warm brown hero cards */
+.theme-light .bg-clip-text.text-transparent {
+  background-image: linear-gradient(to right, #1d4ed8, #0369a1, #047857) !important;
+  color: transparent !important;
 }
 
 .theme-light .text-slate-200,
-.theme-light .text-slate-300,
-.theme-light .text-slate-400 {
-  color: #5c4d41 !important;
+.theme-light .text-slate-300 {
+  color: #241b14 !important;
 }
 
-.theme-light .bg-slate-800,
-.theme-light .bg-slate-800\/50,
-.theme-light .hover\:bg-slate-800:hover {
-  background-color: #ebe4d8 !important;
+.theme-light .text-slate-400 {
+  color: #3b2e23 !important;
+}
+
+.theme-light .text-slate-500,
+.theme-light .text-slate-600 {
+  color: #574636 !important;
+}
+
+.theme-light p {
+  color: #1f1812;
+}
+
+.theme-light code,
+.theme-light .font-mono:not([class*="text-emerald"]):not([class*="text-rose"]):not([class*="text-cyan"]):not([class*="text-blue"]):not([class*="text-amber"]) {
+  color: #0a0807 !important;
+}
+
+/* Inputs, Select Dropdowns, and Textareas */
+.theme-light input,
+.theme-light select,
+.theme-light textarea {
+  background-color: #f7f2ea !important;
+  color: #0a0807 !important;
+  border-color: #b8a287 !important;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+  color: #6e5b49 !important;
+}
+
+.theme-light input:focus,
+.theme-light select:focus,
+.theme-light textarea:focus {
+  border-color: #2563eb !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* High-Contrast Accents & Warm-Light Signal Surfaces (No Dark Emerald/Rose/Cyan Boxes!) */
+.theme-light .text-emerald-400,
+.theme-light .text-emerald-300,
+.theme-light .text-green-400 {
+  color: #047857 !important;
+}
+
+.theme-light .bg-emerald-500\/20,
+.theme-light .bg-emerald-500\/10,
+.theme-light [class*="bg-emerald-950"],
+.theme-light [class*="bg-emerald-900"],
+.theme-light [class*="from-emerald-950"],
+.theme-light [class*="from-emerald-900"] {
+  background-color: #dcebe0 !important;
+  background-image: none !important;
+  border-color: rgba(16, 185, 129, 0.55) !important;
+}
+
+.theme-light .text-rose-400,
+.theme-light .text-rose-300,
+.theme-light .text-rose-500,
+.theme-light .text-red-400 {
+  color: #b91c1c !important;
+}
+
+.theme-light .bg-rose-500\/20,
+.theme-light .bg-rose-500\/10,
+.theme-light [class*="bg-rose-950"],
+.theme-light [class*="bg-rose-900"],
+.theme-light [class*="from-rose-950"],
+.theme-light [class*="from-rose-900"] {
+  background-color: #f0dcde !important;
+  background-image: none !important;
+  border-color: rgba(244, 63, 94, 0.55) !important;
+}
+
+.theme-light .text-cyan-400,
+.theme-light .text-cyan-300,
+.theme-light .text-cyan-200,
+.theme-light .text-sky-400 {
+  color: #0369a1 !important;
+}
+
+.theme-light .bg-cyan-500\/20,
+.theme-light .bg-cyan-500\/10 {
+  background-color: #d6eaf4 !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+}
+
+.theme-light .text-blue-400,
+.theme-light .text-blue-300,
+.theme-light .text-indigo-400,
+.theme-light .text-indigo-300 {
+  color: #1d4ed8 !important;
+}
+
+.theme-light .bg-blue-500\/20,
+.theme-light .bg-blue-500\/10,
+.theme-light .bg-indigo-500\/20,
+.theme-light .bg-indigo-500\/15 {
+  background-color: #dbe6f6 !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+}
+
+.theme-light .text-purple-400,
+.theme-light .text-purple-300 {
+  color: #6b21a8 !important;
+}
+
+.theme-light .bg-purple-500\/20,
+.theme-light .bg-purple-500\/15,
+.theme-light .bg-purple-500\/10 {
+  background-color: #e5dcf3 !important;
+  border-color: rgba(168, 85, 247, 0.5) !important;
+}
+
+.theme-light .text-amber-400,
+.theme-light .text-amber-300,
+.theme-light .text-yellow-400 {
+  color: #92400e !important;
+}
+
+.theme-light .bg-amber-500\/20,
+.theme-light .bg-amber-500\/10 {
+  background-color: #f2e4cc !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
+/* Modals & Dialog Windows in Light Mode */
+.theme-light .fixed .bg-slate-900,
+.theme-light [role="dialog"] .bg-slate-900 {
+  background-color: #dfd2bf !important;
+  border-color: #b8a287 !important;
+  box-shadow: 0 25px 50px -12px rgba(45, 30, 15, 0.25) !important;
+}
+
+.theme-light .fixed.bg-slate-950\/80,
+.theme-light .fixed.bg-slate-950\/85,
+.theme-light .fixed.bg-slate-950\/90,
+.theme-light .fixed .bg-slate-950\/80,
+.theme-light .fixed .bg-slate-950\/90 {
+  background-color: rgba(45, 35, 25, 0.65) !important;
+}
+
+/* Chart Gridlines, Price Scales & Circular Gauge Track in Light Mode */
+.theme-light svg line[stroke="#1e293b"],
+.theme-light svg line[stroke="#334155"] {
+  stroke: #bfa98e !important;
+}
+
+.theme-light svg circle[stroke="rgba(30, 41, 59, 0.8)"] {
+  stroke: #cbb8a0 !important;
+}
+
+.theme-light svg text[fill="#64748b"],
+.theme-light svg text[fill="#94a3b8"] {
+  fill: #3b2e23 !important;
+  font-weight: 600 !important;
 }

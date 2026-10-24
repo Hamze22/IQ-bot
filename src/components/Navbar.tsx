@@ -1,30 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  Columns2,
-  LayoutDashboard,
   Bot,
   Zap,
-  BarChart3,
-  Code2,
   Bell,
-  Download,
   Shield,
   LogIn,
   LogOut,
-  Menu,
-  X,
   ShoppingBag,
-  Sparkles,
-  Lock,
   Smartphone,
   Brain,
   Sun,
   Moon,
+  User,
+  CreditCard,
+  Download,
 } from 'lucide-react';
-import { ExecutionMode, BotStatus, UserAccount, ADMIN_EMAIL, isAdminEmail } from '../types';
+import { ExecutionMode, BotStatus, UserAccount, isAdminEmail } from '../types';
 import { IQBotLogo } from './IQBotLogo';
 
-export type NavTabType = 'split' | 'dashboard' | 'popup' | 'simulator' | 'strategy' | 'analytics' | 'source' | 'admin' | 'mobilebot' | 'chatgptbot';
+export type NavTabType =
+  | 'split'
+  | 'dashboard'
+  | 'popup'
+  | 'simulator'
+  | 'strategy'
+  | 'analytics'
+  | 'source'
+  | 'admin'
+  | 'mobilebot'
+  | 'chatgptbot'
+  | 'account';
 
 interface NavbarProps {
   activeTab: NavTabType;
@@ -49,11 +54,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
-  activePair,
-  setActivePair,
   balance,
-  profitToday,
-  botStatus,
   mode,
   setMode,
   onDownloadZip,
@@ -65,24 +66,279 @@ export const Navbar: React.FC<NavbarProps> = ({
   theme = 'dark',
   onToggleTheme,
 }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const menuPanelRef = useRef<HTMLDivElement | null>(null);
   const isAdmin = isAdminEmail(currentUser?.email);
-  const isActive = currentUser && currentUser.status === 'ACTIVE';
+  const isLight = theme === 'light';
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleOutsideInteraction = (event: MouseEvent | TouchEvent | PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (menuPanelRef.current?.contains(target) || menuButtonRef.current?.contains(target)) {
+        return;
+      }
+      setIsMobileMenuOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsideInteraction, true);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideInteraction, true);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
 
   const handleTabClick = (tab: NavTabType) => {
     setActiveTab(tab);
-    setMobileMenuOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-2 sm:px-4 py-2 w-full max-w-full">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
-        
+    <header className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-2.5 sm:px-4 py-2 w-full max-w-full">
+      {/* ===================================================================== */}
+      {/* MOBILE & TABLET / IPAD TOP BAR (< 1050px ONLY)                        */}
+      {/* Compact Logo + 3-Line Span Menu (Login/Account, Payment, Mode inside) */}
+      {/* ===================================================================== */}
+      <div className="flex min-[1050px]:hidden items-center justify-between gap-2 w-full max-w-full">
+        {/* Left: Compact Brand Logo */}
+        <button
+          type="button"
+          onClick={() => handleTabClick('split')}
+          className="flex items-center shrink-0 cursor-pointer text-left focus:outline-none"
+        >
+          <IQBotLogo size="sm" showSubtitle={false} />
+        </button>
+
+        {/* Right: 3-Line Span Hamburger Button (span sadex xariijin ah) */}
+        <button
+          ref={menuButtonRef}
+          type="button"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMobileMenuOpen}
+          className={`flex flex-col items-center justify-center gap-1.5 w-10 h-10 rounded-xl border transition cursor-pointer shrink-0 ${
+            isLight
+              ? 'bg-[#ede5d8] border-[#bfa98e] hover:bg-[#dfd2bf]'
+              : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+          }`}
+        >
+          <span
+            className={`block w-5 h-[2px] rounded-full transition-transform duration-200 ${
+              isLight ? 'bg-[#0a0807]' : 'bg-slate-100'
+            } ${isMobileMenuOpen ? 'translate-y-[8px] rotate-45' : ''}`}
+          />
+          <span
+            className={`block w-5 h-[2px] rounded-full transition-opacity duration-200 ${
+              isLight ? 'bg-[#0a0807]' : 'bg-slate-100'
+            } ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}
+          />
+          <span
+            className={`block w-5 h-[2px] rounded-full transition-transform duration-200 ${
+              isLight ? 'bg-[#0a0807]' : 'bg-slate-100'
+            } ${isMobileMenuOpen ? '-translate-y-[8px] -rotate-45' : ''}`}
+          />
+        </button>
+      </div>
+
+      {/* Mobile & Tablet 3-Line Menu Dropdown Panel (< 1050px ONLY) */}
+      {isMobileMenuOpen && (
+        <div
+          ref={menuPanelRef}
+          className="absolute right-2.5 sm:right-4 top-full mt-2 z-50 w-[calc(100vw-1.25rem)] sm:w-[calc(100vw-2rem)] max-w-md min-[1050px]:hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl space-y-4"
+        >
+            {/* 1. Login & Account Section */}
+            <div className="space-y-2.5 pb-3.5 border-b border-slate-800/80">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-blue-400" />
+                  <span>Account & Login</span>
+                </span>
+                {currentUser && (
+                  <span
+                    className={`font-mono font-bold text-[11px] ${
+                      currentUser.status === 'ACTIVE' || isAdmin
+                        ? 'text-emerald-400'
+                        : 'text-amber-400'
+                    }`}
+                  >
+                    {isAdmin ? 'ADMIN · ACTIVE' : currentUser.status}
+                  </span>
+                )}
+              </div>
+
+              {currentUser ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2 text-xs py-1">
+                    <span className="text-slate-400">Signed in Email</span>
+                    <span className="font-mono font-semibold text-slate-100 truncate max-w-[210px]">
+                      {currentUser.email}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleTabClick('account')}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer min-h-[40px]"
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>Account Hub</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onOpenLogin();
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 font-semibold text-xs rounded-xl transition cursor-pointer min-h-[40px]"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Switch Account</span>
+                    </button>
+                  </div>
+                  <div className={`grid ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleTabClick('admin')}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer min-h-[38px]"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Admin Console</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onLogout();
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 font-bold text-xs rounded-xl transition cursor-pointer min-h-[38px]"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      onOpenLogin();
+                    }}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer min-h-[42px]"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Login / Register</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleTabClick('account')}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 font-semibold text-xs rounded-xl transition cursor-pointer min-h-[42px]"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Account Settings</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Payment & License Section */}
+            <div className="space-y-2.5 pb-3.5 border-b border-slate-800/80">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <CreditCard className="w-4 h-4 text-emerald-400" />
+                  <span>Payment & License</span>
+                </span>
+                <span className="font-mono font-bold text-emerald-400">$50 USDT</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenPayment();
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer min-h-[42px]"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Pay / Activate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onDownloadZip();
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition cursor-pointer min-h-[42px]"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Extension .ZIP</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Mode Section (Light/Dark Theme Mode + Demo/Live Account Mode) */}
+            <div className="space-y-3">
+              {onToggleTheme && (
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-100">Display Mode</span>
+                  <div className="flex items-center gap-1 p-1 bg-slate-950 border border-slate-800 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (theme !== 'light') onToggleTheme();
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer min-h-[34px] ${
+                        theme === 'light'
+                          ? 'bg-[#dfd2bf] text-[#0a0807] border border-[#b8a287] shadow-sm'
+                          : 'text-slate-400 hover:text-amber-300'
+                      }`}
+                    >
+                      <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Light</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (theme !== 'dark') onToggleTheme();
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer min-h-[34px] ${
+                        theme === 'dark'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-blue-300'
+                      }`}
+                    >
+                      <Moon className="w-3.5 h-3.5 text-cyan-300" />
+                      <span>Dark</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* DESKTOP TOP BAR (>= 1050px) — UNCHANGED                               */}
+      {/* ===================================================================== */}
+      <div className="hidden min-[1050px]:flex max-w-7xl mx-auto items-center justify-between gap-2">
         {/* Brand & Connection */}
-        <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0" onClick={() => handleTabClick('split')}>
-          <IQBotLogo size="sm" showSubtitle={false} hideTextOnMobile={true} className="md:hidden" />
-          <IQBotLogo size="sm" showSubtitle={true} className="hidden md:inline-flex" />
-          <div className="hidden md:flex flex-col">
+        <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => handleTabClick('split')}>
+          <IQBotLogo size="sm" showSubtitle={true} className="inline-flex" />
+          <div className="flex flex-col">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold w-fit">
               PRO v3.0.0
             </span>
@@ -94,7 +350,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Desktop Navigation Tabs */}
-        <nav className="hidden lg:flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+        <nav className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
           <button
             onClick={() => handleTabClick('split')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
@@ -185,21 +441,20 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Action Items */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
-          
+        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
           {/* USER / AUTHENTICATION PILL */}
           {currentUser ? (
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-1.5 sm:px-2.5 py-1">
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1">
               <div className="flex flex-col text-right min-w-0">
-                <div className="flex items-center justify-end gap-1 text-[10px] sm:text-[11px] font-bold text-slate-200">
-                  <span className="truncate max-w-[50px] xs:max-w-[80px] sm:max-w-[120px]">{currentUser.email}</span>
+                <div className="flex items-center justify-end gap-1 text-[11px] font-bold text-slate-200">
+                  <span className="truncate max-w-[120px]">{currentUser.email}</span>
                   {isAdmin && (
-                    <span className="text-[7px] sm:text-[8px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1 rounded shrink-0">
+                    <span className="text-[8px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1 rounded shrink-0">
                       ADMIN
                     </span>
                   )}
                 </div>
-                <div className="flex items-center justify-end gap-1 text-[8px] sm:text-[9px] font-mono">
+                <div className="flex items-center justify-end gap-1 text-[9px] font-mono">
                   <span className={`font-bold ${currentUser.status === 'ACTIVE' ? 'text-emerald-400' : 'text-amber-400'}`}>
                     {currentUser.status}
                   </span>
@@ -217,7 +472,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={onOpenLogin}
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-[11px] sm:text-xs rounded-xl shadow-md transition active:scale-95 shrink-0 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-md transition active:scale-95 shrink-0 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Login</span>
@@ -234,7 +489,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition cursor-pointer ${
                   theme === 'light'
-                    ? 'bg-[#f7f4ed] text-[#3c2a1e] font-black shadow-md border border-[#dfd7ca]'
+                    ? 'bg-[#dfd2bf] text-[#0d0b09] font-black shadow-md border border-[#c2b199]'
                     : 'text-slate-400 hover:text-amber-300'
                 }`}
                 title="Light Mode (Warm Brown-White)"
@@ -264,180 +519,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenTelegramModal}
             title="Configure Sound & Telegram Alerts"
-            className="hidden sm:flex items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition shrink-0"
+            className="flex items-center gap-1 p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition shrink-0"
           >
-            <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+            <Bell className="w-4 h-4 text-amber-400" />
           </button>
-
-          {/* Mobile Hamburger / "More" Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white lg:hidden transition shrink-0 flex items-center gap-1"
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-4 h-4 text-rose-400" />
-            ) : (
-              <Menu className="w-4 h-4 text-blue-400" />
-            )}
-            <span className="text-[10px] font-extrabold text-slate-200 hidden xs:inline lg:hidden">More</span>
-          </button>
-
         </div>
-
       </div>
-
-      {/* Mobile Slide-down Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden mt-2 pt-2 border-t border-slate-800/80 space-y-2 animate-in slide-in-from-top-2 duration-200">
-          
-          {/* User Auth Info inside Mobile Drawer */}
-          {currentUser ? (
-            <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-200 truncate max-w-[200px]">{currentUser.email}</span>
-                <span className="text-[10px] text-emerald-400 font-mono">Status: {currentUser.status} ({currentUser.plan})</span>
-              </div>
-              <button
-                onClick={() => {
-                  onLogout();
-                  setMobileMenuOpen(false);
-                }}
-                className="px-2.5 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-bold flex items-center gap-1"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Logout</span>
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => {
-                onOpenLogin();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Login Account</span>
-            </button>
-          )}
-
-          {/* Navigation Links */}
-          <button
-            onClick={() => handleTabClick('split')}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-              activeTab === 'split' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-900'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-blue-400" />
-              Extension Storefront
-            </span>
-            <span className="text-[10px] font-mono bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800">Store</span>
-          </button>
-
-          <button
-            onClick={() => handleTabClick('popup')}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-              activeTab === 'popup' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-900'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-cyan-400" />
-              Extension Interactive Preview
-            </span>
-            <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded">Live Demo</span>
-          </button>
-
-          <button
-            onClick={() => handleTabClick('simulator')}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-              activeTab === 'simulator' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-900 border border-emerald-500/30'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-emerald-400" />
-              PO AI Live Overlay Simulator
-            </span>
-            <span className="text-[10px] font-mono bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">PO Overlay</span>
-          </button>
-
-          <button
-            onClick={() => handleTabClick('mobilebot')}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-              activeTab === 'mobilebot' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-black' : 'text-cyan-400 hover:bg-slate-900 border border-cyan-500/30'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-cyan-400" />
-              Mobile Website Bot (Fast Web App)
-            </span>
-            <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">Mobile Bot</span>
-          </button>
-
-          <button
-            onClick={() => handleTabClick('strategy')}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-              activeTab === 'strategy' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-900'
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-400" />
-              High Win-Rate SMC Strategies
-            </span>
-            <span className="text-[10px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">96% WR</span>
-          </button>
-
-          {isAdmin && (
-            <button
-              onClick={() => handleTabClick('admin')}
-              className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition ${
-                activeTab === 'admin' ? 'bg-amber-500 text-slate-950 font-black' : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-400" />
-                Admin Console
-              </span>
-              <span className="text-[10px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">ADMIN</span>
-            </button>
-          )}
-
-          {/* Light / Dark Mode Toggle button inside mobile drawer */}
-          {onToggleTheme && (
-            <button
-              onClick={() => {
-                onToggleTheme();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-between px-3 py-2 bg-slate-900 text-slate-200 border border-slate-800 font-bold text-xs rounded-xl"
-            >
-              <span className="flex items-center gap-2">
-                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-400" />}
-                <span>{theme === 'dark' ? 'Switch to Light Mode (Brown-White)' : 'Switch to Dark Mode'}</span>
-              </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-bold">
-                {theme === 'dark' ? 'Light' : 'Dark'}
-              </span>
-            </button>
-          )}
-
-          {/* Telegram Alerts Config button inside mobile drawer */}
-          <button
-            onClick={() => {
-              onOpenTelegramModal();
-              setMobileMenuOpen(false);
-            }}
-            className="w-full flex items-center justify-between px-3 py-2 bg-slate-900 text-slate-200 border border-slate-800 font-bold text-xs rounded-xl"
-          >
-            <span className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-amber-400" />
-              Configure Sound & Telegram Alerts
-            </span>
-            <span className="text-[10px] font-mono text-amber-400">Settings</span>
-          </button>
-        </div>
-      )}
     </header>
   );
 };

@@ -519,23 +519,6 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
 
       {selectedAiEngine === 'chatgpt' ? (
         <div className="space-y-4">
-          <div className="p-3 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-amber-950/40 border border-amber-500/40 rounded-2xl flex items-center justify-between gap-2 shadow-lg">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 text-[10px] font-mono font-black border border-blue-500/40 animate-pulse">
-                NEW
-              </span>
-              <span className="text-xs font-bold text-slate-200">
-                ChatGPT-4o Cloud Bot Preview
-              </span>
-            </div>
-            <button
-              onClick={() => setSelectedAiEngine('gemini')}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black transition cursor-pointer shadow flex items-center gap-1 active:scale-95"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Back to Live Gemini Bot</span>
-            </button>
-          </div>
           <ChatGptMobileBotPreview onOpenWaitlist={() => {}} />
         </div>
       ) : (
@@ -599,7 +582,7 @@ export const MobileBotView: React.FC<MobileBotViewProps> = ({
         </div>
 
         {/* TIMEFRAME SELECTOR CHIPS */}
-        <div className="flex items-center justify-between bg-slate-950/80 p-2 rounded-2xl border border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-950/80 p-2 rounded-2xl border border-slate-800">
           <div className="flex items-center gap-1.5 ml-1">
             <Clock className="w-4 h-4 text-cyan-400" />
             <span className="text-xs font-bold text-slate-300 uppercase">EXPIRY TIMEFRAME:</span>

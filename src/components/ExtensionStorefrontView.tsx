@@ -84,10 +84,10 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
   const isAdmin = isAdminEmail(currentUser?.email) || currentUser?.role === 'ADMIN';
   const isActive = currentUser && currentUser.status === 'ACTIVE';
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-10 px-2 sm:px-4 py-4 overflow-x-hidden">
+    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-10 px-1 sm:px-4 py-2 sm:py-4 overflow-x-hidden">
       
       {/* HERO SECTION - MOBILE RESPONSIVE */}
-      <section className="relative bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl overflow-hidden">
+      <section className="relative bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 min-[1050px]:p-10 shadow-2xl overflow-hidden">
         {/* Glowing Background Orbs */}
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -170,24 +170,24 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
           </div>
 
           {/* Right Column: Interactive Extension Preview Box */}
-          <div className="lg:col-span-5 flex flex-col items-center">
-            <div className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-3xl p-3 shadow-2xl relative">
+          <div className="lg:col-span-5 flex flex-col items-center w-full min-w-0">
+            <div className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-2xl sm:rounded-3xl p-2 sm:p-3 shadow-2xl relative overflow-hidden">
               
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 px-2">
-                <span className="text-xs font-black text-slate-200 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  LIVE EXTENSION POPUP PREVIEW
+              <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-800 px-1.5 sm:px-2">
+                <span className="text-[11px] sm:text-xs font-black text-slate-200 flex items-center gap-1.5 truncate">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                  <span className="truncate">LIVE EXTENSION POPUP PREVIEW</span>
                 </span>
                 <button
                   onClick={onFocusPopupTab}
-                  className="text-[10px] text-blue-400 font-bold hover:underline"
+                  className="text-[10px] text-blue-400 font-bold hover:underline shrink-0 whitespace-nowrap"
                 >
-                  Fullscreen Preview →
+                  Fullscreen →
                 </button>
               </div>
 
               {/* Render Extension Popup Component */}
-              <div className="scale-[0.98] origin-top">
+              <div className="w-full min-[1050px]:scale-[0.98] origin-top">
                 <ExtensionPopupView
                   botStatus={botStatus}
                   setBotStatus={setBotStatus}

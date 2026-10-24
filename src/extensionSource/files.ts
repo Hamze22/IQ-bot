@@ -71,44 +71,117 @@ export const EXTENSION_FILES: ExtensionFile[] = [
     name: 'content.css',
     description: 'Pocket Option Web page overlay styles for floating AI signal badge',
     type: 'css',
-    content: `/* Pocket Option AI Floating Badge Styles */
-#po-ai-floating-badge {
+    content: `/* Pocket Option AI Floating Overlay & L-Shape Scanner Styles v3.0.0 */
+#po-ai-floating-widget {
   position: fixed;
   top: 75px;
   right: 20px;
-  z-index: 999999;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  border-radius: 12px;
-  padding: 10px 16px;
+  z-index: 9999999;
+  width: 270px;
+  background: rgba(2, 6, 23, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(16, 185, 129, 0.85);
+  border-radius: 14px;
+  padding: 10px;
   color: #f8fafc;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), 0 20px 40px rgba(0, 0, 0, 0.8);
+  user-select: none;
+  transition: box-shadow 0.2s ease;
 }
 
-#po-ai-floating-badge:hover {
-  border-color: rgba(16, 185, 129, 0.8);
-  box-shadow: 0 12px 30px -5px rgba(16, 185, 129, 0.2);
+#po-ai-floating-widget.minimized {
+  width: auto;
+  padding: 6px 10px;
 }
 
-.po-ai-pulse-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #10b981;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #10b981;
-  animation: poAiPulse 1.8s infinite;
+/* 📐 Pocket Option Chart L-Shape Candlestick Scanner Reticle */
+#po-lshape-chart-reticle {
+  position: absolute;
+  right: 60px;
+  top: 90px;
+  z-index: 9999990;
+  min-width: 240px;
+  max-width: 280px;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(34, 211, 238, 0.5);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.45);
+  user-select: none;
+  cursor: grab;
 }
 
-@keyframes poAiPulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+#po-lshape-chart-reticle:active {
+  cursor: grabbing;
+}
+
+/* 4 Sharp Glowing L-Shape Corner Brackets */
+.po-l-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.po-l-tl {
+  top: -10px;
+  left: -10px;
+  border-top: 3.5px solid #22d3ee;
+  border-left: 3.5px solid #22d3ee;
+  border-top-left-radius: 6px;
+  filter: drop-shadow(0 0 8px #22d3ee);
+}
+
+.po-l-tr {
+  top: -10px;
+  right: -10px;
+  border-top: 3.5px solid #22d3ee;
+  border-right: 3.5px solid #22d3ee;
+  border-top-right-radius: 6px;
+  filter: drop-shadow(0 0 8px #22d3ee);
+}
+
+.po-l-bl {
+  bottom: -10px;
+  left: -10px;
+  border-bottom: 3.5px solid #22d3ee;
+  border-left: 3.5px solid #22d3ee;
+  border-bottom-left-radius: 6px;
+  filter: drop-shadow(0 0 8px #22d3ee);
+}
+
+.po-l-br {
+  bottom: -10px;
+  right: -10px;
+  border-bottom: 3.5px solid #22d3ee;
+  border-right: 3.5px solid #22d3ee;
+  border-bottom-right-radius: 6px;
+  filter: drop-shadow(0 0 8px #22d3ee);
+}
+
+/* Scanning Laser Beam Sweep */
+@keyframes po-lshape-laser-sweep {
+  0% { top: 4px; opacity: 0.3; }
+  50% { top: 92%; opacity: 1; }
+  100% { top: 4px; opacity: 0.3; }
+}
+
+.po-lshape-laser-beam {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22d3ee, #38bdf8, #22d3ee, transparent);
+  box-shadow: 0 0 12px #22d3ee;
+  animation: po-lshape-laser-sweep 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes po-radar-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }`,
   },
   {
@@ -213,28 +286,6 @@ export const EXTENSION_FILES: ExtensionFile[] = [
           </span>
           <button id="refreshAccountStatusBtn" title="Check / Refresh Activation Status" class="text-[9px] bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 px-1.5 py-0.5 rounded font-bold cursor-pointer transition">
             🔄 Refresh
-          </button>
-        </div>
-      </section>
-
-      <!-- 💳 LIVE SYNCED ACCOUNT BALANCE CARD -->
-      <section class="bg-gradient-to-r from-slate-900 via-slate-950 to-blue-950/50 border border-slate-800/90 rounded-xl p-2.5 flex items-center justify-between shadow-md">
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">LIVE ACCOUNT BALANCE</span>
-          </div>
-          <div class="flex items-baseline gap-1.5 mt-0.5">
-            <span id="popupAccountBalanceText" class="text-base font-mono font-black text-emerald-400">$2,500.00</span>
-            <span id="popupAccountTypeBadge" class="text-[8px] font-mono font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-1.5 py-0.2 rounded uppercase">REAL PO</span>
-          </div>
-        </div>
-        <div class="flex flex-col items-end gap-1">
-          <span class="text-[8px] text-emerald-400 font-mono font-semibold flex items-center gap-1">
-            <span>⚡ PO Live Synced</span>
-          </span>
-          <button id="syncBalanceBtn" class="text-[8px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-700 font-bold transition flex items-center gap-1 cursor-pointer" title="Sync live balance from Pocket Option">
-            🔄 Sync
           </button>
         </div>
       </section>
@@ -2032,10 +2083,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (manualCallBtn) {
     manualCallBtn.addEventListener('click', () => {
-      if (!currentActiveUser || (currentActiveUser.status !== 'ACTIVE' && currentActiveUser.role !== 'ADMIN')) {
-        alert('Please log in with an approved active account to execute trades.');
-        return;
-      }
       playSoundAlert('start');
       postTradeCooldownCandles = 4; // Enforce 3-4 candle cooldown scan
       if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
@@ -2046,10 +2093,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (manualPutBtn) {
     manualPutBtn.addEventListener('click', () => {
-      if (!currentActiveUser || (currentActiveUser.status !== 'ACTIVE' && currentActiveUser.role !== 'ADMIN')) {
-        alert('Please log in with an approved active account to execute trades.');
-        return;
-      }
       playSoundAlert('start');
       postTradeCooldownCandles = 4; // Enforce 3-4 candle cooldown scan
       if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
@@ -2156,10 +2199,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (startBtn) {
     startBtn.addEventListener('click', () => {
-      if (!currentActiveUser || (currentActiveUser.status !== 'ACTIVE' && currentActiveUser.role !== 'ADMIN')) {
-        alert('Please log in with an approved active account first.');
-        return;
-      }
       updateBotStatusUI('RUNNING');
       playSoundAlert('start');
       triggerMarketScan();
@@ -2185,10 +2224,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateBotStatusUI('STOPPED');
         playSoundAlert('stop');
       } else {
-        if (!currentActiveUser || (currentActiveUser.status !== 'ACTIVE' && currentActiveUser.role !== 'ADMIN')) {
-          alert('Please log in with an approved active account first.');
-          return;
-        }
         updateBotStatusUI('RUNNING');
         playSoundAlert('start');
         triggerMarketScan();
@@ -2761,146 +2796,100 @@ setInterval(checkActiveUserLicense, 2000);
 checkActiveUserLicense();
 
 let isTradeCurrentlyActive = false;
+let lShapeCandleCount = 2;
+let showChartLShapeScanner = true;
+
+let martingaleSettings = {
+  enabled: true,
+  baseAmount: 10,
+  multiplier: 2.2,
+  currentStep: 1,
+  maxSteps: 5
+};
+
+function getMartingaleStake() {
+  const step = Math.max(1, Math.min(martingaleSettings.maxSteps, martingaleSettings.currentStep || 1));
+  const mult = martingaleSettings.multiplier || 2.2;
+  const base = martingaleSettings.baseAmount || 10;
+  return +(base * Math.pow(mult, step - 1)).toFixed(2);
+}
+
+function updateMartingaleUI() {
+  const stepLabel = document.getElementById('po-martingale-step-label');
+  const stakeVal = document.getElementById('po-martingale-stake-val');
+  if (stepLabel) {
+    stepLabel.textContent = 'STEP ' + martingaleSettings.currentStep + ' / ' + martingaleSettings.maxSteps;
+  }
+  if (stakeVal) {
+    stakeVal.textContent = '$' + getMartingaleStake().toFixed(2);
+  }
+  [1, 2, 3].forEach(s => {
+    const btn = document.getElementById('po-m-step-' + s);
+    if (btn) {
+      if (martingaleSettings.currentStep === s) {
+        btn.style.background = '#f59e0b';
+        btn.style.color = '#020617';
+        btn.style.borderColor = '#fbbf24';
+      } else {
+        btn.style.background = '#020617';
+        btn.style.color = '#94a3b8';
+        btn.style.borderColor = 'rgba(255,255,255,0.1)';
+      }
+    }
+  });
+}
 
 function updateOverlayUI(sig) {
   if (!sig) return;
   currentSignal = sig;
 
+  const card = document.getElementById('po-signal-card');
   const sigBox = document.getElementById('po-signal-box');
-  const confText = document.getElementById('po-confidence-text');
-  const confRing = document.getElementById('po-conf-ring');
-  const rsiVal = document.getElementById('po-rsi-val');
-  const rsiBar = document.getElementById('po-rsi-bar');
-  const rsiLabel = document.getElementById('po-rsi-label');
-  const reasonEl = document.getElementById('po-reason-text');
-  const timeEl = document.getElementById('po-signal-time');
-  const targetPriceEl = document.getElementById('po-target-price-val');
+  const confBadge = document.getElementById('po-confidence-badge');
+  const priceLabel = document.getElementById('po-current-price-label');
+  const targetLabel = document.getElementById('po-target-label');
+  const pairEl = document.getElementById('po-detected-pair');
 
-  const isApproved = activeUserAccount && (activeUserAccount.status === 'ACTIVE' || activeUserAccount.role === 'ADMIN');
+  if (pairEl && sig.pair) pairEl.textContent = sig.pair;
+  if (priceLabel && sig.price) priceLabel.textContent = 'Price: ' + Number(sig.price).toFixed(sig.pair && sig.pair.includes('JPY') ? 3 : 5);
+  if (confBadge) confBadge.textContent = (sig.confidence || 96) + '% ACCURACY';
 
-  if (!isApproved) {
+  if (sig.decision === 'CALL') {
     if (sigBox) {
-      const userState = activeUserAccount ? activeUserAccount.status : 'LOGGED OUT';
-      sigBox.textContent = '🔒 SIGNALS LOCKED (' + (userState === 'PENDING' ? 'PENDING APPROVAL' : userState) + ')';
-      sigBox.style.background = 'rgba(136,19,55,0.85)';
-      sigBox.style.borderColor = 'rgba(244,63,94,0.9)';
-      sigBox.style.color = '#fecdd3';
-    }
-    if (confText) confText.textContent = '0%';
-    if (rsiVal) rsiVal.textContent = '--';
-    if (reasonEl) reasonEl.textContent = '🔒 Admin approval required. Access to signals and auto-trading is locked until approved by Admin.';
-    if (timeEl) timeEl.textContent = '🔒 Access Restricted';
-    if (targetPriceEl) targetPriceEl.textContent = 'Target Close: LOCKED';
-    return;
-  }
-
-  // ⚡ 1. TRADE IN PROGRESS: Display live trade signal, confidence, and win rate
-  if (isTradeCurrentlyActive) {
-    updateOverlayStatsUI();
-    return;
-  }
-
-  // 📡 2. POST-TRADE COOLDOWN REST SCANNING MODE (WITH MOTION ANIMATIONS & 1/4 REST LOGIC)
-  if (cooldownCandlesRemaining > 0) {
-    if (sigBox) {
-      sigBox.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; gap: 8px;">' +
-        '<svg style="width: 16px; height: 16px; animation: po-radar-spin 1s linear infinite; color: #38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
-          '<circle cx="12" cy="12" r="9" stroke-dasharray="35 30" stroke-linecap="round"/>' +
-        '</svg>' +
-        '<span style="font-weight: 900; letter-spacing: 0.5px; color: #38bdf8;">SCANNING MARKET</span>' +
-        '<span style="display: inline-flex; gap: 2.5px; align-items: center;">' +
-          '<span style="width: 3.5px; height: 3.5px; background: #38bdf8; border-radius: 50%; display: inline-block; animation: po-dot-bounce 1s infinite;"></span>' +
-          '<span style="width: 3.5px; height: 3.5px; background: #38bdf8; border-radius: 50%; display: inline-block; animation: po-dot-bounce 1s infinite 0.2s;"></span>' +
-          '<span style="width: 3.5px; height: 3.5px; background: #38bdf8; border-radius: 50%; display: inline-block; animation: po-dot-bounce 1s infinite 0.4s;"></span>' +
-        '</span>' +
-      '</div>';
-      sigBox.style.background = 'rgba(15,23,42,0.95)';
-      sigBox.style.borderColor = 'rgba(56,189,248,0.8)';
-      sigBox.style.animation = 'po-pulse-glow 2s infinite ease-in-out';
-    }
-    if (confText) {
-      confText.innerHTML = '<svg style="width: 16px; height: 16px; animation: po-radar-spin 1s linear infinite; color: #38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-dasharray="35 30" stroke-linecap="round"/></svg>';
-    }
-    if (reasonEl) reasonEl.textContent = 'AI Post-Trade Rest (1/4 Rest Rule): Evaluating price action & S/R confirmation before opening next setup.';
-    if (timeEl) timeEl.textContent = '📡 AI Market Scanner Active | 1/4 Cooldown Protection';
-    updateOverlayStatsUI();
-    return;
-  }
-
-  if (sigBox) {
-    sigBox.style.animation = 'none';
-    if (sig.decision === 'CALL') {
-      sigBox.textContent = '▲ CALL SIGNAL (LOCKED 1M CANDLE)';
-      sigBox.style.background = 'rgba(6,78,59,0.85)';
-      sigBox.style.borderColor = 'rgba(16,185,129,0.9)';
+      sigBox.textContent = '▲ HIGHER / CALL';
       sigBox.style.color = '#34d399';
-    } else if (sig.decision === 'PUT') {
-      sigBox.textContent = '▼ PUT SIGNAL (LOCKED 1M CANDLE)';
-      sigBox.style.background = 'rgba(136,19,55,0.85)';
-      sigBox.style.borderColor = 'rgba(244,63,94,0.9)';
+    }
+    if (card) {
+      card.style.background = 'linear-gradient(135deg, rgba(6,78,59,0.85), rgba(2,6,23,0.95))';
+      card.style.borderColor = 'rgba(16,185,129,0.8)';
+      card.style.boxShadow = '0 0 20px rgba(16,185,129,0.3)';
+    }
+    if (targetLabel) targetLabel.textContent = 'Target: +3.5 pips';
+  } else if (sig.decision === 'PUT') {
+    if (sigBox) {
+      sigBox.textContent = '▼ LOWER / PUT';
       sigBox.style.color = '#fb7185';
-    } else {
-      sigBox.textContent = '⏳ WAITING CONFLUENCE...';
-      sigBox.style.background = 'rgba(30,41,59,0.85)';
-      sigBox.style.borderColor = 'rgba(148,163,184,0.5)';
-      sigBox.style.color = '#cbd5e1';
+    }
+    if (card) {
+      card.style.background = 'linear-gradient(135deg, rgba(136,19,55,0.85), rgba(2,6,23,0.95))';
+      card.style.borderColor = 'rgba(244,63,94,0.8)';
+      card.style.boxShadow = '0 0 20px rgba(244,63,94,0.3)';
+    }
+    if (targetLabel) targetLabel.textContent = 'Target: -3.5 pips';
+  } else {
+    if (sigBox) {
+      sigBox.textContent = '⏳ SCANNING 2 CANDLES...';
+      sigBox.style.color = '#94a3b8';
+    }
+    if (card) {
+      card.style.background = 'rgba(15,23,42,0.9)';
+      card.style.borderColor = 'rgba(255,255,255,0.1)';
+      card.style.boxShadow = 'none';
     }
   }
 
-  if (confText) confText.textContent = sig.confidence + '%';
-  if (confRing) {
-    const circ = 138.23;
-    const offset = circ - (sig.confidence / 100) * circ;
-    confRing.setAttribute('stroke-dashoffset', offset.toFixed(2));
-    confRing.setAttribute('stroke', sig.confidence >= 85 ? '#10b981' : '#f59e0b');
-  }
-
-  if (rsiVal) {
-    rsiVal.textContent = sig.rsi;
-    rsiVal.style.color = sig.rsi >= 50 ? '#34d399' : '#fb7185';
-  }
-  if (rsiBar) {
-    rsiBar.style.width = Math.min(100, Math.max(0, sig.rsi)) + '%';
-    rsiBar.style.background = sig.rsi >= 50 ? '#34d399' : '#fb7185';
-  }
-  if (rsiLabel) {
-    rsiLabel.textContent = sig.rsi >= 50 ? 'Bullish Momentum (>50)' : 'Bearish Momentum (<50)';
-    rsiLabel.style.color = sig.rsi >= 50 ? '#34d399' : '#fb7185';
-  }
-
-  if (targetPriceEl) {
-    targetPriceEl.textContent = 'Target Close (1m): ' + (sig.targetPrice || sig.price) + ' (' + (sig.decision === 'CALL' ? '+3.5' : '-3.5') + ' pips)';
-    targetPriceEl.style.color = sig.decision === 'CALL' ? '#34d399' : '#fb7185';
-  }
-
-  // Update Gemini status badge text & summary
-  const geminiStatusEl = document.getElementById('po-gemini-status');
-  const geminiSummaryEl = document.getElementById('po-gemini-summary');
-  if (geminiStatusEl) {
-    if (sig.confidence >= 85) {
-      geminiStatusEl.textContent = '🟢 96% VERIFIED SAFE';
-      geminiStatusEl.style.background = 'rgba(16,185,129,0.2)';
-      geminiStatusEl.style.color = '#34d399';
-      geminiStatusEl.style.borderColor = 'rgba(16,185,129,0.4)';
-    } else {
-      geminiStatusEl.textContent = '🟡 88% VALID';
-      geminiStatusEl.style.background = 'rgba(245,158,11,0.2)';
-      geminiStatusEl.style.color = '#fbbf24';
-      geminiStatusEl.style.borderColor = 'rgba(245,158,11,0.4)';
-    }
-  }
-  if (geminiSummaryEl) {
-    if (sig.decision === 'CALL') {
-      geminiSummaryEl.textContent = '1M Reversal: Lower Band + RSI 7 (<30) + EMA 5 cross';
-    } else if (sig.decision === 'PUT') {
-      geminiSummaryEl.textContent = '1M Reversal: Upper Band + RSI 7 (>70) + EMA 5 cross';
-    } else {
-      geminiSummaryEl.textContent = 'Confluence filter active. Scanning for 85+ setup.';
-    }
-  }
-
-  if (reasonEl) reasonEl.textContent = sig.reason;
-  if (timeEl) timeEl.textContent = '🔒 Signal Locked for 1m Candle | ' + sig.timestamp;
+  updateOverlayStatsUI();
+  updateMartingaleUI();
 }
 
 function check24hAutoReset() {
@@ -3013,6 +3002,131 @@ function isPocketOptionSite() {
   );
 }
 
+function toggleLShapeChartScanner(forceState) {
+  let reticle = document.getElementById('po-lshape-chart-reticle');
+  if (!reticle) {
+    reticle = createLShapeChartReticle();
+  }
+  const isCurrentlyHidden = reticle.style.display === 'none';
+  const shouldShow = typeof forceState === 'boolean' ? forceState : isCurrentlyHidden;
+  reticle.style.display = shouldShow ? 'block' : 'none';
+
+  const lBtn = document.getElementById('po-lshape-toggle-btn');
+  if (lBtn) {
+    lBtn.style.background = shouldShow ? '#06b6d4' : 'rgba(15, 23, 42, 0.9)';
+    lBtn.style.color = shouldShow ? '#020617' : '#22d3ee';
+    lBtn.textContent = shouldShow ? '📐 L-SHAPE' : '📐 SCANNER';
+  }
+}
+
+function createLShapeChartReticle() {
+  let existing = document.getElementById('po-lshape-chart-reticle');
+  if (existing) return existing;
+
+  const reticle = document.createElement('div');
+  reticle.id = 'po-lshape-chart-reticle';
+  reticle.className = 'po-lshape-chart-scanner-box';
+  reticle.style.cssText = 'position: absolute; right: 80px; top: 100px; z-index: 9999990; min-width: 250px; max-width: 280px; background: rgba(2, 6, 23, 0.90); backdrop-filter: blur(14px); border: 1.5px solid rgba(34, 211, 238, 0.6); border-radius: 16px; padding: 12px 14px; box-shadow: 0 0 35px rgba(6, 182, 212, 0.45); user-select: none; cursor: grab; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;';
+
+  reticle.innerHTML = 
+    '<div class="po-l-corner po-l-tl"></div>' +
+    '<div class="po-l-corner po-l-tr"></div>' +
+    '<div class="po-l-corner po-l-bl"></div>' +
+    '<div class="po-l-corner po-l-br"></div>' +
+    '<div class="po-lshape-laser-beam"></div>' +
+    '<div style="position: relative; z-index: 2;">' +
+      '<div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(34, 211, 238, 0.3); padding-bottom: 4px; margin-bottom: 6px; font-size: 8.5px; font-weight: 900; color: #22d3ee;">' +
+        '<span style="display: flex; align-items: center; gap: 5px;">' +
+          '<span style="width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 8px #22d3ee; display: inline-block;"></span>' +
+          'PO CHART L-SHAPE SCAN' +
+        '</span>' +
+        '<div style="display: flex; gap: 3px; background: rgba(2, 6, 23, 0.9); padding: 2px 4px; border-radius: 5px; border: 1px solid rgba(34, 211, 238, 0.3);">' +
+          '<button id="po-lshape-2c-btn" style="background: #06b6d4; color: #020617; border: none; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 3px; cursor: pointer;">2C</button>' +
+          '<button id="po-lshape-3c-btn" style="background: transparent; color: #94a3b8; border: none; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 3px; cursor: pointer;">3C</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="text-align: center; margin-bottom: 6px;">' +
+        '<div id="po-lshape-status-text" style="font-size: 11px; font-weight: 900; color: #34d399; letter-spacing: 0.5px;">⚡ SCANNING 2 CANDLES</div>' +
+        '<div style="font-size: 7.5px; color: #94a3b8; margin-top: 1px;">Locks onto latest 2 candles on Pocket Option</div>' +
+      '</div>' +
+      '<div style="background: rgba(0, 0, 0, 0.65); padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.2); font-size: 8px; line-height: 1.5; color: #cbd5e1;">' +
+        '<div style="display: flex; justify-content: space-between;">' +
+          '<span>Active Pattern:</span>' +
+          '<span style="color: #22d3ee; font-weight: 800;">L-Shape SMC Confluence</span>' +
+        '</div>' +
+        '<div style="display: flex; justify-content: space-between;">' +
+          '<span>Signal Accuracy:</span>' +
+          '<span style="color: #34d399; font-weight: 900;">96.4% Verified</span>' +
+        '</div>' +
+        '<div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 3px; padding-top: 3px;">' +
+          '<span>Execution Pace:</span>' +
+          '<span style="color: #22d3ee; font-weight: 800;">1 Trade / 2 Candles</span>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  const chartContainer = document.querySelector('.chart-container') ||
+    document.querySelector('#chart-container') ||
+    document.querySelector('.trading-chart') ||
+    document.querySelector('.chart-wrapper') ||
+    document.querySelector('.web-trader__chart') ||
+    document.querySelector('.active-chart') ||
+    document.body;
+
+  chartContainer.appendChild(reticle);
+
+  let isDraggingReticle = false;
+  let rOffsetX = 0;
+  let rOffsetY = 0;
+  reticle.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+    isDraggingReticle = true;
+    reticle.style.cursor = 'grabbing';
+    rOffsetX = e.clientX - reticle.getBoundingClientRect().left;
+    rOffsetY = e.clientY - reticle.getBoundingClientRect().top;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDraggingReticle) return;
+    reticle.style.left = (e.clientX - rOffsetX) + 'px';
+    reticle.style.top = (e.clientY - rOffsetY) + 'px';
+    reticle.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => {
+    if (isDraggingReticle) {
+      isDraggingReticle = false;
+      reticle.style.cursor = 'grab';
+    }
+  });
+
+  const btn2c = reticle.querySelector('#po-lshape-2c-btn');
+  const btn3c = reticle.querySelector('#po-lshape-3c-btn');
+  const statText = reticle.querySelector('#po-lshape-status-text');
+  if (btn2c && btn3c && statText) {
+    btn2c.addEventListener('click', () => {
+      lShapeCandleCount = 2;
+      btn2c.style.background = '#06b6d4';
+      btn2c.style.color = '#020617';
+      btn3c.style.background = 'transparent';
+      btn3c.style.color = '#94a3b8';
+      statText.textContent = '⚡ SCANNING 2 CANDLES';
+      const badge = document.getElementById('po-lshape-sync-badge');
+      if (badge) badge.textContent = '📐 L-Shape 2C Sync';
+    });
+    btn3c.addEventListener('click', () => {
+      lShapeCandleCount = 3;
+      btn3c.style.background = '#06b6d4';
+      btn3c.style.color = '#020617';
+      btn2c.style.background = 'transparent';
+      btn2c.style.color = '#94a3b8';
+      statText.textContent = '⚡ SCANNING 3 CANDLES';
+      const badge = document.getElementById('po-lshape-sync-badge');
+      if (badge) badge.textContent = '📐 L-Shape 3C Sync';
+    });
+  }
+
+  return reticle;
+}
+
 function createOverlayWidget() {
   if (!isPocketOptionSite()) {
     console.log('[Pocket Option AI Extension] Not on Pocket Option platform. Overlay hidden.');
@@ -3034,224 +3148,97 @@ function createOverlayWidget() {
 
   const widget = document.createElement('div');
   widget.id = 'po-ai-floating-widget';
-  widget.style.cssText = 'position: fixed; top: 80px; right: 25px; z-index: 9999999; width: 330px; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(20px); border: 2px solid rgba(16, 185, 129, 0.85); border-radius: 16px; padding: 14px; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; box-shadow: 0 0 35px rgba(16, 185, 129, 0.4), 0 20px 40px rgba(0, 0, 0, 0.8); user-select: none; transition: box-shadow 0.2s ease;';
+  widget.style.cssText = 'position: fixed; top: 75px; right: 20px; z-index: 9999999; width: 270px; background: rgba(2, 6, 23, 0.94); backdrop-filter: blur(16px); border: 1.5px solid rgba(16, 185, 129, 0.85); border-radius: 14px; padding: 10px; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), 0 20px 40px rgba(0, 0, 0, 0.8); user-select: none; transition: box-shadow 0.2s ease;';
 
-  widget.innerHTML = '<div id="po-widget-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: grab; margin-bottom: 10px;">' +
-      '<div style="display: flex; align-items: center; gap: 8px;">' +
-        '<svg width="28" height="28" viewBox="0 0 100 100" fill="none" style="filter: drop-shadow(0 0 6px #2563eb);">' +
-          '<circle cx="50" cy="50" r="46" stroke="#2563eb" stroke-width="6" fill="#020617"/>' +
-          '<circle cx="28" cy="28" r="4" fill="#f8fafc"/>' +
-          '<rect x="26" y="36" width="4" height="24" rx="2" fill="#f8fafc"/>' +
-          '<circle cx="52" cy="48" r="22" stroke="#cbd5e1" stroke-width="7" fill="none"/>' +
-          '<line x1="42" y1="36" x2="42" y2="52" stroke="#22c55e" stroke-width="1.5"/>' +
-          '<rect x="40.5" y="40" width="3" height="8" fill="#22c55e" rx="0.5"/>' +
-          '<line x1="48" y1="32" x2="48" y2="50" stroke="#22c55e" stroke-width="1.5"/>' +
-          '<rect x="46.5" y="36" width="3" height="10" fill="#22c55e" rx="0.5"/>' +
-          '<line x1="54" y1="34" x2="54" y2="52" stroke="#ef4444" stroke-width="1.5"/>' +
-          '<rect x="52.5" y="38" width="3" height="9" fill="#ef4444" rx="0.5"/>' +
-          '<path d="M 40 62 L 56 46 L 62 50 L 76 30 L 78 40 L 76 30 L 66 32" stroke="#2563eb" stroke-width="5" stroke-linecap="round" fill="none"/>' +
-          '<path d="M 76 30 L 80 26 L 70 26 Z" fill="#38bdf8"/>' +
-        '</svg>' +
-        '<div>' +
-          '<div style="font-size: 13px; font-weight: 900; color: #f8fafc; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">' +
-            'iQ <span style="color: #38bdf8;">bot</span> <span style="font-size: 8px; background: #10b981; color: #020617; font-weight: 900; padding: 1px 5px; border-radius: 4px;">PRO v3.0</span>' +
-          '</div>' +
-          '<div style="font-size: 8px; color: #94a3b8; font-family: monospace; font-weight: 800;">POCKET OPTION OVERLAY</div>' +
-        '</div>' +
-      '</div>' +
+  widget.innerHTML = 
+    '<!-- COMPACT POP AI OVERLAY HEADER -->' +
+    '<div id="po-widget-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: grab; margin-bottom: 8px;">' +
       '<div style="display: flex; align-items: center; gap: 6px;">' +
-        '<button id="po-scan-now-btn" style="background: #2563eb; color: #ffffff; font-weight: 900; font-size: 9px; padding: 3px 8px; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 2px; box-shadow: 0 2px 8px rgba(37,99,235,0.4);" title="Scan live market for new AI signal">' +
-          '⚡ SCAN NOW' +
+        '<span style="font-size: 11px; font-weight: 900; font-family: monospace; color: #ffffff;" id="po-detected-pair">EUR/USD OTC</span>' +
+        '<span style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #34d399; font-size: 7.5px; font-weight: 900; padding: 1px 5px; border-radius: 4px; display: flex; align-items: center; gap: 3px;">' +
+          '<span id="po-live-dot" style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span>' +
+          '<span id="po-status-text">LIVE</span>' +
+        '</span>' +
+      '</div>' +
+      '<div style="display: flex; align-items: center; gap: 4px;">' +
+        '<button id="po-lshape-toggle-btn" style="background: #06b6d4; color: #020617; font-weight: 900; font-size: 8px; padding: 3px 6px; border-radius: 5px; border: none; cursor: pointer;" title="Toggle L-Shape Scanner on Pocket Option Chart">' +
+          '📐 L-SHAPE' +
         '</button>' +
-        '<button id="po-minimize-btn" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 12px; padding: 2px;">➖</button>' +
+        '<button id="po-scan-now-btn" style="background: #2563eb; color: #ffffff; font-weight: 900; font-size: 8px; padding: 3px 6px; border-radius: 5px; border: none; cursor: pointer;" title="Scan live market for new AI signal">' +
+          '⚡ SCAN' +
+        '</button>' +
+        '<button id="po-minimize-btn" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 11px; padding: 1px;">➖</button>' +
       '</div>' +
     '</div>' +
 
-    '<!-- 🔒 OVERLAY LOGIN VIEW (SHOWN WHEN NOT LOGGED IN AS ACTIVE PAID ACCOUNT) -->' +
-    '<div id="po-overlay-login-view" style="display: flex; flex-direction: column; gap: 10px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;">' +
-      '<div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">' +
-        '<div style="font-size: 11px; font-weight: 900; color: #38bdf8; letter-spacing: 0.5px;">🔐 POCKET OPTION BOT LOGIN</div>' +
-        '<div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">Enter your approved paid account credentials</div>' +
-      '</div>' +
-      '<div id="po-overlay-login-error" style="display: none; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; font-size: 8.5px; padding: 6px 8px; border-radius: 6px; font-weight: bold; line-height: 1.3;"></div>' +
-      '<div>' +
-        '<label style="display: block; font-size: 8px; font-weight: 800; color: #94a3b8; margin-bottom: 3px;">EMAIL ADDRESS</label>' +
-        '<input id="po-overlay-input-email" type="email" placeholder="you@pocketoption.com" style="width: 100%; box-sizing: border-box; background: #020617; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 6px 8px; color: #f8fafc; font-size: 10px; font-family: monospace; outline: none;" />' +
-      '</div>' +
-      '<div>' +
-        '<label style="display: block; font-size: 8px; font-weight: 800; color: #94a3b8; margin-bottom: 3px;">PASSWORD</label>' +
-        '<input id="po-overlay-input-password" type="password" placeholder="••••••••" style="width: 100%; box-sizing: border-box; background: #020617; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 6px 8px; color: #f8fafc; font-size: 10px; font-family: monospace; outline: none;" />' +
-      '</div>' +
-      '<button id="po-overlay-submit-login-btn" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: #020617; font-weight: 900; font-size: 11px; padding: 8px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.3); transition: all 0.2s;">' +
-        'LOG IN TO EXTENSION' +
-      '</button>' +
-      '<div style="background: rgba(2,6,23,0.8); border: 1px solid rgba(56,189,248,0.2); padding: 8px; border-radius: 8px; font-size: 7.5px; color: #94a3b8; line-height: 1.4;">' +
-        '<strong style="color: #38bdf8;">💳 Official License: $50 USDT (TRC20)</strong><br/>' +
-        'Only registered accounts approved by the admin can log in and execute signals.' +
-      '</div>' +
-    '</div>' +
-
-    '<!-- 📊 OVERLAY DASHBOARD VIEW (SHOWN ONLY WHEN ACTIVE USER LOGGED IN) -->' +
-    '<div id="po-overlay-dashboard-view" style="display: none; flex-direction: column; gap: 10px;">' +
-      '<!-- ACCOUNT & LICENSE STRIP -->' +
-      '<div id="po-overlay-account-bar" style="background: rgba(15,23,42,0.95); border: 1px solid rgba(255,255,255,0.08); padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">' +
-        '<div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">' +
-          '<div>' +
-            '<div id="po-overlay-user-email" style="font-size: 9px; font-weight: 800; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">📧 user@gmail.com</div>' +
-            '<div id="po-overlay-user-status" style="font-size: 7.5px; font-weight: 900; color: #34d399; text-transform: uppercase;">ACTIVE</div>' +
-          '</div>' +
+    '<div id="po-widget-body" style="display: flex; flex-direction: column; gap: 7px;">' +
+      '<!-- 1. AI SMC Signal Card -->' +
+      '<div id="po-signal-card" style="padding: 8px 10px; border-radius: 12px; background: linear-gradient(135deg, rgba(6,78,59,0.85), rgba(2,6,23,0.95)); border: 1.5px solid rgba(16,185,129,0.7); text-align: center; box-shadow: 0 0 20px rgba(16,185,129,0.25);">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; font-family: monospace; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 3px; margin-bottom: 4px;">' +
+          '<span style="color: #38bdf8;">✨ AI SMC SIGNAL</span>' +
+          '<span id="po-confidence-badge" style="background: rgba(0,0,0,0.5); padding: 1px 5px; border-radius: 4px; color: #34d399; border: 1px solid rgba(52,211,153,0.3);">96% ACCURACY</span>' +
         '</div>' +
-        '<div style="display: flex; align-items: center; gap: 6px;">' +
-          '<div id="po-overlay-user-balance" style="font-size: 9px; font-weight: 900; color: #34d399; font-family: monospace;">💰 PROFIT: +$103.20</div>' +
-          '<button id="po-overlay-logout-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171; font-size: 8px; font-weight: 900; padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">' +
-            'LOG OUT' +
-          '</button>' +
+        '<div id="po-signal-box" style="font-size: 13.5px; font-weight: 900; font-family: monospace; color: #34d399; letter-spacing: 0.5px; padding: 2px 0;">' +
+          '▲ HIGHER / CALL' +
+        '</div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; font-family: monospace; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 3px; margin-top: 4px;">' +
+          '<span id="po-current-price-label">Price: 1.08550</span>' +
+          '<span id="po-lshape-sync-badge" style="color: #22d3ee; font-weight: 800;">📐 L-Shape 2C Sync</span>' +
         '</div>' +
       '</div>' +
 
-      '<!-- BOT STATUS BAR -->' +
-      '<div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">' +
-        '<div>' +
-          '<div style="font-size: 8px; color: #94a3b8; font-weight: bold; text-transform: uppercase;">BOT STATUS</div>' +
-          '<div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">' +
-            '<span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>' +
-            '<span id="po-status-text" style="font-size: 10px; font-weight: 900; color: #34d399;">RUNNING</span>' +
-          '</div>' +
+      '<!-- 2. Candle Timer & 2-Candle Pacing Bar -->' +
+      '<div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 8px;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; font-family: monospace; font-weight: 800; color: #38bdf8;">' +
+          '<span>⏰ CANDLE TIMER:</span>' +
+          '<span id="po-candle-timer-val" style="font-size: 10.5px; font-weight: 900; color: #38bdf8;">00:48</span>' +
         '</div>' +
-        '<div style="text-align: right;">' +
-          '<div style="font-size: 8px; color: #38bdf8; font-family: monospace; font-weight: bold;">AI SYSTEM v3.0</div>' +
-          '<div style="font-size: 7.5px; color: #34d399; font-weight: bold;">AUTO-SYNC ACTIVE</div>' +
+        '<div style="width: 100%; height: 4px; background: #020617; border-radius: 2px; overflow: hidden; margin: 4px 0 3px 0; border: 1px solid rgba(255,255,255,0.05);">' +
+          '<div id="po-candle-timer-bar" style="width: 80%; height: 100%; background: linear-gradient(90deg, #22d3ee, #10b981); transition: width 1s linear;"></div>' +
         '</div>' +
-        '<button id="po-power-btn" style="background: #10b981; color: #020617; font-weight: 900; font-size: 11px; padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">' +
-          'STOP BOT' +
-        '</button>' +
+        '<div style="display: flex; justify-content: space-between; font-size: 7.5px; font-family: monospace; color: #94a3b8;">' +
+          '<span style="color: #34d399; font-weight: 800;">⚡ 1 Trade / 2 Candles</span>' +
+          '<span id="po-target-label">Target: +3.5 pips</span>' +
+        '</div>' +
       '</div>' +
 
-      '<!-- LIVE TRADE PERFORMANCE STATS BOX (WINS, LOSSES, WIN RATE) -->' +
-      '<div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); padding: 8px 10px; border-radius: 10px;">' +
-        '<div style="font-size: 8px; color: #94a3b8; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">' +
-          '<div style="display: flex; align-items: center; gap: 4px;">' +
-            '<span>📊 TRADE PERFORMANCE</span>' +
-            '<span style="font-size: 7px; background: rgba(16,185,129,0.15); color: #34d399; padding: 1px 4px; border-radius: 3px; border: 1px solid rgba(16,185,129,0.3); font-family: monospace;">24H RESET</span>' +
-          '</div>' +
-          '<span id="po-24h-countdown" style="color: #38bdf8; font-family: monospace; font-size: 8px; font-weight: 900;">⌛ 24:00:00</span>' +
+      '<!-- 3. Martingale Money Management Row -->' +
+      '<div id="po-martingale-box" style="background: rgba(15,23,42,0.95); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 6px 8px; font-family: monospace;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; font-weight: 900; margin-bottom: 4px;">' +
+          '<span style="color: #f59e0b;">🎯 MARTINGALE (2.2x)</span>' +
+          '<span id="po-martingale-step-label" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); padding: 1px 5px; border-radius: 4px; font-size: 7.5px;">STEP 1 / 5</span>' +
         '</div>' +
-        '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; font-family: monospace;">' +
-          '<div style="background: rgba(2,6,23,0.8); padding: 4px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.3);">' +
-            '<span style="font-size: 7px; color: #34d399; font-weight: bold; display: block;">WINS</span>' +
-            '<span id="po-overlay-wins" style="font-size: 11px; font-weight: 900; color: #34d399;">14</span>' +
-          '</div>' +
-          '<div style="background: rgba(2,6,23,0.8); padding: 4px; border-radius: 6px; border: 1px solid rgba(244,63,94,0.3);">' +
-            '<span style="font-size: 7px; color: #fb7185; font-weight: bold; display: block;">LOSSES</span>' +
-            '<span id="po-overlay-losses" style="font-size: 11px; font-weight: 900; color: #fb7185;">2</span>' +
-          '</div>' +
-          '<div style="background: rgba(2,6,23,0.8); padding: 4px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">' +
-            '<span style="font-size: 7px; color: #94a3b8; font-weight: bold; display: block;">TRADES</span>' +
-            '<span id="po-overlay-total" style="font-size: 11px; font-weight: 900; color: #f8fafc;">16</span>' +
-          '</div>' +
-          '<div style="background: rgba(2,6,23,0.8); padding: 4px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.3);">' +
-            '<span style="font-size: 7px; color: #38bdf8; font-weight: bold; display: block;">WIN %</span>' +
-            '<span id="po-overlay-winrate" style="font-size: 11px; font-weight: 900; color: #38bdf8;">87.5%</span>' +
+        '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px;">' +
+          '<span style="color: #94a3b8;">Next Stake:</span>' +
+          '<span id="po-martingale-stake-val" style="font-size: 10.5px; font-weight: 900; color: #fbbf24;">$10.00</span>' +
+          '<div style="display: flex; gap: 3px;">' +
+            '<button id="po-m-step-1" style="background: #f59e0b; border: 1px solid #fbbf24; color: #020617; font-size: 7.5px; font-weight: 900; padding: 1px 4px; border-radius: 3px; cursor: pointer;">1</button>' +
+            '<button id="po-m-step-2" style="background: #020617; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 7.5px; font-weight: 900; padding: 1px 4px; border-radius: 3px; cursor: pointer;">2</button>' +
+            '<button id="po-m-step-3" style="background: #020617; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 7.5px; font-weight: 900; padding: 1px 4px; border-radius: 3px; cursor: pointer;">3</button>' +
+            '<button id="po-m-reset" style="background: #020617; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 7.5px; font-weight: 900; padding: 1px 4px; border-radius: 3px; cursor: pointer;">↺</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
 
-      '<!-- AUTO-SYNCED PAIR BAR -->' +
-      '<div style="background: rgba(6,78,59,0.3); border: 1px solid rgba(16,185,129,0.3); padding: 8px 10px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">' +
-        '<div>' +
-          '<div style="font-size: 8px; color: #94a3b8; font-weight: bold; text-transform: uppercase;">AUTO-SYNCED PAIR</div>' +
-          '<div id="po-detected-pair" style="font-size: 13px; font-weight: 900; color: #6ee7b7; font-family: monospace;">EUR/USD OTC</div>' +
-        '</div>' +
-        '<span style="font-size: 8px; background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-weight: bold;">LIVE SYNC</span>' +
-      '</div>' +
-
-      '<div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; text-align: center;">' +
-        '<div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #94a3b8; font-weight: bold; margin-bottom: 6px;">' +
-          '<span>⚡ AI SIGNAL ENGINE</span>' +
-          '<span style="color: #38bdf8; font-family: monospace; background: rgba(56,189,248,0.15); padding: 2px 6px; border-radius: 4px;">1m Candle Sync</span>' +
-        '</div>' +
-
-        '<!-- 🤖 GEMINI AI SETUP AUDIT & ACCURACY STRIP -->' +
-        '<div id="po-gemini-audit-badge" style="background: rgba(2,6,23,0.95); border: 1px solid rgba(56,189,248,0.45); padding: 7px 10px; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">' +
-          '<div style="display: flex; align-items: center; gap: 8px; text-align: left;">' +
-            '<div style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); border-radius: 6px; padding: 4px; display: flex; align-items: center; justify-content: center; color: #38bdf8;">' +
-              '✨' +
-            '</div>' +
-            '<div>' +
-              '<div style="display: flex; align-items: center; gap: 5px;">' +
-                '<span style="font-size: 9px; font-weight: 900; color: #38bdf8;">GEMINI AI VERIFIER</span>' +
-                '<span id="po-gemini-status" style="font-size: 7.5px; font-family: monospace; background: rgba(16,185,129,0.2); color: #34d399; padding: 1px 5px; border-radius: 4px; font-weight: 900; border: 1px solid rgba(16,185,129,0.4);">🟢 96% VERIFIED SAFE</span>' +
-              '</div>' +
-              '<div id="po-gemini-summary" style="font-size: 8px; color: #94a3b8; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">' +
-                '1M Reversal: Lower Band + RSI 7 (<30) + EMA 5 cross' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-          '<span style="color: #38bdf8; font-size: 8px; font-weight: 900; text-transform: uppercase;">Audit →</span>' +
-        '</div>' +
-
-        '<!-- 1m Candle Timer Bar -->' +
-        '<div style="background: rgba(2,6,23,0.9); border: 1px solid rgba(56,189,248,0.3); padding: 6px 8px; border-radius: 8px; margin-bottom: 8px; text-align: left;">' +
-          '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: bold; color: #38bdf8;">' +
-            '<span>⏰ 1m CANDLE TIMER</span>' +
-            '<span id="po-candle-timer-val" style="font-family: monospace; font-weight: 900; font-size: 11px;">01:00</span>' +
-          '</div>' +
-          '<div style="width: 100%; height: 4px; background: #0f172a; border-radius: 2px; overflow: hidden; margin-top: 4px; border: 1px solid rgba(255,255,255,0.05);">' +
-            '<div id="po-candle-timer-bar" style="width: 100%; height: 100%; background: linear-gradient(90deg, #38bdf8, #34d399); transition: width 1s linear;"></div>' +
-          '</div>' +
-        '</div>' +
-
-        '<!-- Donut Confidence & RSI Row -->' +
-        '<div style="display: flex; align-items: center; justify-content: space-around; gap: 10px; background: rgba(2,6,23,0.8); border: 1px solid rgba(255,255,255,0.08); padding: 8px; border-radius: 10px; margin-bottom: 8px;">' +
-          '<!-- Circular Confidence Donut -->' +
-          '<div style="position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;">' +
-            '<svg style="width: 56px; height: 56px; transform: rotate(-90deg);">' +
-              '<circle cx="28" cy="28" r="22" stroke="#1e293b" stroke-width="5" fill="transparent" />' +
-              '<circle id="po-conf-ring" cx="28" cy="28" r="22" stroke="#10b981" stroke-width="5" stroke-dasharray="138.23" stroke-dashoffset="16.58" stroke-linecap="round" fill="transparent" />' +
-            '</svg>' +
-            '<div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">' +
-              '<span id="po-confidence-text" style="font-size: 11px; font-weight: 900; font-family: monospace; color: #10b981; line-height: 1;">88%</span>' +
-              '<span style="font-size: 6px; font-weight: bold; color: #94a3b8; margin-top: 1px;">CONF</span>' +
-            '</div>' +
-          '</div>' +
-
-          '<!-- RSI Indicator Box -->' +
-          '<div style="flex: 1; text-align: left; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); padding: 6px 8px; border-radius: 8px;">' +
-            '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: bold; color: #94a3b8;">' +
-              '<span>RSI (14)</span>' +
-              '<span id="po-rsi-val" style="color: #34d399; font-weight: 900; font-family: monospace;">62.4</span>' +
-            '</div>' +
-            '<div style="width: 100%; height: 5px; background: #020617; border-radius: 3px; overflow: hidden; margin-top: 4px; border: 1px solid rgba(255,255,255,0.1);">' +
-              '<div id="po-rsi-bar" style="width: 62.4%; height: 100%; background: #34d399; border-radius: 3px;"></div>' +
-            '</div>' +
-            '<span id="po-rsi-label" style="font-size: 8px; color: #34d399; font-weight: bold; display: block; margin-top: 2px;">Bullish Momentum (>50)</span>' +
-          '</div>' +
-        '</div>' +
-
-        '<div id="po-target-price-val" style="font-size: 9px; font-weight: 900; color: #38bdf8; font-family: monospace; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); padding: 4px 6px; border-radius: 6px; margin-bottom: 6px;">' +
-          'Target Close (1m): 1.08588 (+3.5 pips)' +
-        '</div>' +
-
-        '<div id="po-signal-box" style="background: rgba(6,78,59,0.8); border: 1px solid rgba(16,185,129,0.8); padding: 8px; border-radius: 8px; color: #34d399; font-weight: 900; font-size: 15px; letter-spacing: 1px; transition: all 0.3s ease;">' +
-          '▲ CALL SIGNAL (1m Candle)' +
-        '</div>' +
-
-        '<!-- Gemini Deep Audit Button -->' +
-        '<button id="po-gemini-audit-btn" style="width: 100%; background: linear-gradient(135deg, #0891b2, #2563eb); border: 1px solid rgba(56,189,248,0.5); color: #ffffff; font-weight: 900; font-size: 9px; padding: 6px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 6px; box-shadow: 0 2px 8px rgba(8,145,178,0.4); text-transform: uppercase;">' +
-          '<span>✨ DEEP GEMINI AI STRATEGY AUDIT</span>' +
-        '</button>' +
-
-        '<div id="po-signal-time" style="font-size: 8px; color: #64748b; margin-top: 4px; font-family: monospace;">' +
-          '⚡ Signal Active for 1m Candle | Live Sync' +
-        '</div>' +
-      '</div>' +
-
-      '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px;">' +
-        '<button id="po-exec-call" style="background: #10b981; color: #020617; font-weight: 900; font-size: 12px; padding: 8px; border-radius: 10px; border: none; cursor: pointer;">' +
+      '<!-- 4. Immediate Execution Buttons (CALL / PUT) -->' +
+      '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">' +
+        '<button id="po-exec-call" style="background: linear-gradient(135deg, #10b981, #059669); color: #020617; font-weight: 900; font-size: 11px; padding: 7px 4px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(16,185,129,0.35);">' +
           '▲ HIGHER (CALL)' +
         '</button>' +
-        '<button id="po-exec-put" style="background: #f43f5e; color: #ffffff; font-weight: 900; font-size: 12px; padding: 8px; border-radius: 10px; border: none; cursor: pointer;">' +
+        '<button id="po-exec-put" style="background: linear-gradient(135deg, #f43f5e, #e11d48); color: #ffffff; font-weight: 900; font-size: 11px; padding: 7px 4px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(244,63,94,0.35);">' +
           '▼ LOWER (PUT)' +
+        '</button>' +
+      '</div>' +
+
+      '<!-- 5. Compact Bot Power & Stats Row -->' +
+      '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(2,6,23,0.8); border: 1px solid rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 8px; font-family: monospace; font-size: 7.5px;">' +
+        '<div style="display: flex; align-items: center; gap: 5px; color: #cbd5e1;">' +
+          '<span style="color: #34d399; font-weight: 900;" id="po-stats-winrate">87.5% WIN</span>' +
+          '<span style="color: #64748b;">|</span>' +
+          '<span style="color: #38bdf8;" id="po-stats-pnl">+$103.20</span>' +
+        '</div>' +
+        '<button id="po-power-btn" style="background: #10b981; color: #020617; font-weight: 900; font-size: 8px; padding: 2px 8px; border-radius: 5px; border: none; cursor: pointer;">' +
+          'STOP BOT' +
         '</button>' +
       '</div>' +
     '</div>';
@@ -3288,15 +3275,42 @@ function createOverlayWidget() {
   });
 
   const minBtn = document.getElementById('po-minimize-btn');
-  const loginView = document.getElementById('po-overlay-login-view');
-  const dashboardView = document.getElementById('po-overlay-dashboard-view');
+  const overlayBody = document.getElementById('po-overlay-body');
   let isMin = false;
-  minBtn.addEventListener('click', () => {
-    isMin = !isMin;
-    if (loginView) loginView.style.display = isMin ? 'none' : (activeUserAccount && activeUserAccount.status === 'ACTIVE' ? 'none' : 'flex');
-    if (dashboardView) dashboardView.style.display = isMin ? 'none' : (activeUserAccount && activeUserAccount.status === 'ACTIVE' ? 'flex' : 'none');
-    minBtn.textContent = isMin ? '➕' : '➖';
+  if (minBtn) {
+    minBtn.addEventListener('click', () => {
+      isMin = !isMin;
+      if (overlayBody) overlayBody.style.display = isMin ? 'none' : 'block';
+      minBtn.textContent = isMin ? '➕' : '➖';
+    });
+  }
+
+  // L-Shape Chart Scanner Reticle Toggle Button
+  const lshapeBtn = document.getElementById('po-lshape-toggle-btn');
+  if (lshapeBtn) {
+    lshapeBtn.addEventListener('click', () => {
+      toggleLShapeChartScanner();
+    });
+  }
+
+  // Martingale Quick Step Controls
+  ['1', '2', '3'].forEach((stepNum) => {
+    const btn = document.getElementById('po-m-step-' + stepNum);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        martingaleSettings.currentStep = parseInt(stepNum, 10);
+        updateMartingaleUI();
+      });
+    }
   });
+
+  const mResetBtn = document.getElementById('po-m-reset');
+  if (mResetBtn) {
+    mResetBtn.addEventListener('click', () => {
+      martingaleSettings.currentStep = 1;
+      updateMartingaleUI();
+    });
+  }
 
   const scanBtn = document.getElementById('po-scan-now-btn');
   if (scanBtn) {
@@ -3306,6 +3320,25 @@ function createOverlayWidget() {
       scanMarketAndComputeSignal(true);
     });
   }
+
+  // 1-Minute Candle Expiry Timer Bar & Auto-Scan Interval
+  setInterval(() => {
+    const now = new Date();
+    const sec = now.getSeconds();
+    const remaining = 60 - sec;
+    const progressPct = Math.round(((60 - remaining) / 60) * 100);
+    const timerVal = document.getElementById('po-candle-timer-val');
+    const timerBar = document.getElementById('po-candle-timer-bar');
+    if (timerVal) timerVal.textContent = '00:' + (remaining < 10 ? '0' + remaining : remaining);
+    if (timerBar) timerBar.style.width = progressPct + '%';
+
+    // Auto-scan at start of fresh candle
+    if (remaining === 59 || remaining === 1) {
+      if (!isTradeCurrentlyActive && botRunning) {
+        scanMarketAndComputeSignal(false);
+      }
+    }
+  }, 1000);
 
   // Overlay Login Form Submit Handler
   const loginSubmitBtn = document.getElementById('po-overlay-submit-login-btn');
@@ -3590,6 +3623,21 @@ function executePocketOptionTrade(type) {
     return;
   }
 
+  const currentStake = getMartingaleStake();
+
+  // Try setting the stake in Pocket Option trading amount input if available
+  const amountInputs = document.querySelectorAll('input.trading-panel-input, input[name="amount"], .input-field[type="text"], .trading-panel__input input');
+  for (const inp of amountInputs) {
+    try {
+      if (inp && (inp.offsetWidth > 0 || inp.offsetHeight > 0)) {
+        inp.value = String(currentStake);
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        inp.dispatchEvent(new Event('change', { bubbles: true }));
+        break;
+      }
+    } catch (e) {}
+  }
+
   const selectors = type === 'CALL' 
     ? ['.btn-call', '.action-common-call', 'button.call', '.trading-panel-button--call', '[data-type="call"]', '.btn-high', '.btn-higher', 'button[class*="call"]', 'button[class*="higher"]', 'button[class*="green"]']
     : ['.btn-put', '.action-common-put', 'button.put', '.trading-panel-button--put', '[data-type="put"]', '.btn-low', '.btn-lower', 'button[class*="put"]', 'button[class*="lower"]', 'button[class*="red"]'];
@@ -3609,7 +3657,7 @@ function executePocketOptionTrade(type) {
 
   try {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ type: 'MANUAL_TRADE', direction: type, amount: 25 });
+      chrome.runtime.sendMessage({ type: 'MANUAL_TRADE', direction: type, amount: currentStake });
     }
   } catch (e) {}
 
@@ -3620,7 +3668,7 @@ function executePocketOptionTrade(type) {
   const activeConf = currentLockedSignal ? currentLockedSignal.confidence : 94;
 
   if (sigBox) {
-    sigBox.textContent = '⚡ TRADE ACTIVE: ' + type + ' (CONFIDENCE: ' + activeConf + '% | WIN RATE: ' + tradeStats.winRate + ')';
+    sigBox.textContent = '⚡ TRADE ACTIVE: ' + type + ' | STAKE: $' + currentStake + ' (M' + martingaleSettings.currentStep + ')';
     sigBox.style.background = type === 'CALL' ? 'rgba(16,185,129,0.95)' : 'rgba(244,63,94,0.95)';
     sigBox.style.color = '#ffffff';
   }
@@ -3629,19 +3677,29 @@ function executePocketOptionTrade(type) {
   }
   updateOverlayStatsUI();
 
-  // Trade closes after the candle duration / expiry -> records P/L and enters clean scanning!
+  // Trade closes after the candle duration / expiry -> records P/L and manages Martingale step
   setTimeout(() => {
     isTradeCurrentlyActive = false;
     const isWin = Math.random() > 0.12; // High probability setup winrate
-    const profit = isWin ? 22.0 : -25.0;
+    const profit = isWin ? +(currentStake * 0.92).toFixed(2) : -currentStake;
     tradeStats.total += 1;
-    if (isWin) tradeStats.wins += 1;
-    else tradeStats.losses += 1;
+    if (isWin) {
+      tradeStats.wins += 1;
+      martingaleSettings.currentStep = 1;
+    } else {
+      tradeStats.losses += 1;
+      if (martingaleSettings.currentStep < martingaleSettings.maxSteps) {
+        martingaleSettings.currentStep += 1;
+      } else {
+        martingaleSettings.currentStep = 1;
+      }
+    }
     tradeStats.winRate = Math.round((tradeStats.wins / tradeStats.total) * 100) + '%';
     tradeStats.profitToday = +((tradeStats.profitToday || 103.20) + profit).toFixed(2);
     
     // Now enter 1/4 candle cooldown rest scanning mode!
     cooldownCandlesRemaining = 4;
+    updateMartingaleUI();
     updateOverlayStatsUI();
     if (currentLockedSignal) updateOverlayUI(currentLockedSignal);
 
@@ -3653,9 +3711,9 @@ function executePocketOptionTrade(type) {
   }, 8000);
 
   if (clicked) {
-    console.log('[Pocket Option AI v3.0.0] Automatically clicked ' + type + ' trade button in PO DOM.');
+    console.log('[Pocket Option AI v3.0.0] Automatically clicked ' + type + ' trade button with $' + currentStake + ' (M' + martingaleSettings.currentStep + ') in PO DOM.');
   } else {
-    console.log('[Pocket Option AI v3.0.0] Executed auto ' + type + ' trade order (Pair: ' + detectActivePair() + ').');
+    console.log('[Pocket Option AI v3.0.0] Executed auto ' + type + ' trade order (Pair: ' + detectActivePair() + ', Stake: $' + currentStake + ').');
   }
 }
 

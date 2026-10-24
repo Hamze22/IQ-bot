@@ -6,6 +6,7 @@ import { ConfidenceCircleGauge } from './ConfidenceCircleGauge';
 import { RsiGauge } from './RsiGauge';
 import { GeminiVerificationModal } from './GeminiVerificationModal';
 import { getRealtimeCandleSeconds, formatCandleTimer } from '../utils/candleTimer';
+import { showSafeToast } from '../utils/safeAlert';
 import {
   Play,
   Pause,
@@ -246,25 +247,25 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
 
   const handleSubmitTxHash = () => {
     if (!txidInput.trim()) {
-      alert('Please enter your $50 USDT TRC20 Transaction Hash / Tx ID.');
+      showSafeToast('Please enter your $50 USDT TRC20 Transaction Hash / Tx ID.', 'error');
       return;
     }
     if (!activeUser?.email) {
-      alert('Please log in or register your account before submitting payment.');
+      showSafeToast('Please log in or register your account before submitting payment.', 'error');
       if (onOpenLogin) onOpenLogin();
       return;
     }
     const emailToUse = activeUser.email;
     const res = authService.submitPaymentTxid(txidInput, 'LIFETIME', emailToUse);
     if (res.success) {
-      alert('✓ Payment Tx Hash submitted! Status updated to PENDING APPROVAL. Admin will verify your payment.');
+      showSafeToast('Payment Tx Hash submitted successfully. Admin verification in progress.', 'success');
       setTxidInput('');
       refreshAdminData();
       if (onPaymentSubmitted) {
         onPaymentSubmitted();
       }
     } else {
-      alert(res.error || 'Failed to submit Tx Hash.');
+      showSafeToast(res.error || 'Failed to submit Tx Hash.', 'error');
     }
   };
   const [candleSec, setCandleSec] = useState<number>(() => getRealtimeCandleSeconds(settings.expiryTime));
@@ -323,8 +324,8 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
   };
 
   const handleTradeWithCooldown = (dir: 'CALL' | 'PUT') => {
-    if (!isAccountActive) {
-      alert('Please log in with an active account to execute trades.');
+    if (!isAccountActive && mode !== 'DEMO') {
+      showSafeToast('Account awaiting Admin approval. You can trade freely in DEMO mode!', 'warning');
       return;
     }
     if (onManualTrade) {
@@ -346,25 +347,13 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
   };
 
   const widthClasses = {
-    sm: 'w-[320px]',
-    md: 'w-[380px]',
-    lg: 'w-[440px]',
-    xl: 'w-[520px]',
+    sm: 'w-full max-w-[320px] min-[1050px]:w-[320px]',
+    md: 'w-full max-w-[380px] min-[1050px]:w-[380px]',
+    lg: 'w-full max-w-[440px] min-[1050px]:w-[440px]',
+    xl: 'w-full max-w-[520px] min-[1050px]:w-[520px]',
   }[popupWidth];
 
   const handleStart = () => {
-    if (!isAccountActive) {
-      if (!activeUser) {
-        alert('🔒 Authentication Required: Please log in with your registered paid account to start the AI bot.');
-        if (onOpenLogin) onOpenLogin();
-      } else if (activeUser.status === 'PENDING') {
-        alert('⏳ Approval Pending: Your $50 USDT payment is awaiting Admin Approval. The bot will activate as soon as the admin approves your transaction.');
-      } else {
-        alert('🔒 License Required: You must complete the $50 USDT TRC20 payment and receive admin approval to activate the trading bot.');
-        if (onOpenPayment) onOpenPayment();
-      }
-      return;
-    }
     setBotStatus('RUNNING');
     try {
       playSoundAlert('start');
@@ -383,14 +372,14 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-3">
+    <div className="w-full max-w-full flex flex-col items-center justify-center space-y-3">
       {/* Download Extension ZIP Button */}
       {onDownloadZip && (
         <button
           onClick={onDownloadZip}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition active:scale-95 border border-emerald-300/40"
+          className="flex flex-wrap items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition active:scale-95 border border-emerald-300/40 max-w-full"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-4 h-4 shrink-0" />
           <span>Download Extension Package v3.0.0 (.ZIP)</span>
           <span className="bg-slate-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-mono font-bold">
             UPDATED
@@ -399,7 +388,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
       )}
 
       {/* Top Extension Window Size Adjuster Controls */}
-      <div className="flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-slate-300 shadow-md">
+      <div className="hidden min-[1050px]:flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-slate-300 shadow-md">
         <span className="font-bold text-[11px] text-slate-400 uppercase tracking-wider">Popup Size:</span>
         <div className="flex items-center gap-1">
           {(['sm', 'md', 'lg', 'xl'] as const).map((sz) => (
@@ -420,7 +409,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
 
       {/* Extension Container (Adjustable Width with Glowing Neon Border) */}
       <div
-        className={`${widthClasses} max-h-[85vh] overflow-y-auto bg-slate-950 border-2 border-emerald-400/90 shadow-[0_0_30px_rgba(16,185,129,0.45),inset_0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/50 rounded-2xl p-4 space-y-3.5 relative font-sans text-slate-100 transition-all duration-300 custom-scrollbar`}
+        className={`${widthClasses} max-h-[85vh] overflow-y-auto bg-slate-950 border-2 border-emerald-400/90 shadow-[0_0_30px_rgba(16,185,129,0.45),inset_0_0_15px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500/50 rounded-2xl p-3 sm:p-4 space-y-3.5 relative font-sans text-slate-100 transition-all duration-300 custom-scrollbar`}
       >
         
         {/* Top Header */}
@@ -631,22 +620,22 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
 
         {/* AI Signal Card */}
         <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-3 space-y-2.5 shadow-xl relative overflow-hidden">
-          {!isAccountActive && (
+          {!isAccountActive && mode !== 'DEMO' && (
             <div className="absolute inset-0 bg-slate-950/92 backdrop-blur-md z-20 flex flex-col items-center justify-center p-3 text-center space-y-2 border border-amber-500/40 rounded-xl">
               <div className="w-9 h-9 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
                 <Lock className="w-4 h-4" />
               </div>
               <div>
-                <div className="text-[11px] font-black text-amber-300">TRADING SIGNALS LOCKED 🔒</div>
+                <div className="text-[11px] font-black text-amber-300">REAL TRADING SIGNALS LOCKED 🔒</div>
                 <div className="text-[9px] text-slate-300 mt-0.5 leading-snug">
-                  Account <strong className="text-slate-100 font-mono">{activeUser?.email || 'Guest'}</strong> is awaiting Admin Activation.
+                  Account <strong className="text-slate-100 font-mono">{activeUser?.email || 'Guest'}</strong> is awaiting Admin Activation. Switch to DEMO mode to test live signals!
                 </div>
               </div>
               <div className="flex items-center gap-1.5 pt-1">
                 <button
                   onClick={() => {
                     refreshAdminData();
-                    alert('✓ Checked database status. Once activated by admin, signals unlock automatically!');
+                    showSafeToast('✓ Checked cloud database status.', 'success');
                   }}
                   className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[9px] font-bold rounded-lg cursor-pointer flex items-center gap-1 transition"
                 >

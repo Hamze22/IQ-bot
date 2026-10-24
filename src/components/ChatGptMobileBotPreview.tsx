@@ -244,49 +244,7 @@ export const ChatGptMobileBotPreview: React.FC<ChatGptMobileBotPreviewProps> = (
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-4">
-      
-      {/* 1. TOP HEADER & SEARCH / ASSET SELECTOR */}
-      <div className="bg-slate-900/90 border border-amber-500/40 rounded-2xl p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-teal-400 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/30 font-black">
-            <Bot className="w-6 h-6 text-slate-950" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-black text-white leading-none">
-                ChatGPT-4o Cloud Bot
-              </h3>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 text-[10px] font-mono font-black border border-blue-500/40 animate-pulse">
-                NEW
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 font-mono mt-1">
-              Next-Gen Cloud Bot Engine • Powered by ChatGPT-4o Enterprise
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* SEARCH TRIGGER BUTTON */}
-          <button
-            onClick={() => setIsPairPickerOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-700 text-slate-300 text-xs font-mono font-bold transition cursor-pointer shadow-sm active:scale-95"
-          >
-            <Search className="w-3.5 h-3.5 text-amber-400" />
-            <span>Search Asset</span>
-          </button>
-
-          <button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white transition cursor-pointer"
-            title="Toggle Sound"
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
-          </button>
-        </div>
-      </div>
-
-      {/* 2. ACTIVE ASSET SELECTOR & SEARCH BAR (TAP TO CHOOSE FX / OTC) */}
+      {/* ACTIVE ASSET SELECTOR & SEARCH BAR (TAP TO CHOOSE FX / OTC) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs font-bold text-slate-400 px-1">
           <span className="flex items-center gap-1.5 text-slate-300">

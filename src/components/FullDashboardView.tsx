@@ -228,16 +228,7 @@ export const FullDashboardView: React.FC<FullDashboardViewProps> = ({
         </header>
 
         {/* Top Metrics Cards Row */}
-        <section className="p-5 border-b border-slate-800/80 bg-slate-900/40 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-slate-900 border border-slate-800/80 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">
-              Balance
-            </span>
-            <span className="text-lg font-mono font-black text-slate-100">
-              ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-
+        <section className="p-5 border-b border-slate-800/80 bg-slate-900/40 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <div className="bg-slate-900 border border-slate-800/80 rounded-xl p-3.5 space-y-1">
             <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">
               Profit Today

@@ -285,8 +285,8 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
       className="relative w-full max-w-full bg-[#0b101d] border-2 border-slate-800 rounded-2xl overflow-hidden shadow-2xl min-h-[720px] select-none flex flex-col font-sans text-slate-100"
     >
       {/* 1. Pocket Option Top Platform Bar */}
-      <div className="bg-[#0f172a] border-b border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="bg-[#0f172a] border-b border-slate-800 px-2.5 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 shrink-0 max-w-full">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 max-w-full flex-1">
           {/* Logo */}
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-blue-600 font-black text-white text-xs flex items-center justify-center shadow-md shadow-blue-500/30">
@@ -338,7 +338,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
       </div>
 
       {/* 2. PO AI Overlay Live Widget Stage */}
-      <div className="flex-1 relative min-h-[580px] bg-[#070b14] flex flex-col items-center justify-center overflow-hidden">
+      <div className="flex-1 relative min-h-[540px] min-[1050px]:min-h-[580px] px-2.5 py-4 min-[1050px]:p-0 bg-[#070b14] flex flex-col items-center justify-center overflow-hidden">
         {/* Real-time Chart background for the simulator */}
         <div className={`absolute inset-0 z-0 transition-all duration-1000 ${showScanningZone ? 'opacity-100 scale-[1.02]' : 'opacity-40'}`}>
           <LiveChart
