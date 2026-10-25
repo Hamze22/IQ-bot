@@ -54,6 +54,15 @@
   animation: scan-vertical-html 3s linear infinite;
 }
 
+@keyframes scan-up-down {
+  0%, 100% { top: 4%; }
+  50% { top: 94%; }
+}
+
+.animate-scan-up-down {
+  animation: scan-up-down 2.8s ease-in-out infinite;
+}
+
 @layer base {
   *, ::before, ::after {
     box-sizing: border-box;

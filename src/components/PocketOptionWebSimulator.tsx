@@ -354,74 +354,28 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
 
         {/* 📐 POCKET OPTION BROKER CHART L-SHAPE CANDLESTICK SCANNER (Directly on PO Chart) */}
         {showChartLShapeScanner && (
-          <div className="absolute right-4 md:right-16 top-20 md:top-24 z-20 pointer-events-auto">
-            <div className="relative p-3 rounded-2xl bg-slate-950/85 border border-cyan-400/50 backdrop-blur-md shadow-[0_0_35px_rgba(6,182,212,0.45)] select-none min-w-[240px] max-w-[280px]">
+          <div className="absolute right-4 md:right-16 top-20 md:top-24 z-20 pointer-events-none">
+            <div className="relative w-[220px] sm:w-[250px] h-[150px] sm:h-[168px] bg-transparent select-none flex items-center justify-center">
               {/* 4 Sharp Glowing L-Shape Corner Brackets */}
               {/* Top-Left L */}
-              <div className="absolute -top-2.5 -left-2.5 w-6 h-6 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-md drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute top-0 left-0 w-7 h-7 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-sm drop-shadow-[0_0_8px_#22d3ee]" />
               {/* Top-Right L */}
-              <div className="absolute -top-2.5 -right-2.5 w-6 h-6 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-md drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute top-0 right-0 w-7 h-7 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-sm drop-shadow-[0_0_8px_#22d3ee]" />
               {/* Bottom-Left L */}
-              <div className="absolute -bottom-2.5 -left-2.5 w-6 h-6 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-md drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-sm drop-shadow-[0_0_8px_#22d3ee]" />
               {/* Bottom-Right L */}
-              <div className="absolute -bottom-2.5 -right-2.5 w-6 h-6 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-md drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-sm drop-shadow-[0_0_8px_#22d3ee]" />
 
-              {/* Scanning Laser Beam Effect */}
-              <div className="absolute inset-x-2 top-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-scan-vertical-html opacity-90 pointer-events-none" />
-
-              <div className="space-y-1.5 font-mono">
-                {/* Header */}
-                <div className="flex items-center justify-between pb-1 border-b border-cyan-500/30 text-[8px] font-black text-cyan-300">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                    <span>PO CHART L-SHAPE SCAN</span>
-                  </span>
-                  <div className="flex items-center gap-1 bg-slate-900 px-1 py-0.5 rounded border border-cyan-500/30">
-                    <button
-                      onClick={() => setLShapeCandleCount(2)}
-                      className={`px-1.5 py-0.2 rounded text-[7.5px] font-bold cursor-pointer transition ${
-                        lShapeCandleCount === 2 ? 'bg-cyan-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      2C
-                    </button>
-                    <button
-                      onClick={() => setLShapeCandleCount(3)}
-                      className={`px-1.5 py-0.2 rounded text-[7.5px] font-bold cursor-pointer transition ${
-                        lShapeCandleCount === 3 ? 'bg-cyan-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      3C
-                    </button>
-                  </div>
-                </div>
-
-                {/* Status Indicator */}
-                <div className="text-center py-0.5">
-                  <div className="text-[11px] font-black text-emerald-400 tracking-wide flex items-center justify-center gap-1">
-                    <span>⚡ SCANNING {lShapeCandleCount} CANDLES</span>
-                  </div>
-                  <div className="text-[7.5px] text-slate-400 mt-0.5">
-                    Locks onto latest 2 candles on Pocket Option
-                  </div>
-                </div>
-
-                {/* SMC & Candle High/Low Info */}
-                <div className="bg-black/50 p-1.5 rounded-lg border border-cyan-500/20 text-[7.5px] space-y-1">
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Active Pattern:</span>
-                    <span className="text-cyan-300 font-bold">L-Shape SMC Confluence</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>Signal Accuracy:</span>
-                    <span className="text-emerald-400 font-black">96.4% Verified</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-400 pt-0.5 border-t border-white/5">
-                    <span>Execution Pace:</span>
-                    <span className="text-cyan-300 font-bold">1 Trade / 2 Candles</span>
-                  </div>
-                </div>
+              {/* Up-and-Down Scanning Line & Wave */}
+              <div className="absolute inset-x-1.5 top-0 pointer-events-none animate-scan-up-down">
+                <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]" />
+                <div className="h-5 w-full -mt-2.5 bg-gradient-to-b from-cyan-400/20 via-cyan-400/10 to-transparent blur-[2px]" />
               </div>
+
+              {/* Only Text Kept */}
+              <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+                SCANNING 10/2 CANDLES
+              </span>
             </div>
           </div>
         )}
