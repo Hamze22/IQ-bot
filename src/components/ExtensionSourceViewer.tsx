@@ -39,13 +39,13 @@ export const ExtensionSourceViewer: React.FC<ExtensionSourceViewerProps> = ({ on
                 Chrome Extension Package (Manifest V3)
               </h2>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-extrabold">
-                v3.0.0 LATEST PRO BUILD
+                v3.2.0 LATEST PRO BUILD
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-              Contains updated 1m Scalping engine, Pocket Option web DOM overlay badge, risk safeguards, and instant scan button.
+              Contains updated empty L-Shape 10/2 Candles wave scanner, Pocket Option web DOM overlay badge, Dark/Light mode support, and instant scan button.
               <br />
-              <strong className="text-slate-200">1. Click "Download Extension Package v3.0.0 (.ZIP)"</strong> →
+              <strong className="text-slate-200">1. Click "Download Extension Package v3.2.0 (.ZIP)"</strong> →
               Unzip the folder. <br />
               <strong className="text-slate-200">2. Open Chrome</strong> → Navigate to{' '}
               <code className="text-emerald-400 bg-slate-950 px-1.5 py-0.5 rounded font-mono">
@@ -62,7 +62,7 @@ export const ExtensionSourceViewer: React.FC<ExtensionSourceViewerProps> = ({ on
           className="flex items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-xl shadow-emerald-500/25 transition active:scale-95 shrink-0 border border-emerald-300/40"
         >
           <Download className={`w-4 h-4 ${downloaded ? 'animate-bounce text-slate-950' : ''}`} />
-          <span>{downloaded ? 'ZIP Downloaded! (v3.0.0 PRO)' : 'Download Extension Package v3.0.0 (.ZIP)'}</span>
+          <span>{downloaded ? 'ZIP Downloaded! (v3.2.0 PRO)' : 'Download Extension Package v3.2.0 (.ZIP)'}</span>
           <span className="bg-slate-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-mono font-bold border border-emerald-500/40">
             UPDATED BUILD
           </span>

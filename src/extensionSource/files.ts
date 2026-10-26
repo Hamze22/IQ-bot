@@ -8,8 +8,8 @@ export const EXTENSION_FILES: ExtensionFile[] = [
     content: `{
   "manifest_version": 3,
   "name": "Pocket Option AI Trading Assistant Pro",
-  "version": "3.0.0",
-  "description": "v3.0.0 Latest Pro Build: Professional AI-powered binary trading assistant with 1-minute strategy (15s chart, EMA 10/25, MACD, RSI), automated risk controls, live Pocket Option DOM overlay badge, audio alerts, and instant signal scanning.",
+  "version": "3.2.0",
+  "description": "v3.2.0 Latest Pro Build: AI-powered Pocket Option trading assistant with transparent L-Shape 10/2 Candles wave scanner, live PO DOM overlay, Dark/Warm-Light mode support, Martingale controls, and instant signal scanning.",
   "permissions": [
     "storage",
     "notifications",
@@ -69,9 +69,9 @@ export const EXTENSION_FILES: ExtensionFile[] = [
   },
   {
     name: 'content.css',
-    description: 'Pocket Option Web page overlay styles for floating AI signal badge',
+    description: 'Pocket Option Web page overlay styles for floating AI signal badge & empty L-Shape 10/2 wave scanner',
     type: 'css',
-    content: `/* Pocket Option AI Floating Overlay & L-Shape Scanner Styles v3.0.0 */
+    content: `/* Pocket Option AI Floating Overlay & Empty L-Shape 10/2 Scanner Styles v3.2.0 */
 #po-ai-floating-widget {
   position: fixed;
   top: 75px;
@@ -87,7 +87,7 @@ export const EXTENSION_FILES: ExtensionFile[] = [
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), 0 20px 40px rgba(0, 0, 0, 0.8);
   user-select: none;
-  transition: box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #po-ai-floating-widget.minimized {
@@ -95,20 +95,40 @@ export const EXTENSION_FILES: ExtensionFile[] = [
   padding: 6px 10px;
 }
 
-/* 📐 Pocket Option Chart L-Shape Candlestick Scanner Reticle */
+/* ☀️ Warm Brown Light Mode for PO Overlay Widget */
+#po-ai-floating-widget.po-theme-light {
+  background: #dfd2bf !important;
+  border-color: #b8a287 !important;
+  color: #0a0807 !important;
+  box-shadow: 0 10px 30px rgba(60, 40, 20, 0.22) !important;
+}
+
+#po-ai-floating-widget.po-theme-light #po-detected-pair {
+  color: #0a0807 !important;
+}
+
+#po-ai-floating-widget.po-theme-light .po-inner-card {
+  background: #ede5d8 !important;
+  border-color: #bfa98e !important;
+  color: #0a0807 !important;
+}
+
+/* 📐 Pocket Option Chart Empty/Transparent L-Shape 10/2 Candlestick Scanner Reticle */
 #po-lshape-chart-reticle {
   position: absolute;
-  right: 60px;
-  top: 90px;
+  right: 80px;
+  top: 100px;
   z-index: 9999990;
-  min-width: 240px;
-  max-width: 280px;
-  background: rgba(2, 6, 23, 0.88);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(34, 211, 238, 0.5);
-  border-radius: 16px;
-  padding: 12px 14px;
-  box-shadow: 0 0 35px rgba(6, 182, 212, 0.45);
+  width: 245px;
+  height: 165px;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   user-select: none;
   cursor: grab;
 }
@@ -120,62 +140,85 @@ export const EXTENSION_FILES: ExtensionFile[] = [
 /* 4 Sharp Glowing L-Shape Corner Brackets */
 .po-l-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   pointer-events: none;
 }
 
 .po-l-tl {
-  top: -10px;
-  left: -10px;
+  top: 0;
+  left: 0;
   border-top: 3.5px solid #22d3ee;
   border-left: 3.5px solid #22d3ee;
-  border-top-left-radius: 6px;
+  border-top-left-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-tr {
-  top: -10px;
-  right: -10px;
+  top: 0;
+  right: 0;
   border-top: 3.5px solid #22d3ee;
   border-right: 3.5px solid #22d3ee;
-  border-top-right-radius: 6px;
+  border-top-right-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-bl {
-  bottom: -10px;
-  left: -10px;
+  bottom: 0;
+  left: 0;
   border-bottom: 3.5px solid #22d3ee;
   border-left: 3.5px solid #22d3ee;
-  border-bottom-left-radius: 6px;
+  border-bottom-left-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-br {
-  bottom: -10px;
-  right: -10px;
+  bottom: 0;
+  right: 0;
   border-bottom: 3.5px solid #22d3ee;
   border-right: 3.5px solid #22d3ee;
-  border-bottom-right-radius: 6px;
+  border-bottom-right-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
-/* Scanning Laser Beam Sweep */
+/* Up-and-Down Scanning Line & Wave Sweep */
 @keyframes po-lshape-laser-sweep {
-  0% { top: 4px; opacity: 0.3; }
-  50% { top: 92%; opacity: 1; }
-  100% { top: 4px; opacity: 0.3; }
+  0%, 100% { top: 4%; }
+  50% { top: 94%; }
+}
+
+.po-lshape-laser-wrap {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  animation: po-lshape-laser-sweep 2.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .po-lshape-laser-beam {
-  position: absolute;
-  left: 8px;
-  right: 8px;
+  width: 100%;
   height: 2px;
   background: linear-gradient(90deg, transparent, #22d3ee, #38bdf8, #22d3ee, transparent);
   box-shadow: 0 0 12px #22d3ee;
-  animation: po-lshape-laser-sweep 2.2s ease-in-out infinite;
+}
+
+.po-lshape-laser-wave {
+  width: 100%;
+  height: 20px;
+  margin-top: -10px;
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.22), rgba(34, 211, 238, 0.08), transparent);
+  filter: blur(2px);
+}
+
+.po-lshape-only-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #67e8f9;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
   pointer-events: none;
 }
 
@@ -227,10 +270,11 @@ export const EXTENSION_FILES: ExtensionFile[] = [
       </div>
     </div>
 
-    <!-- Active User & Controls in Header -->
+    <!-- Active User & Theme Controls in Header -->
     <div id="headerAuthControls" class="flex items-center gap-1">
-      <span id="headerUserEmail" class="text-[9px] font-mono text-cyan-300 font-bold max-w-[95px] overflow-hidden text-ellipsis whitespace-nowrap">trade.vip@gmail.com</span>
-      <span class="text-[7px] bg-emerald-500/20 text-emerald-400 font-mono font-extrabold px-1.5 py-0.5 rounded border border-emerald-500/30">VIP ACTIVE</span>
+      <span id="headerUserEmail" class="text-[9px] font-mono text-cyan-300 font-bold max-w-[85px] overflow-hidden text-ellipsis whitespace-nowrap">trade.vip@gmail.com</span>
+      <span class="text-[7px] bg-emerald-500/20 text-emerald-400 font-mono font-extrabold px-1.5 py-0.5 rounded border border-emerald-500/30">VIP</span>
+      <button id="popupThemeToggleBtn" title="Switch Dark / Warm Light Mode" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-bold cursor-pointer">🌙</button>
     </div>
   </header>
 
@@ -421,22 +465,22 @@ export const EXTENSION_FILES: ExtensionFile[] = [
             </div>
           </div>
 
-          <!-- 🔍 3-Candle Confirmation & Scanning Radar Banner -->
+          <!-- 🔍 L-Shape 10/2 Candle Scanning Radar Banner -->
           <div class="bg-slate-950/90 border border-blue-500/30 rounded-xl p-2 space-y-1.5 shadow-inner">
             <div class="flex items-center justify-between text-[10px]">
               <div class="flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span class="font-extrabold text-cyan-300">AI SCANNING 3-CANDLE PATTERN</span>
+                <span class="font-extrabold text-cyan-300">SCANNING 10/2 CANDLES</span>
               </div>
               <span id="candleStepPill" class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                Candle 1/3 (Pattern)
+                L-Shape 10/2 Sync
               </span>
             </div>
 
             <!-- Dynamic Scanning Message -->
             <div class="flex items-center justify-between bg-slate-900/80 px-2 py-1 rounded-lg border border-slate-800 text-[9px] font-mono">
               <span id="scanningMessageText" class="text-amber-300 flex items-center gap-1">
-                🔍 Filtering Candle 1/3: Price Action & Support
+                🔍 SCANNING 10/2 CANDLES: SMC Price Action & Support
               </span>
               <span class="text-[8px] text-slate-400 uppercase font-sans font-bold">1m OTC</span>
             </div>
@@ -660,28 +704,15 @@ export const EXTENSION_FILES: ExtensionFile[] = [
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-1.5">
-            <div>
-              <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Password</label>
-              <input
-                id="adminNewUserPassword"
-                type="text"
-                value="123456"
-                required
-                class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Initial Balance ($)</label>
-              <input
-                id="adminNewUserBalance"
-                type="number"
-                value="500"
-                min="0"
-                step="50"
-                class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500"
-              />
-            </div>
+          <div>
+            <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Password</label>
+            <input
+              id="adminNewUserPassword"
+              type="text"
+              value="123456"
+              required
+              class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500"
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-1.5">
@@ -966,11 +997,74 @@ button:active {
 }
 
 .text-center { text-align: center; }
-.text-right { text-align: right; }`,
+.text-right { text-align: right; }
+
+/* ☀️ Warm Brown Light Mode for Extension Popup */
+html.theme-light,
+body.theme-light {
+  background-color: #ede5d8 !important;
+  color: #0a0807 !important;
+}
+
+body.theme-light header {
+  background-color: #e4d8c6 !important;
+  border-bottom-color: #bfa98e !important;
+}
+
+body.theme-light nav {
+  background-color: #d8c9b5 !important;
+  border-color: #bfa98e !important;
+}
+
+body.theme-light section,
+body.theme-light [class*="bg-slate-900"] {
+  background-color: #dfd2bf !important;
+  background-image: none !important;
+  border-color: #b8a287 !important;
+}
+
+body.theme-light [class*="bg-slate-950"],
+body.theme-light [class*="bg-slate-800"],
+body.theme-light [class*="bg-cyan-950"] {
+  background-color: #ede5d8 !important;
+  background-image: none !important;
+  border-color: #bfa98e !important;
+}
+
+body.theme-light h1,
+body.theme-light h2,
+body.theme-light h3,
+body.theme-light .text-slate-100,
+body.theme-light .text-slate-200,
+body.theme-light .text-slate-300 {
+  color: #0a0807 !important;
+}
+
+body.theme-light .text-slate-400 {
+  color: #3b2e23 !important;
+}
+
+body.theme-light .text-emerald-400 { color: #047857 !important; }
+body.theme-light .text-rose-400 { color: #b91c1c !important; }
+body.theme-light .text-cyan-300,
+body.theme-light .text-cyan-400 { color: #0369a1 !important; }
+body.theme-light .text-amber-300,
+body.theme-light .text-amber-400 { color: #92400e !important; }
+
+body.theme-light input,
+body.theme-light select {
+  background-color: #f7f2ea !important;
+  color: #0a0807 !important;
+  border-color: #b8a287 !important;
+}
+
+body.theme-light button.bg-blue-600 {
+  color: #ffffff !important;
+}`,
   },
   {
     name: 'popup.js',
-    description: 'Main popup user interface event handlers, universal login, session persistence, 3-candle scanning states, tab navigation, and trading dashboard',
+    description: 'Main popup user interface event handlers, universal login, session persistence, 10/2 candle scanning states, tab navigation, and trading dashboard',
     type: 'js',
     content: `import { getStorage, setStorage } from './storage.js';
 import { playSoundAlert } from './utils.js';
@@ -1109,6 +1203,45 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingMartingale = document.getElementById('settingMartingale');
   const settingSoundAlerts = document.getElementById('settingSoundAlerts');
 
+  const popupThemeToggleBtn = document.getElementById('popupThemeToggleBtn');
+  let currentPopupTheme = 'dark';
+
+  function applyPopupTheme(themeMode) {
+    currentPopupTheme = themeMode === 'light' ? 'light' : 'dark';
+    if (currentPopupTheme === 'light') {
+      document.documentElement.classList.add('theme-light');
+      document.body.classList.add('theme-light');
+      if (popupThemeToggleBtn) popupThemeToggleBtn.textContent = '☀️';
+    } else {
+      document.documentElement.classList.remove('theme-light');
+      document.body.classList.remove('theme-light');
+      if (popupThemeToggleBtn) popupThemeToggleBtn.textContent = '🌙';
+    }
+  }
+
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['poTheme'], (res) => {
+      applyPopupTheme(res?.poTheme || 'dark');
+    });
+  }
+
+  if (popupThemeToggleBtn) {
+    popupThemeToggleBtn.addEventListener('click', () => {
+      const nextTheme = currentPopupTheme === 'dark' ? 'light' : 'dark';
+      applyPopupTheme(nextTheme);
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ poTheme: nextTheme });
+        if (chrome.tabs) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0] && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, { type: 'PO_THEME_UPDATE', theme: nextTheme });
+            }
+          });
+        }
+      }
+    });
+  }
+
   let currentActiveUser = null;
   let cachedUserList = [];
   let botRunningState = 'RUNNING';
@@ -1119,15 +1252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const SERVER_USERS_URL = '/api/auth/users';
   const SERVER_SYNC_URL = '/api/auth/sync';
 
-  function updateBalanceDisplay(bal, type = 'REAL PO') {
-    if (popupAccountBalanceText) {
-      const numericBal = typeof bal === 'number' ? bal : (parseFloat(bal) || (currentActiveUser?.balance || 2500.00));
-      popupAccountBalanceText.textContent = '$' + numericBal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    if (popupAccountTypeBadge) {
-      popupAccountTypeBadge.textContent = type;
-    }
-  }
+  function updateBalanceDisplay() {}
 
   function updateStatsUI(stats) {
     if (stats) currentTradeStats = { ...currentTradeStats, ...stats };
@@ -1972,38 +2097,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (botRunningState !== 'RUNNING') {
       if (candleStepPill) candleStepPill.textContent = 'Standby';
-      if (scanningMessageText) scanningMessageText.innerHTML = '<span class="text-slate-400">⏸️ Start Bot to stream 3-candle safe trade signals</span>';
+      if (scanningMessageText) scanningMessageText.innerHTML = '<span class="text-slate-400">⏸️ Start Bot to stream 10/2 candle safe trade signals</span>';
       return;
     }
 
     if (isScanningMarket) {
-      if (scanningMessageText) scanningMessageText.innerHTML = '<span class="text-cyan-400 font-bold">⚡ AI Scanning Market Candles...</span>';
+      if (scanningMessageText) scanningMessageText.innerHTML = '<span class="text-cyan-400 font-bold">⚡ SCANNING 10/2 CANDLES...</span>';
       return;
     }
 
+    if (candleStepPill) {
+      candleStepPill.textContent = 'L-Shape 10/2 Sync';
+      candleStepPill.className = 'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30';
+    }
+
     if (displaySec > 40) {
-      if (candleStepPill) {
-        candleStepPill.textContent = 'Candle 1/3 (Pattern)';
-        candleStepPill.className = 'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30';
-      }
       if (scanningMessageText) {
-        scanningMessageText.innerHTML = '<span class="text-amber-300">🔍 Filtering Candle 1/3: Price Action & Support</span>';
+        scanningMessageText.innerHTML = '<span class="text-amber-300">🔍 SCANNING 10/2 CANDLES: Detecting SMC liquidity sweeps</span>';
       }
     } else if (displaySec > 20) {
-      if (candleStepPill) {
-        candleStepPill.textContent = 'Candle 2/3 (Momentum)';
-        candleStepPill.className = 'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30';
-      }
       if (scanningMessageText) {
-        scanningMessageText.innerHTML = '<span class="text-blue-300">🔍 Filtering Candle 2/3: RSI & MACD Momentum</span>';
+        scanningMessageText.innerHTML = '<span class="text-blue-300">🔍 SCANNING 10/2 CANDLES: RSI & MACD Momentum</span>';
       }
     } else {
-      if (candleStepPill) {
-        candleStepPill.textContent = 'Candle 3/3 (Entry Trigger)';
-        candleStepPill.className = 'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-      }
       if (scanningMessageText) {
-        scanningMessageText.innerHTML = '<span class="text-emerald-400 font-bold">⚡ Candle 3/3: Safe Entry Signal Triggered!</span>';
+        scanningMessageText.innerHTML = '<span class="text-emerald-400 font-bold">⚡ SCANNING 10/2 CANDLES: Safe Entry Signal Triggered!</span>';
       }
     }
   }
@@ -2393,8 +2511,8 @@ function stopBotLoop() {
     name: 'content.js',
     description: 'Pocket Option Web DOM interface reader & floating AI signal overlay script with draggable controls, real-time strategy scanner & auto-sync',
     type: 'js',
-    content: `// Pocket Option Content Script v3.0.0 PRO (Latest Update)
-console.log('[Pocket Option AI Extension v3.0.0 PRO] Injected into active Pocket Option session.');
+    content: `// Pocket Option Content Script v3.2.0 PRO (Latest Update)
+console.log('[Pocket Option AI Extension v3.2.0 PRO] Injected into active Pocket Option session.');
 
 let botRunning = true;
 
@@ -2417,56 +2535,6 @@ try {
     });
   }
 } catch (e) {}
-
-function detectPocketOptionBalance() {
-  const balanceSelectors = [
-    '.balance-value',
-    '.js-balance',
-    '[data-test="balance"]',
-    '.balance',
-    '.header-balance',
-    '.trading-panel-balance',
-    '.user-balance__amount',
-    '.user-balance',
-    '[class*="balance-val"]',
-    '[class*="balance_"]',
-    '[class*="current-balance"]'
-  ];
-
-  for (const selector of balanceSelectors) {
-    const el = document.querySelector(selector);
-    if (el && el.textContent) {
-      const rawText = el.textContent.replace(/[^0-9.]/g, '');
-      const val = parseFloat(rawText);
-      if (!isNaN(val) && val >= 0) {
-        return val;
-      }
-    }
-  }
-
-  return 2500.00;
-}
-
-function detectPocketOptionAccountType() {
-  const typeSelectors = [
-    '.account-type',
-    '[data-test="account-type"]',
-    '.user-balance__type',
-    '.trading-panel-account-type',
-    '[class*="account-type"]'
-  ];
-
-  for (const selector of typeSelectors) {
-    const el = document.querySelector(selector);
-    if (el && el.textContent) {
-      const txt = el.textContent.trim().toUpperCase();
-      if (txt.includes('DEMO') || txt.includes('PRACTICE')) return 'DEMO';
-      if (txt.includes('REAL') || txt.includes('LIVE')) return 'REAL PO';
-    }
-  }
-
-  return 'REAL PO';
-}
 
 let currentSignal = {
   decision: 'CALL',
@@ -2878,7 +2946,7 @@ function updateOverlayUI(sig) {
     if (targetLabel) targetLabel.textContent = 'Target: -3.5 pips';
   } else {
     if (sigBox) {
-      sigBox.textContent = '⏳ SCANNING 2 CANDLES...';
+      sigBox.textContent = '⏳ SCANNING 10/2 CANDLES...';
       sigBox.style.color = '#94a3b8';
     }
     if (card) {
@@ -3006,16 +3074,21 @@ function toggleLShapeChartScanner(forceState) {
   let reticle = document.getElementById('po-lshape-chart-reticle');
   if (!reticle) {
     reticle = createLShapeChartReticle();
+    if (typeof forceState === 'boolean') {
+      reticle.style.display = forceState ? 'flex' : 'none';
+    }
+  } else {
+    const isCurrentlyHidden = reticle.style.display === 'none';
+    const shouldShow = typeof forceState === 'boolean' ? forceState : isCurrentlyHidden;
+    reticle.style.display = shouldShow ? 'flex' : 'none';
   }
-  const isCurrentlyHidden = reticle.style.display === 'none';
-  const shouldShow = typeof forceState === 'boolean' ? forceState : isCurrentlyHidden;
-  reticle.style.display = shouldShow ? 'block' : 'none';
 
+  const visibleNow = reticle.style.display !== 'none';
   const lBtn = document.getElementById('po-lshape-toggle-btn');
   if (lBtn) {
-    lBtn.style.background = shouldShow ? '#06b6d4' : 'rgba(15, 23, 42, 0.9)';
-    lBtn.style.color = shouldShow ? '#020617' : '#22d3ee';
-    lBtn.textContent = shouldShow ? '📐 L-SHAPE' : '📐 SCANNER';
+    lBtn.style.background = visibleNow ? '#06b6d4' : 'rgba(15, 23, 42, 0.9)';
+    lBtn.style.color = visibleNow ? '#020617' : '#22d3ee';
+    lBtn.textContent = visibleNow ? '📐 L-SHAPE' : '📐 SCANNER';
   }
 }
 
@@ -3026,44 +3099,18 @@ function createLShapeChartReticle() {
   const reticle = document.createElement('div');
   reticle.id = 'po-lshape-chart-reticle';
   reticle.className = 'po-lshape-chart-scanner-box';
-  reticle.style.cssText = 'position: absolute; right: 80px; top: 100px; z-index: 9999990; min-width: 250px; max-width: 280px; background: rgba(2, 6, 23, 0.90); backdrop-filter: blur(14px); border: 1.5px solid rgba(34, 211, 238, 0.6); border-radius: 16px; padding: 12px 14px; box-shadow: 0 0 35px rgba(6, 182, 212, 0.45); user-select: none; cursor: grab; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;';
+  reticle.style.cssText = 'position: absolute; right: 80px; top: 100px; z-index: 9999990; width: 245px; height: 165px; background: transparent !important; backdrop-filter: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; display: flex; align-items: center; justify-content: center; user-select: none; cursor: grab;';
 
-  reticle.innerHTML = 
+  reticle.innerHTML =
     '<div class="po-l-corner po-l-tl"></div>' +
     '<div class="po-l-corner po-l-tr"></div>' +
     '<div class="po-l-corner po-l-bl"></div>' +
     '<div class="po-l-corner po-l-br"></div>' +
-    '<div class="po-lshape-laser-beam"></div>' +
-    '<div style="position: relative; z-index: 2;">' +
-      '<div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(34, 211, 238, 0.3); padding-bottom: 4px; margin-bottom: 6px; font-size: 8.5px; font-weight: 900; color: #22d3ee;">' +
-        '<span style="display: flex; align-items: center; gap: 5px;">' +
-          '<span style="width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 8px #22d3ee; display: inline-block;"></span>' +
-          'PO CHART L-SHAPE SCAN' +
-        '</span>' +
-        '<div style="display: flex; gap: 3px; background: rgba(2, 6, 23, 0.9); padding: 2px 4px; border-radius: 5px; border: 1px solid rgba(34, 211, 238, 0.3);">' +
-          '<button id="po-lshape-2c-btn" style="background: #06b6d4; color: #020617; border: none; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 3px; cursor: pointer;">2C</button>' +
-          '<button id="po-lshape-3c-btn" style="background: transparent; color: #94a3b8; border: none; font-size: 8px; font-weight: 900; padding: 1px 5px; border-radius: 3px; cursor: pointer;">3C</button>' +
-        '</div>' +
-      '</div>' +
-      '<div style="text-align: center; margin-bottom: 6px;">' +
-        '<div id="po-lshape-status-text" style="font-size: 11px; font-weight: 900; color: #34d399; letter-spacing: 0.5px;">⚡ SCANNING 2 CANDLES</div>' +
-        '<div style="font-size: 7.5px; color: #94a3b8; margin-top: 1px;">Locks onto latest 2 candles on Pocket Option</div>' +
-      '</div>' +
-      '<div style="background: rgba(0, 0, 0, 0.65); padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.2); font-size: 8px; line-height: 1.5; color: #cbd5e1;">' +
-        '<div style="display: flex; justify-content: space-between;">' +
-          '<span>Active Pattern:</span>' +
-          '<span style="color: #22d3ee; font-weight: 800;">L-Shape SMC Confluence</span>' +
-        '</div>' +
-        '<div style="display: flex; justify-content: space-between;">' +
-          '<span>Signal Accuracy:</span>' +
-          '<span style="color: #34d399; font-weight: 900;">96.4% Verified</span>' +
-        '</div>' +
-        '<div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 3px; padding-top: 3px;">' +
-          '<span>Execution Pace:</span>' +
-          '<span style="color: #22d3ee; font-weight: 800;">1 Trade / 2 Candles</span>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
+    '<div class="po-lshape-laser-wrap">' +
+      '<div class="po-lshape-laser-beam"></div>' +
+      '<div class="po-lshape-laser-wave"></div>' +
+    '</div>' +
+    '<span id="po-lshape-status-text" class="po-lshape-only-text">SCANNING 10/2 CANDLES</span>';
 
   const chartContainer = document.querySelector('.chart-container') ||
     document.querySelector('#chart-container') ||
@@ -3079,7 +3126,6 @@ function createLShapeChartReticle() {
   let rOffsetX = 0;
   let rOffsetY = 0;
   reticle.addEventListener('mousedown', (e) => {
-    if (e.target.tagName === 'BUTTON') return;
     isDraggingReticle = true;
     reticle.style.cursor = 'grabbing';
     rOffsetX = e.clientX - reticle.getBoundingClientRect().left;
@@ -3098,33 +3144,20 @@ function createLShapeChartReticle() {
     }
   });
 
-  const btn2c = reticle.querySelector('#po-lshape-2c-btn');
-  const btn3c = reticle.querySelector('#po-lshape-3c-btn');
-  const statText = reticle.querySelector('#po-lshape-status-text');
-  if (btn2c && btn3c && statText) {
-    btn2c.addEventListener('click', () => {
-      lShapeCandleCount = 2;
-      btn2c.style.background = '#06b6d4';
-      btn2c.style.color = '#020617';
-      btn3c.style.background = 'transparent';
-      btn3c.style.color = '#94a3b8';
-      statText.textContent = '⚡ SCANNING 2 CANDLES';
-      const badge = document.getElementById('po-lshape-sync-badge');
-      if (badge) badge.textContent = '📐 L-Shape 2C Sync';
-    });
-    btn3c.addEventListener('click', () => {
-      lShapeCandleCount = 3;
-      btn3c.style.background = '#06b6d4';
-      btn3c.style.color = '#020617';
-      btn2c.style.background = 'transparent';
-      btn2c.style.color = '#94a3b8';
-      statText.textContent = '⚡ SCANNING 3 CANDLES';
-      const badge = document.getElementById('po-lshape-sync-badge');
-      if (badge) badge.textContent = '📐 L-Shape 3C Sync';
-    });
-  }
-
   return reticle;
+}
+
+function applyOverlayTheme(themeMode) {
+  const widget = document.getElementById('po-ai-floating-widget');
+  const themeBtn = document.getElementById('po-theme-toggle-btn');
+  const isLight = themeMode === 'light';
+  if (widget) {
+    if (isLight) widget.classList.add('po-theme-light');
+    else widget.classList.remove('po-theme-light');
+  }
+  if (themeBtn) {
+    themeBtn.textContent = isLight ? '☀️' : '🌙';
+  }
 }
 
 function createOverlayWidget() {
@@ -3151,22 +3184,23 @@ function createOverlayWidget() {
   widget.style.cssText = 'position: fixed; top: 75px; right: 20px; z-index: 9999999; width: 270px; background: rgba(2, 6, 23, 0.94); backdrop-filter: blur(16px); border: 1.5px solid rgba(16, 185, 129, 0.85); border-radius: 14px; padding: 10px; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), 0 20px 40px rgba(0, 0, 0, 0.8); user-select: none; transition: box-shadow 0.2s ease;';
 
   widget.innerHTML = 
-    '<!-- COMPACT POP AI OVERLAY HEADER -->' +
+    '<!-- COMPACT PO AI OVERLAY HEADER -->' +
     '<div id="po-widget-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: grab; margin-bottom: 8px;">' +
-      '<div style="display: flex; align-items: center; gap: 6px;">' +
+      '<div style="display: flex; align-items: center; gap: 5px;">' +
         '<span style="font-size: 11px; font-weight: 900; font-family: monospace; color: #ffffff;" id="po-detected-pair">EUR/USD OTC</span>' +
         '<span style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.5); color: #34d399; font-size: 7.5px; font-weight: 900; padding: 1px 5px; border-radius: 4px; display: flex; align-items: center; gap: 3px;">' +
           '<span id="po-live-dot" style="width: 5px; height: 5px; border-radius: 50%; background: #10b981;"></span>' +
           '<span id="po-status-text">LIVE</span>' +
         '</span>' +
       '</div>' +
-      '<div style="display: flex; align-items: center; gap: 4px;">' +
-        '<button id="po-lshape-toggle-btn" style="background: #06b6d4; color: #020617; font-weight: 900; font-size: 8px; padding: 3px 6px; border-radius: 5px; border: none; cursor: pointer;" title="Toggle L-Shape Scanner on Pocket Option Chart">' +
+      '<div style="display: flex; align-items: center; gap: 3px;">' +
+        '<button id="po-lshape-toggle-btn" style="background: #06b6d4; color: #020617; font-weight: 900; font-size: 8px; padding: 3px 5px; border-radius: 5px; border: none; cursor: pointer;" title="Toggle L-Shape 10/2 Scanner on Pocket Option Chart">' +
           '📐 L-SHAPE' +
         '</button>' +
-        '<button id="po-scan-now-btn" style="background: #2563eb; color: #ffffff; font-weight: 900; font-size: 8px; padding: 3px 6px; border-radius: 5px; border: none; cursor: pointer;" title="Scan live market for new AI signal">' +
+        '<button id="po-scan-now-btn" style="background: #2563eb; color: #ffffff; font-weight: 900; font-size: 8px; padding: 3px 5px; border-radius: 5px; border: none; cursor: pointer;" title="Scan live market for new AI signal">' +
           '⚡ SCAN' +
         '</button>' +
+        '<button id="po-theme-toggle-btn" style="background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.15); color: #f8fafc; cursor: pointer; font-size: 9px; padding: 2px 5px; border-radius: 5px;" title="Toggle Dark / Light Mode">🌙</button>' +
         '<button id="po-minimize-btn" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 11px; padding: 1px;">➖</button>' +
       '</div>' +
     '</div>' +
@@ -3183,12 +3217,12 @@ function createOverlayWidget() {
         '</div>' +
         '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; font-family: monospace; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 3px; margin-top: 4px;">' +
           '<span id="po-current-price-label">Price: 1.08550</span>' +
-          '<span id="po-lshape-sync-badge" style="color: #22d3ee; font-weight: 800;">📐 L-Shape 2C Sync</span>' +
+          '<span id="po-lshape-sync-badge" style="color: #22d3ee; font-weight: 800;">📐 L-Shape 10/2 Sync</span>' +
         '</div>' +
       '</div>' +
 
       '<!-- 2. Candle Timer & 2-Candle Pacing Bar -->' +
-      '<div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 8px;">' +
+      '<div class="po-inner-card" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 6px 8px;">' +
         '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; font-family: monospace; font-weight: 800; color: #38bdf8;">' +
           '<span>⏰ CANDLE TIMER:</span>' +
           '<span id="po-candle-timer-val" style="font-size: 10.5px; font-weight: 900; color: #38bdf8;">00:48</span>' +
@@ -3203,7 +3237,7 @@ function createOverlayWidget() {
       '</div>' +
 
       '<!-- 3. Martingale Money Management Row -->' +
-      '<div id="po-martingale-box" style="background: rgba(15,23,42,0.95); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 6px 8px; font-family: monospace;">' +
+      '<div id="po-martingale-box" class="po-inner-card" style="background: rgba(15,23,42,0.95); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 6px 8px; font-family: monospace;">' +
         '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 8px; font-weight: 900; margin-bottom: 4px;">' +
           '<span style="color: #f59e0b;">🎯 MARTINGALE (2.2x)</span>' +
           '<span id="po-martingale-step-label" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); padding: 1px 5px; border-radius: 4px; font-size: 7.5px;">STEP 1 / 5</span>' +
@@ -3231,7 +3265,7 @@ function createOverlayWidget() {
       '</div>' +
 
       '<!-- 5. Compact Bot Power & Stats Row -->' +
-      '<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(2,6,23,0.8); border: 1px solid rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 8px; font-family: monospace; font-size: 7.5px;">' +
+      '<div class="po-inner-card" style="display: flex; justify-content: space-between; align-items: center; background: rgba(2,6,23,0.8); border: 1px solid rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 8px; font-family: monospace; font-size: 7.5px;">' +
         '<div style="display: flex; align-items: center; gap: 5px; color: #cbd5e1;">' +
           '<span style="color: #34d399; font-weight: 900;" id="po-stats-winrate">87.5% WIN</span>' +
           '<span style="color: #64748b;">|</span>' +
@@ -3245,6 +3279,31 @@ function createOverlayWidget() {
 
   document.body.appendChild(widget);
 
+  // Restore saved theme (Default: Dark Mode)
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['poTheme'], (res) => {
+        applyOverlayTheme(res?.poTheme || 'dark');
+      });
+    }
+  } catch (e) {}
+
+  const themeToggleBtn = document.getElementById('po-theme-toggle-btn');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const nextTheme = widget.classList.contains('po-theme-light') ? 'dark' : 'light';
+      applyOverlayTheme(nextTheme);
+      try {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ poTheme: nextTheme });
+        }
+      } catch (e) {}
+    });
+  }
+
+  // Auto-display empty L-Shape 10/2 scanner reticle on Pocket Option chart
+  toggleLShapeChartScanner(true);
+
   // Initialize overlay stats display
   updateOverlayStatsUI();
 
@@ -3254,6 +3313,7 @@ function createOverlayWidget() {
   let offsetY = 0;
 
   header.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'BUTTON') return;
     isDragging = true;
     header.style.cursor = 'grabbing';
     offsetX = e.clientX - widget.getBoundingClientRect().left;
@@ -3275,12 +3335,12 @@ function createOverlayWidget() {
   });
 
   const minBtn = document.getElementById('po-minimize-btn');
-  const overlayBody = document.getElementById('po-overlay-body');
+  const overlayBody = document.getElementById('po-widget-body');
   let isMin = false;
   if (minBtn) {
     minBtn.addEventListener('click', () => {
       isMin = !isMin;
-      if (overlayBody) overlayBody.style.display = isMin ? 'none' : 'block';
+      if (overlayBody) overlayBody.style.display = isMin ? 'none' : 'flex';
       minBtn.textContent = isMin ? '➕' : '➖';
     });
   }
@@ -3863,13 +3923,9 @@ if (isPocketOptionSite()) {
 
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.type === 'PO_REQUEST_BALANCE_SYNC') {
-      const bal = detectPocketOptionBalance();
-      const acctType = detectPocketOptionAccountType();
-      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ liveBalance: bal });
-      }
-      sendResponse({ success: true, balance: bal, accountType: acctType });
+    if (msg.type === 'PO_THEME_UPDATE') {
+      applyOverlayTheme(msg.theme || 'dark');
+      sendResponse({ success: true });
       return true;
     } else if (msg.type === 'PO_RESET_PERFORMANCE') {
       tradeStats = { wins: 0, losses: 0, total: 0, winRate: '0%', profitToday: 0.00 };

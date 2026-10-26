@@ -380,7 +380,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
           className="flex flex-wrap items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition active:scale-95 border border-emerald-300/40 max-w-full"
         >
           <Download className="w-4 h-4 shrink-0" />
-          <span>Download Extension Package v3.0.0 (.ZIP)</span>
+          <span>Download Extension Package v3.2.0 (.ZIP)</span>
           <span className="bg-slate-950 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-mono font-bold">
             UPDATED
           </span>
@@ -753,18 +753,18 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                   {activeTrade
                     ? `⚡ ACTIVE TRADE IN PROGRESS (${activeTrade.direction})`
                     : cooldownCandlesRemaining > 0 
-                      ? 'AI REST & SCANNING'
-                      : botStatus === 'RUNNING' ? 'AI ANALYZING LAST 10 CANDLES' : 'SCANNER STANDBY'}
+                      ? 'SCANNING 10/2 CANDLES'
+                      : botStatus === 'RUNNING' ? 'SCANNING 10/2 CANDLES' : 'SCANNER STANDBY'}
                 </span>
               </div>
               <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
                 {activeTrade 
                   ? 'Trade Locked'
                   : cooldownCandlesRemaining > 0
-                    ? 'AI Scanner'
+                    ? 'L-Shape 10/2'
                     : botStatus === 'RUNNING' 
-                      ? (candleSec > 40 ? 'Candle 1/3 (Pattern)' : candleSec > 20 ? 'Candle 2/3 (Momentum)' : 'Candle 3/3 (Entry Trigger)')
-                      : '3-Candle Filter'}
+                      ? 'L-Shape 10/2 Sync'
+                      : '10/2 Filter'}
               </span>
             </div>
 
@@ -779,23 +779,23 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                 ) : cooldownCandlesRemaining > 0 ? (
                   <span className="text-cyan-300 font-bold flex items-center gap-1.5">
                     <RefreshCw className="w-2.5 h-2.5 animate-spin text-cyan-400" />
-                    Scanning Market Candles (Rest period before next setup)...
+                    SCANNING 10/2 CANDLES (Rest period before next setup)...
                   </span>
                 ) : isScanning ? (
                   <span className="text-cyan-400 font-bold flex items-center gap-1">
                     <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                    Scanning Market Candles...
+                    SCANNING 10/2 CANDLES...
                   </span>
                 ) : botStatus === 'RUNNING' ? (
                   candleSec > 40 ? (
-                    <span className="text-amber-300">🔍 Analyzing last 10 candles: Detecting SMC liquidity sweeps...</span>
+                    <span className="text-amber-300">🔍 SCANNING 10/2 CANDLES: Detecting SMC liquidity sweeps...</span>
                   ) : candleSec > 20 ? (
-                    <span className="text-blue-300">🔍 Analyzing last 10 candles: Calculating RSI & EMA momentum...</span>
+                    <span className="text-blue-300">🔍 SCANNING 10/2 CANDLES: Calculating RSI & EMA momentum...</span>
                   ) : (
-                    <span className="text-emerald-400 font-bold">⚡ Analyzing last 10 candles: Entry confirmation triggered!</span>
+                    <span className="text-emerald-400 font-bold">⚡ SCANNING 10/2 CANDLES: Entry confirmation triggered!</span>
                   )
                 ) : (
-                  <span className="text-slate-400">⏸️ Start Bot to stream 3-candle safe trade signals</span>
+                  <span className="text-slate-400">⏸️ Start Bot to stream 10/2 candle safe trade signals</span>
                 )}
               </span>
               <span className="text-[8px] text-slate-400 uppercase font-sans font-bold">1m OTC</span>
@@ -1278,47 +1278,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
 
                             <div className="flex items-center justify-between text-[9px] text-slate-400 pt-0.5">
                               <span>Plan: <strong className="text-cyan-400">{u.plan || 'LIFETIME'}</strong></span>
-                              
-                              {editingUserId === u.id ? (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-slate-300 font-mono">$</span>
-                                  <input
-                                    type="number"
-                                    value={editingBalance}
-                                    onChange={(e) => setEditingBalance(e.target.value)}
-                                    className="w-16 bg-slate-950 border border-slate-700 rounded px-1 py-0.5 text-emerald-400 font-mono text-[9px]"
-                                  />
-                                  <button
-                                    onClick={() => {
-                                      const val = parseFloat(editingBalance);
-                                      if (!isNaN(val)) {
-                                        authService.updateUserBalance(u.id, val);
-                                        refreshAdminData();
-                                        setEditingUserId(null);
-                                      }
-                                    }}
-                                    className="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black px-1.5 py-0.5 rounded text-[8px] cursor-pointer"
-                                  >
-                                    SAVE
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-1">
-                                  <span className="font-mono text-emerald-400 font-bold">
-                                    ${(u.balance !== undefined ? u.balance : (u.demoBalance || 500)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      setEditingUserId(u.id);
-                                      setEditingBalance(String(u.balance !== undefined ? u.balance : 500));
-                                    }}
-                                    className="text-slate-500 hover:text-slate-300 p-0.5 cursor-pointer"
-                                    title="Edit Balance"
-                                  >
-                                    <Edit2 className="w-2.5 h-2.5" />
-                                  </button>
-                                </div>
-                              )}
+                              <span className="font-mono text-slate-400">{u.role === 'ADMIN' ? 'SUPER ADMIN' : 'MEMBER'}</span>
                             </div>
 
                             {/* Quick Action Status Selector Buttons */}
@@ -1444,13 +1404,6 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                         newUserStatus
                       );
                       if (res.success) {
-                        if (parseFloat(newUserBalance) > 0) {
-                          const targetEmail = (newUserEmail || '').trim().toLowerCase();
-                          const createdUser = authService.getUsers().find(u => (u.email || '').toLowerCase() === targetEmail);
-                          if (createdUser) {
-                            authService.updateUserBalance(createdUser.id, parseFloat(newUserBalance));
-                          }
-                        }
                         alert(`✓ Account created successfully for ${newUserEmail}!`);
                         setNewUserEmail('');
                         setNewUserPassword('');
@@ -1479,27 +1432,15 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <label className="text-slate-400 font-semibold block">Password:</label>
-                        <input
-                          type="text"
-                          placeholder="123456"
-                          value={newUserPassword}
-                          onChange={(e) => setNewUserPassword(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-100 font-mono text-[10px] focus:outline-none focus:border-cyan-500"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-slate-400 font-semibold block">Initial Balance ($):</label>
-                        <input
-                          type="number"
-                          value={newUserBalance}
-                          onChange={(e) => setNewUserBalance(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-emerald-400 font-mono text-[10px] focus:outline-none focus:border-cyan-500"
-                        />
-                      </div>
+                    <div className="space-y-1">
+                      <label className="text-slate-400 font-semibold block">Password:</label>
+                      <input
+                        type="text"
+                        placeholder="123456"
+                        value={newUserPassword}
+                        onChange={(e) => setNewUserPassword(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-100 font-mono text-[10px] focus:outline-none focus:border-cyan-500"
+                      />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">

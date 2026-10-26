@@ -11,6 +11,7 @@ interface LiveChartProps {
   setTimeframe: (tf: ExpiryTime) => void;
   activeSignal: any;
   showScanningZone?: boolean;
+  hideInternalLShape?: boolean;
 }
 
 export const LiveChart: React.FC<LiveChartProps> = ({
@@ -21,6 +22,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({
   setTimeframe,
   activeSignal,
   showScanningZone = false,
+  hideInternalLShape = false,
 }) => {
   const [showIndicators, setShowIndicators] = useState(true);
   const [showZones, setShowZones] = useState(true);
@@ -339,7 +341,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({
           })}
 
           {/* 📐 INTERACTIVE L-SHAPE SELECTION RETICLE */}
-          {lShapeActive && (() => {
+          {lShapeActive && !hideInternalLShape && (() => {
             const selectedCount = Math.min(lShapeCandleCount, candles.length);
             const lStartIndex = Math.max(0, candles.length - selectedCount);
             const lStartX = 30 + lStartIndex * (candleWidth + 3) - 4;
@@ -423,12 +425,12 @@ export const LiveChart: React.FC<LiveChartProps> = ({
                     x="0"
                     y="1"
                     textAnchor="middle"
-                    fill="#ffffff"
+                    fill="#67e8f9"
                     fontSize="8.5"
                     fontWeight="bold"
                     fontFamily="monospace"
                   >
-                    📐 L-SHAPE SIGNAL ({selectedCount} CANDLES)
+                    SCANNING 10/2 CANDLES
                   </text>
                 </g>
               </g>
@@ -465,57 +467,26 @@ export const LiveChart: React.FC<LiveChartProps> = ({
           </text>
         </svg>
 
-        {/* 🚀 NEW: HTML/CSS-Based Market Scanner Overlay (ON TOP OF EVERYTHING) */}
+        {/* 🚀 HTML/CSS-Based Empty L-Shape Market Scanner Overlay */}
         {showScanningZone && (
-          <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden bg-black/30 animate-in fade-in duration-700">
-            {/* The Reticle Box - Fixed to the right where latest candles are */}
-            <div className="absolute right-[8%] top-1/2 -translate-y-1/2 w-64 h-[260px]">
-              {/* L-Shape: Top Left */}
-              <div className="absolute top-0 left-0 w-12 h-12 border-t-[8px] border-l-[8px] border-white shadow-[0_0_20px_white]" />
-              
-              {/* L-Shape: Top Right */}
-              <div className="absolute top-0 right-0 w-12 h-12 border-t-[8px] border-r-[8px] border-white shadow-[0_0_20px_white]" />
-              
-              {/* L-Shape: Bottom Left */}
-              <div className="absolute bottom-0 left-0 w-12 h-12 border-b-[8px] border-l-[8px] border-white shadow-[0_0_20px_white]" />
-              
-              {/* L-Shape: Bottom Right */}
-              <div className="absolute bottom-0 right-0 w-12 h-12 border-b-[8px] border-r-[8px] border-white shadow-[0_0_20px_white]" />
-              
-              {/* Corner Pulsing Dots */}
-              <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-              <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-              <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-              <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+          <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+            <div className="absolute right-[6%] top-1/2 -translate-y-1/2 w-[230px] sm:w-[250px] h-[160px] sm:h-[175px] bg-transparent flex items-center justify-center">
+              {/* 4 Sharp Glowing L-Shape Corner Brackets */}
+              <div className="absolute top-0 left-0 w-7 h-7 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-sm drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute top-0 right-0 w-7 h-7 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-sm drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-sm drop-shadow-[0_0_8px_#22d3ee]" />
+              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-sm drop-shadow-[0_0_8px_#22d3ee]" />
 
-              {/* Central Pulse Filter */}
-              <div className="absolute inset-0 bg-white/5 border border-white/20 animate-pulse rounded-lg" />
-              
-              {/* Horizontal Scan Line */}
-              <div className="absolute left-0 right-0 h-[3px] bg-white shadow-[0_0_15px_white] animate-scan-vertical-html" />
-
-              {/* Status Indicator */}
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <div className="flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-2 bg-white text-black px-4 py-1.5 rounded-full font-black text-xs shadow-2xl">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-                    AI MARKET ANALYSIS ACTIVE
-                  </div>
-                  <div className="text-[9px] text-blue-400 font-bold tracking-widest bg-slate-950/80 px-2 py-0.5 rounded border border-blue-500/30 uppercase">
-                    Detecting L-Shape Reversal
-                  </div>
-                </div>
+              {/* Up-and-Down Scanning Line & Wave */}
+              <div className="absolute inset-x-1.5 top-0 pointer-events-none animate-scan-up-down">
+                <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]" />
+                <div className="h-5 w-full -mt-2.5 bg-gradient-to-b from-cyan-400/20 via-cyan-400/10 to-transparent blur-[2px]" />
               </div>
 
-              {/* Scanning Details */}
-              <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 text-center">
-                 <div className="text-white/90 text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap drop-shadow-md">
-                   Scanning Price Action Pattern
-                 </div>
-                 <div className="text-[9px] text-emerald-400 font-mono mt-1 font-bold">
-                   CONFLUENCE: {activeSignal?.confidence || 92}% VERIFIED
-                 </div>
-              </div>
+              {/* Only Text Kept */}
+              <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+                SCANNING 10/2 CANDLES
+              </span>
             </div>
           </div>
         )}

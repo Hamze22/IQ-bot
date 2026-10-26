@@ -21,20 +21,20 @@ export async function downloadExtensionZip() {
     iconsFolder.file('icon128.png', ICON_BASE64, { base64: true });
     iconsFolder.file(
       'README.txt',
-      `Pocket Option AI Trading Assistant Pro Chrome Extension v3.0.0 (Latest Pro Build)\n` +
+      `Pocket Option AI Trading Assistant Pro Chrome Extension v3.2.0 (Latest Pro Build)\n` +
       `Updated: ${new Date().toLocaleString()}\n\n` +
-      `What's New in v3.0.0:\n` +
-      `- Fixed signal updates & DOM overlay syncing on po.trade / pocketoption.com\n` +
-      `- Enhanced RSI & MACD 1-minute scalping strategy calculation\n` +
-      `- Quantitative Engine fallback with zero API quota blocking\n` +
-      `- Instant "SCAN NOW" button for manual signal refresh\n\n` +
-      `Installation Steps:\n` +
+      `What's New in v3.2.0:\n` +
+      `- Updated transparent empty L-Shape Chart Scanner ("SCANNING 10/2 CANDLES" + smooth up-and-down wave)\n` +
+      `- Synced Pocket Option PO AI Overlay & Extension Popup with latest UI updates\n` +
+      `- Default Dark Mode with optional Warm Brown Light Mode switcher\n` +
+      `- Removed Live Balance clutter across Extension & PO Overlay\n\n` +
+      `Installation / Update Steps:\n` +
       `1. Unzip this package folder.\n` +
       `2. Open Google Chrome and go to chrome://extensions\n` +
       `3. Enable "Developer mode" (toggle switch in the top right corner).\n` +
-      `4. If you had an old version installed, click "Remove" or toggle it off.\n` +
+      `4. If you had an older version installed, click "Remove" first.\n` +
       `5. Click "Load unpacked" -> Select this unzipped folder.\n` +
-      `6. Open Pocket Option (https://po.trade or https://pocketoption.com) to see live AI overlay & signals!`
+      `6. Open or refresh Pocket Option (https://po.trade or https://pocketoption.com) to see the updated PO Overlay & L-Shape 10/2 Scanner!`
     );
   }
 
@@ -46,7 +46,7 @@ export async function downloadExtensionZip() {
   const url = URL.createObjectURL(content);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `pocket-option-ai-extension-v3.0.0-PRO-LATEST-${dateStr}-${timeStr}.zip`;
+  a.download = `pocket-option-ai-extension-v3.2.0-PRO-LATEST-${dateStr}-${timeStr}.zip`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

@@ -105,7 +105,7 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-sm">
                 <Chrome className="w-3.5 h-3.5" />
-                CHROME EXTENSION v3.0 PRO
+                CHROME EXTENSION v3.2 PRO
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm">
                 <Flame className="w-3.5 h-3.5 text-emerald-400" />
@@ -147,7 +147,7 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
                 className="w-full sm:w-auto px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-emerald-400 font-extrabold text-sm rounded-2xl border border-emerald-500/40 shadow-lg transition active:scale-95 flex items-center justify-center gap-2 min-h-[48px] cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>{isActive || isAdmin ? 'Download Extension .ZIP (Unlocked)' : 'Unlock Extension .ZIP ($50 USDT)'}</span>
+                <span>{isActive || isAdmin ? 'Download Extension v3.2.0 .ZIP (Unlocked)' : 'Unlock Extension v3.2.0 .ZIP ($50 USDT)'}</span>
               </button>
             </div>
 
@@ -314,7 +314,7 @@ export const ExtensionStorefrontView: React.FC<ExtensionStorefrontViewProps> = (
                 className="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-xl shadow-emerald-500/20 transition active:scale-98 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
               >
                 <Download className="w-5 h-5" />
-                <span>🚀 DOWNLOAD EXTENSION ZIP PACKAGE (UNLOCKED)</span>
+                <span>🚀 DOWNLOAD EXTENSION v3.2.0 ZIP PACKAGE (UNLOCKED)</span>
               </button>
 
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400 space-y-1">

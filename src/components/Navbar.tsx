@@ -340,7 +340,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <IQBotLogo size="sm" showSubtitle={true} className="inline-flex" />
           <div className="flex flex-col">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold w-fit">
-              PRO v3.0.0
+              PRO v3.2.0
             </span>
             <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>

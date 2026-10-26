@@ -348,7 +348,8 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
             timeframe={timeframe}
             setTimeframe={setTimeframe}
             activeSignal={activeSignal}
-            showScanningZone={showScanningZone}
+            showScanningZone={false}
+            hideInternalLShape={true}
           />
         </div>
 
@@ -502,13 +503,13 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
                         ▼ LOWER / PUT
                       </span>
                     ) : (
-                      <span className="text-slate-400 text-xs">⏳ SCANNING 2 CANDLES...</span>
+                      <span className="text-slate-400 text-xs">⏳ SCANNING 10/2 CANDLES...</span>
                     )}
                   </div>
 
                   <div className="flex items-center justify-between text-[7.5px] font-mono text-slate-400 pt-1 border-t border-white/5">
                     <span>Price: {currentPrice.toFixed(activePair.includes('JPY') ? 3 : 5)}</span>
-                    <span className="text-cyan-300 font-bold">📐 L-Shape {lShapeCandleCount}C Sync</span>
+                    <span className="text-cyan-300 font-bold">📐 L-Shape 10/2 Sync</span>
                   </div>
                 </div>
 
@@ -575,7 +576,7 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
                   <span className="text-cyan-400 font-bold flex items-center gap-1">
                     <span>📐 PO CHART SCAN:</span>
                     <strong className={showChartLShapeScanner ? 'text-emerald-400' : 'text-slate-500'}>
-                      {showChartLShapeScanner ? `ON (${lShapeCandleCount}C)` : 'OFF'}
+                      {showChartLShapeScanner ? 'ON (10/2)' : 'OFF'}
                     </strong>
                   </span>
                   <button
