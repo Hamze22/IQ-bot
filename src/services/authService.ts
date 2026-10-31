@@ -1,6 +1,8 @@
 import {
   UserAccount,
   CryptoPaymentRequest,
+  PromoCode,
+  PromoDiscountType,
   OFFICIAL_USDT_TRC20_ADDRESS,
   ADMIN_EMAIL,
   SubscriptionPlan,
@@ -14,6 +16,7 @@ declare const chrome: any;
 
 const USERS_STORAGE_KEY = 'iqbot_users_v1';
 const PAYMENTS_STORAGE_KEY = 'iqbot_payments_v1';
+const PROMO_CODES_STORAGE_KEY = 'iqbot_promo_codes_v1';
 const CURRENT_USER_STORAGE_KEY = 'iqbot_current_user_v1';
 
 export function getCanonicalUID(email: string, existingId?: string): string {
@@ -86,13 +89,13 @@ const INITIAL_USERS: UserAccount[] = [
     approved: true,
     active: true,
     password: 'trader12345',
-    plan: 'MONTHLY_3',
+    plan: 'LIFETIME',
     createdAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
-    expiresAt: new Date(Date.now() + 85 * 24 * 3600 * 1000).toISOString(),
+    expiresAt: '2099-12-31T23:59:59.000Z',
     txid: 'f8d92a11029c3847291048572019485720194857201948572019485720194857',
-    paymentAmountUSDT: 35,
+    paymentAmountUSDT: 50,
     paymentDate: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
-    notes: 'Paid 3 Months USDT TRC20',
+    notes: 'Paid $50 Lifetime VIP USDT TRC20',
     balance: 1850.00,
     demoBalance: 10000.00,
     accountType: 'REAL',
@@ -137,8 +140,8 @@ const INITIAL_PAYMENTS: CryptoPaymentRequest[] = [
     id: 'pay-002',
     userId: 'usr_trader_vip_gmail_com',
     userEmail: 'trader.vip@gmail.com',
-    amountUSDT: 35,
-    plan: 'MONTHLY_3',
+    amountUSDT: 50,
+    plan: 'LIFETIME',
     network: 'USDT_TRC20',
     walletAddress: OFFICIAL_USDT_TRC20_ADDRESS,
     txid: 'f8d92a11029c3847291048572019485720194857201948572019485720194857',
@@ -151,6 +154,7 @@ const INITIAL_PAYMENTS: CryptoPaymentRequest[] = [
 class AuthService {
   private users: UserAccount[] = [];
   private payments: CryptoPaymentRequest[] = [];
+  private promoCodes: PromoCode[] = [];
   private currentUser: UserAccount | null = null;
 
   constructor() {
@@ -220,9 +224,10 @@ class AuthService {
       }
 
       // 2. Direct Firestore SDK fetch
-      const [userSnap, paySnap] = await Promise.allSettled([
+      const [userSnap, paySnap, promoSnap] = await Promise.allSettled([
         getDocs(collection(db, 'users')),
-        getDocs(collection(db, 'payments'))
+        getDocs(collection(db, 'payments')),
+        getDocs(collection(db, 'promo_codes'))
       ]);
 
       if (userSnap.status === 'fulfilled' && !userSnap.value.empty) {
@@ -293,8 +298,11 @@ class AuthService {
             id: data.id || docSnap.id,
             userId: data.userId || getCanonicalUID(userEmail),
             userEmail: userEmail,
-            amountUSDT: data.amountUSDT || data.amount || 50,
-            plan: data.plan || 'LIFETIME',
+            amountUSDT: typeof data.amountUSDT === 'number' ? data.amountUSDT : (typeof data.amount === 'number' ? data.amount : 50),
+            originalAmountUSDT: data.originalAmountUSDT || 50,
+            discountAmountUSDT: data.discountAmountUSDT || 0,
+            promoCode: data.promoCode || undefined,
+            plan: 'LIFETIME',
             network: data.network || 'USDT_TRC20',
             walletAddress: data.walletAddress || OFFICIAL_USDT_TRC20_ADDRESS,
             txid: data.txid || 'unknown_tx',
@@ -308,6 +316,29 @@ class AuthService {
 
         this.payments = Array.from(payMap.values());
         this.savePayments(false);
+      }
+
+      if (promoSnap.status === 'fulfilled') {
+        const promoList: PromoCode[] = [];
+        promoSnap.value.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          if (!data || !data.code) return;
+          promoList.push({
+            id: data.id || docSnap.id,
+            code: String(data.code).trim().toUpperCase(),
+            discountType: data.discountType === 'PERCENT' ? 'PERCENT' : 'FIXED',
+            discountValue: Number(data.discountValue) || 0,
+            active: data.active !== false,
+            usageCount: Number(data.usageCount) || 0,
+            maxUses: Number(data.maxUses) || 0,
+            description: data.description || '',
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        if (promoList.length > 0) {
+          this.promoCodes = promoList;
+          this.savePromoCodes(false);
+        }
       }
     } catch (err) {
       // Graceful fallback
@@ -343,6 +374,13 @@ class AuthService {
       } else {
         this.payments = INITIAL_PAYMENTS;
         this.savePayments();
+      }
+
+      const savedPromos = localStorage.getItem(PROMO_CODES_STORAGE_KEY);
+      if (savedPromos) {
+        this.promoCodes = JSON.parse(savedPromos);
+      } else {
+        this.promoCodes = [];
       }
 
       const isExtensionEnvironment = typeof chrome !== 'undefined' && !!(chrome?.runtime?.id || (chrome?.storage && chrome?.storage?.local && !window.location.host.includes('run.app') && !window.location.host.includes('localhost')));
@@ -484,6 +522,34 @@ class AuthService {
           console.debug('Firestore payment sync info:', err?.message);
         }
       });
+
+      // Real-time listener for Firestore promo_codes collection
+      onSnapshot(collection(db, 'promo_codes'), (snapshot) => {
+        const firestorePromos: PromoCode[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          if (!data || !data.code) return;
+          firestorePromos.push({
+            id: data.id || docSnap.id,
+            code: String(data.code).trim().toUpperCase(),
+            discountType: data.discountType === 'PERCENT' ? 'PERCENT' : 'FIXED',
+            discountValue: Number(data.discountValue) || 0,
+            active: data.active !== false,
+            usageCount: Number(data.usageCount) || 0,
+            maxUses: Number(data.maxUses) || 0,
+            description: data.description || '',
+            createdAt: data.createdAt || new Date().toISOString(),
+          });
+        });
+        this.promoCodes = firestorePromos.sort((a, b) =>
+          (b.createdAt || '').localeCompare(a.createdAt || '')
+        );
+        this.savePromoCodes();
+      }, (err) => {
+        if (!err?.message?.includes('unavailable') && !err?.message?.includes('offline')) {
+          console.debug('Firestore promo sync info:', err?.message);
+        }
+      });
     } catch (e) {
       console.warn('Firebase init sync error:', e);
     }
@@ -514,7 +580,10 @@ class AuthService {
         createdAt: user.createdAt || new Date().toISOString(),
         expiresAt: user.expiresAt || '2099-12-31T23:59:59.000Z',
         txid: user.txid || '',
-        paymentAmountUSDT: user.paymentAmountUSDT || 50,
+        paymentAmountUSDT: typeof user.paymentAmountUSDT === 'number' ? user.paymentAmountUSDT : 50,
+        originalAmountUSDT: user.originalAmountUSDT || 50,
+        discountAmountUSDT: user.discountAmountUSDT || 0,
+        promoCode: user.promoCode || '',
         balance: typeof user.balance === 'number' ? user.balance : 1000,
         demoBalance: typeof user.demoBalance === 'number' ? user.demoBalance : 10000,
         accountType: user.accountType || 'REAL',
@@ -541,6 +610,17 @@ class AuthService {
     } catch (e) {}
   }
 
+  private syncPromoCodeToFirestore(promo: PromoCode) {
+    try {
+      setDoc(doc(db, 'promo_codes', promo.id), promo, { merge: true }).catch(() => {});
+      fetch('/api/promo-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(promo),
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
   private saveUsers(notify = true) {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(this.users));
     try {
@@ -562,6 +642,11 @@ class AuthService {
         });
       }
     } catch (err) {}
+    if (notify) this.notifyListeners();
+  }
+
+  private savePromoCodes(notify = true) {
+    localStorage.setItem(PROMO_CODES_STORAGE_KEY, JSON.stringify(this.promoCodes));
     if (notify) this.notifyListeners();
   }
 
@@ -1021,14 +1106,126 @@ class AuthService {
     return { success: true, user: newUser };
   }
 
-  public submitPaymentTxid(txid: string, plan: SubscriptionPlan = 'LIFETIME', targetEmail?: string): { success: boolean; error?: string } {
+  public getPromoCodes(): PromoCode[] {
+    return [...this.promoCodes];
+  }
+
+  public createPromoCode(params: {
+    code: string;
+    discountType: PromoDiscountType;
+    discountValue: number;
+    maxUses?: number;
+    description?: string;
+  }): { success: boolean; promo?: PromoCode; error?: string } {
+    const cleanCode = (params.code || '').trim().toUpperCase().replace(/\s+/g, '');
+    if (!cleanCode || cleanCode.length < 2) {
+      return { success: false, error: 'Promo code must be at least 2 characters.' };
+    }
+    const val = Number(params.discountValue);
+    if (Number.isNaN(val) || val <= 0) {
+      return { success: false, error: 'Discount value must be greater than 0.' };
+    }
+    const discountType: PromoDiscountType = params.discountType === 'PERCENT' ? 'PERCENT' : 'FIXED';
+    const cappedVal = discountType === 'PERCENT' ? Math.min(100, Math.max(1, val)) : Math.min(50, Math.max(1, val));
+    const docId = `promo_${cleanCode.replace(/[^A-Z0-9]/g, '_')}`;
+
+    const existingIdx = this.promoCodes.findIndex(p => p.code.toUpperCase() === cleanCode);
+    const promo: PromoCode = {
+      id: docId,
+      code: cleanCode,
+      discountType,
+      discountValue: cappedVal,
+      active: true,
+      usageCount: existingIdx >= 0 ? this.promoCodes[existingIdx].usageCount : 0,
+      maxUses: params.maxUses && params.maxUses > 0 ? Math.floor(params.maxUses) : 0,
+      description: (params.description || '').trim(),
+      createdAt: existingIdx >= 0 ? this.promoCodes[existingIdx].createdAt : new Date().toISOString(),
+    };
+
+    if (existingIdx >= 0) {
+      this.promoCodes[existingIdx] = promo;
+    } else {
+      this.promoCodes = [promo, ...this.promoCodes];
+    }
+    this.savePromoCodes();
+    this.syncPromoCodeToFirestore(promo);
+    return { success: true, promo };
+  }
+
+  public togglePromoCodeStatus(idOrCode: string): { success: boolean; promo?: PromoCode } {
+    const target = this.promoCodes.find(
+      p => p.id === idOrCode || p.code.toUpperCase() === (idOrCode || '').toUpperCase()
+    );
+    if (!target) return { success: false };
+    target.active = !target.active;
+    this.savePromoCodes();
+    this.syncPromoCodeToFirestore(target);
+    return { success: true, promo: target };
+  }
+
+  public deletePromoCode(idOrCode: string): boolean {
+    const cleanUpper = (idOrCode || '').trim().toUpperCase();
+    const target = this.promoCodes.find(
+      p => p.id === idOrCode || p.code.toUpperCase() === cleanUpper
+    );
+    if (!target) return false;
+    this.promoCodes = this.promoCodes.filter(p => p.id !== target.id);
+    this.savePromoCodes();
+    try {
+      deleteDoc(doc(db, 'promo_codes', target.id)).catch(() => {});
+      fetch(`/api/promo-codes/${encodeURIComponent(target.id)}`, { method: 'DELETE' }).catch(() => {});
+    } catch (_e) {}
+    return true;
+  }
+
+  public validatePromoCode(rawCode: string, basePriceUSDT = 50): {
+    valid: boolean;
+    promo?: PromoCode;
+    discountAmountUSDT: number;
+    finalAmountUSDT: number;
+    error?: string;
+  } {
+    const cleanCode = (rawCode || '').trim().toUpperCase();
+    if (!cleanCode) {
+      return { valid: false, discountAmountUSDT: 0, finalAmountUSDT: basePriceUSDT, error: 'Please enter a promo code.' };
+    }
+    const found = this.promoCodes.find(p => p.code.toUpperCase() === cleanCode);
+    if (!found) {
+      return { valid: false, discountAmountUSDT: 0, finalAmountUSDT: basePriceUSDT, error: 'Invalid promo code.' };
+    }
+    if (!found.active) {
+      return { valid: false, discountAmountUSDT: 0, finalAmountUSDT: basePriceUSDT, error: 'This promo code is inactive.' };
+    }
+    if (found.maxUses && found.maxUses > 0 && found.usageCount >= found.maxUses) {
+      return { valid: false, discountAmountUSDT: 0, finalAmountUSDT: basePriceUSDT, error: 'Promo code usage limit reached.' };
+    }
+    const rawDiscount =
+      found.discountType === 'PERCENT'
+        ? (basePriceUSDT * found.discountValue) / 100
+        : found.discountValue;
+    const discountAmountUSDT = Math.min(basePriceUSDT, Math.max(0, Number(rawDiscount.toFixed(2))));
+    const finalAmountUSDT = Math.max(0, Number((basePriceUSDT - discountAmountUSDT).toFixed(2)));
+    return {
+      valid: true,
+      promo: found,
+      discountAmountUSDT,
+      finalAmountUSDT,
+    };
+  }
+
+  public submitPaymentTxid(
+    txid: string,
+    plan: SubscriptionPlan = 'LIFETIME',
+    targetEmail?: string,
+    promoCodeInput?: string
+  ): { success: boolean; error?: string } {
     let user = this.currentUser;
 
     if (!user && targetEmail && targetEmail.trim()) {
       const cleanEmail = (targetEmail || '').trim().toLowerCase();
       user = this.users.find(u => (u.email || '').toLowerCase() === cleanEmail) || null;
       if (!user) {
-        const regRes = this.register(cleanEmail, '123456', plan, txid);
+        const regRes = this.register(cleanEmail, '123456', 'LIFETIME', txid);
         user = regRes.user || null;
       }
     }
@@ -1048,19 +1245,44 @@ class AuthService {
 
     this.currentUser = user;
 
-    const amountUSDT = plan === 'MONTHLY_PRO' ? 35 : 50;
+    const basePriceUSDT = 50;
+    let finalAmountUSDT = basePriceUSDT;
+    let discountAmountUSDT = 0;
+    let appliedPromoCode: string | undefined = undefined;
+
+    if (promoCodeInput && promoCodeInput.trim()) {
+      const promoCheck = this.validatePromoCode(promoCodeInput, basePriceUSDT);
+      if (!promoCheck.valid || !promoCheck.promo) {
+        return { success: false, error: promoCheck.error || 'Invalid promo code.' };
+      }
+      finalAmountUSDT = promoCheck.finalAmountUSDT;
+      discountAmountUSDT = promoCheck.discountAmountUSDT;
+      appliedPromoCode = promoCheck.promo.code;
+
+      promoCheck.promo.usageCount = (promoCheck.promo.usageCount || 0) + 1;
+      this.savePromoCodes();
+      this.syncPromoCodeToFirestore(promoCheck.promo);
+    }
+
     const uid = user.uid || user.id || getCanonicalUID(user.email);
+    const normalizedPlan: SubscriptionPlan = 'LIFETIME';
     const newPay: CryptoPaymentRequest = {
       id: `pay-${Date.now()}`,
       userId: uid,
       userEmail: user.email,
-      amountUSDT,
-      plan: plan || 'LIFETIME',
+      amountUSDT: finalAmountUSDT,
+      originalAmountUSDT: basePriceUSDT,
+      discountAmountUSDT,
+      promoCode: appliedPromoCode,
+      plan: normalizedPlan,
       network: 'USDT_TRC20',
       walletAddress: OFFICIAL_USDT_TRC20_ADDRESS,
       txid: txid.trim(),
       status: 'PENDING',
       submittedAt: new Date().toISOString(),
+      notes: appliedPromoCode
+        ? `Promo ${appliedPromoCode} (-$${discountAmountUSDT} off $50)`
+        : undefined,
     };
 
     this.payments = [newPay, ...this.payments.filter(p => p.id !== newPay.id && p.txid !== txid.trim())];
@@ -1070,12 +1292,15 @@ class AuthService {
     user.status = 'PENDING';
     user.approved = false;
     user.active = false;
-    user.plan = plan;
+    user.plan = normalizedPlan;
     user.txid = txid.trim();
-    user.paymentAmountUSDT = amountUSDT;
+    user.paymentAmountUSDT = finalAmountUSDT;
+    user.originalAmountUSDT = basePriceUSDT;
+    user.discountAmountUSDT = discountAmountUSDT;
+    user.promoCode = appliedPromoCode;
     user.paymentDate = new Date().toISOString();
 
-    // 🚀 FIX: Auto-approve admins for instant testing access
+    // Auto-approve admins or 100% full-discount ($0) promo codes if configured
     if (isAdminEmail(user.email)) {
       user.status = 'ACTIVE';
       user.approved = true;

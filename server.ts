@@ -43,6 +43,8 @@ const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIRES
 const FIRESTORE_USERS_URL = `${FIRESTORE_BASE_URL}/users?key=${FIRESTORE_API_KEY}`;
 const FIRESTORE_USERS_DOC_BASE = `${FIRESTORE_BASE_URL}/users`;
 const FIRESTORE_PAYMENTS_URL = `${FIRESTORE_BASE_URL}/payments?key=${FIRESTORE_API_KEY}`;
+const FIRESTORE_PROMOS_URL = `${FIRESTORE_BASE_URL}/promo_codes?key=${FIRESTORE_API_KEY}`;
+const FIRESTORE_PROMOS_DOC_BASE = `${FIRESTORE_BASE_URL}/promo_codes`;
 
 function isServerAdminEmail(email?: string): boolean {
   if (!email) return false;
@@ -487,6 +489,145 @@ app.post("/api/auth/sync", async (req, res) => {
   }
 });
 
+// 6. PROMO CODES ENDPOINTS
+let memoryPromoCodesCache: any[] = [];
+
+async function loadPromoCodesFromFirestore(): Promise<any[]> {
+  try {
+    const resp = await fetch(FIRESTORE_PROMOS_URL);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (Array.isArray(data.documents)) {
+        const list = data.documents.map((d: any) => fromFirestoreDoc(d)).filter((p: any) => !!p.code);
+        memoryPromoCodesCache = list;
+        return list;
+      }
+    }
+  } catch (_e) {}
+  return memoryPromoCodesCache;
+}
+
+async function savePromoCodeToFirestore(promo: any) {
+  const cleanCode = String(promo.code || '').trim().toUpperCase();
+  if (!cleanCode) return;
+  const docId = promo.id || `promo_${cleanCode.replace(/[^A-Z0-9]/g, '_')}`;
+  promo.id = docId;
+  promo.code = cleanCode;
+  try {
+    await fetch(`${FIRESTORE_PROMOS_DOC_BASE}/${encodeURIComponent(docId)}?key=${FIRESTORE_API_KEY}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fields: toFirestoreFields(promo) }),
+    });
+  } catch (_e) {}
+}
+
+app.get("/api/promo-codes", async (_req, res) => {
+  try {
+    const promos = await loadPromoCodesFromFirestore();
+    return res.json({ success: true, promoCodes: promos });
+  } catch (err: any) {
+    return res.json({ success: true, promoCodes: memoryPromoCodesCache });
+  }
+});
+
+app.post("/api/promo-codes", async (req, res) => {
+  try {
+    const { code, discountType = "FIXED", discountValue, active = true, maxUses = 0, description = "", usageCount = 0 } = req.body || {};
+    const cleanCode = String(code || "").trim().toUpperCase().replace(/\s+/g, "");
+    const numVal = Number(discountValue);
+    if (!cleanCode || Number.isNaN(numVal) || numVal <= 0) {
+      return res.status(400).json({ success: false, error: "Invalid promo code or discount value." });
+    }
+    const normalizedType = discountType === "PERCENT" ? "PERCENT" : "FIXED";
+    const cappedVal = normalizedType === "PERCENT" ? Math.min(100, Math.max(1, numVal)) : Math.min(50, Math.max(1, numVal));
+    const docId = `promo_${cleanCode.replace(/[^A-Z0-9]/g, "_")}`;
+
+    await loadPromoCodesFromFirestore();
+    const existingIdx = memoryPromoCodesCache.findIndex((p) => String(p.code).toUpperCase() === cleanCode);
+    const promoObj = {
+      id: docId,
+      code: cleanCode,
+      discountType: normalizedType,
+      discountValue: cappedVal,
+      active: Boolean(active),
+      usageCount: typeof usageCount === "number" ? usageCount : (existingIdx >= 0 ? (memoryPromoCodesCache[existingIdx].usageCount || 0) : 0),
+      maxUses: Number(maxUses) > 0 ? Number(maxUses) : 0,
+      description: String(description || ""),
+      createdAt: existingIdx >= 0 ? memoryPromoCodesCache[existingIdx].createdAt : new Date().toISOString(),
+    };
+
+    if (existingIdx >= 0) {
+      memoryPromoCodesCache[existingIdx] = promoObj;
+    } else {
+      memoryPromoCodesCache.unshift(promoObj);
+    }
+
+    await savePromoCodeToFirestore(promoObj);
+    return res.json({ success: true, promo: promoObj, promoCodes: memoryPromoCodesCache });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete("/api/promo-codes/:id", async (req, res) => {
+  try {
+    const rawId = String(req.params.id || "").trim();
+    const cleanUpper = rawId.toUpperCase();
+    const target = memoryPromoCodesCache.find(
+      (p) => p.id === rawId || String(p.code).toUpperCase() === cleanUpper
+    );
+    const docId = target?.id || (rawId.startsWith("promo_") ? rawId : `promo_${cleanUpper.replace(/[^A-Z0-9]/g, "_")}`);
+    memoryPromoCodesCache = memoryPromoCodesCache.filter(
+      (p) => p.id !== docId && String(p.code).toUpperCase() !== cleanUpper
+    );
+    try {
+      await fetch(`${FIRESTORE_PROMOS_DOC_BASE}/${encodeURIComponent(docId)}?key=${FIRESTORE_API_KEY}`, {
+        method: "DELETE",
+      });
+    } catch (_e) {}
+    return res.json({ success: true, promoCodes: memoryPromoCodesCache });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/promo-codes/validate", async (req, res) => {
+  try {
+    const { code, baseAmount = 50 } = req.body || {};
+    const cleanCode = String(code || "").trim().toUpperCase();
+    if (!cleanCode) {
+      return res.status(400).json({ valid: false, error: "Please enter a promo code." });
+    }
+    const promos = await loadPromoCodesFromFirestore();
+    const found = promos.find((p) => String(p.code || "").toUpperCase() === cleanCode);
+    if (!found) {
+      return res.status(404).json({ valid: false, error: "Invalid promo code." });
+    }
+    if (!found.active) {
+      return res.status(400).json({ valid: false, error: "This promo code is currently inactive." });
+    }
+    if (found.maxUses && found.maxUses > 0 && (found.usageCount || 0) >= found.maxUses) {
+      return res.status(400).json({ valid: false, error: "This promo code has reached its usage limit." });
+    }
+    const base = Number(baseAmount) || 50;
+    const rawDiscount =
+      found.discountType === "PERCENT"
+        ? (base * Number(found.discountValue || 0)) / 100
+        : Number(found.discountValue || 0);
+    const discountAmountUSDT = Math.min(base, Math.max(0, Number(rawDiscount.toFixed(2))));
+    const finalAmountUSDT = Math.max(0, Number((base - discountAmountUSDT).toFixed(2)));
+    return res.json({
+      valid: true,
+      promo: found,
+      discountAmountUSDT,
+      finalAmountUSDT,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ valid: false, error: err.message });
+  }
+});
+
 // In-memory rate-limit cooldown & signal cache tracker
 let lastGeminiCallTime = 0;
 let rateLimitCooldownUntil = 0;
@@ -587,7 +728,7 @@ Important Rules:
 2. Prioritize quality setups over trade frequency.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.7-flash",
+      model: "gemini-3.8-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -692,7 +833,7 @@ Return a valid JSON object strictly matching this schema without markdown format
 }`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.8-flash",
         contents: verifyPrompt,
         config: {
           responseMimeType: "application/json",

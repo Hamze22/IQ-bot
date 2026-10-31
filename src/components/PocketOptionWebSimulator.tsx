@@ -338,9 +338,13 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
       </div>
 
       {/* 2. PO AI Overlay Live Widget Stage */}
-      <div className="flex-1 relative min-h-[540px] min-[1050px]:min-h-[580px] px-2.5 py-4 min-[1050px]:p-0 bg-[#070b14] flex flex-col items-center justify-center overflow-hidden">
-        {/* Real-time Chart background for the simulator */}
-        <div className={`absolute inset-0 z-0 transition-all duration-1000 ${showScanningZone ? 'opacity-100 scale-[1.02]' : 'opacity-40'}`}>
+      <div className="flex-1 relative min-h-[540px] min-[1050px]:min-h-[580px] px-2.5 py-4 min-[1050px]:px-6 bg-[#070b14] flex flex-col items-center min-[1050px]:items-end justify-center overflow-hidden">
+        {/* Real-time Chart background with dynamic latest-candle L-Shape scanner */}
+        <div
+          className={`absolute inset-0 z-0 transition-all duration-700 ${
+            showScanningZone || showChartLShapeScanner ? 'opacity-95' : 'opacity-45'
+          }`}
+        >
           <LiveChart
             pair={activePair}
             candles={candles}
@@ -348,44 +352,16 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
             timeframe={timeframe}
             setTimeframe={setTimeframe}
             activeSignal={activeSignal}
-            showScanningZone={false}
+            showScanningZone={showChartLShapeScanner}
             hideInternalLShape={true}
           />
         </div>
-
-        {/* 📐 POCKET OPTION BROKER CHART L-SHAPE CANDLESTICK SCANNER (Directly on PO Chart) */}
-        {showChartLShapeScanner && (
-          <div className="absolute right-4 md:right-16 top-20 md:top-24 z-20 pointer-events-none">
-            <div className="relative w-[220px] sm:w-[250px] h-[150px] sm:h-[168px] bg-transparent select-none flex items-center justify-center">
-              {/* 4 Sharp Glowing L-Shape Corner Brackets */}
-              {/* Top-Left L */}
-              <div className="absolute top-0 left-0 w-7 h-7 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              {/* Top-Right L */}
-              <div className="absolute top-0 right-0 w-7 h-7 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              {/* Bottom-Left L */}
-              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              {/* Bottom-Right L */}
-              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-sm drop-shadow-[0_0_8px_#22d3ee]" />
-
-              {/* Up-and-Down Scanning Line & Wave */}
-              <div className="absolute inset-x-1.5 top-0 pointer-events-none animate-scan-up-down">
-                <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]" />
-                <div className="h-5 w-full -mt-2.5 bg-gradient-to-b from-cyan-400/20 via-cyan-400/10 to-transparent blur-[2px]" />
-              </div>
-
-              {/* Only Text Kept */}
-              <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-                SCANNING 10/2 CANDLES
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Subtle grid background pattern overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none z-1" />
 
         {/* Active Asset & Live Tick Header Bar */}
-        <div className="w-full max-w-lg flex items-center justify-between gap-2 mb-6 bg-[#0d1424]/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-lg relative z-10">
+        <div className="w-full max-w-lg min-[1050px]:max-w-[360px] flex items-center justify-between gap-2 mb-4 bg-[#0d1424]/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-lg relative z-10">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-bold text-slate-400">ACTIVE PAIR:</span>
             <span className="text-sm font-mono font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30">
@@ -404,12 +380,9 @@ export const PocketOptionWebSimulator: React.FC<PocketOptionWebSimulatorProps> =
 
         {/* Floating AI Overlay Badge Widget */}
         <div
-          style={{
-            zIndex: 50,
-          }}
-          className={`w-full ${
+          className={`w-full z-50 ${
             isCompactOverlay ? 'max-w-[275px] p-2.5 space-y-2' : 'max-w-[360px] p-4 space-y-3'
-          } bg-slate-950/95 border-2 border-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.35)] rounded-2xl backdrop-blur-xl transition-all outline-none relative z-10 ${
+          } bg-slate-950/95 border-2 border-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.35)] rounded-2xl backdrop-blur-xl transition-all outline-none relative ${
             isDragging ? 'opacity-90 scale-[1.02] shadow-[0_0_45px_rgba(16,185,129,0.7)] cursor-grabbing' : ''
           }`}
         >

@@ -27,11 +27,17 @@ import {
   ChevronRight,
   X,
   Award,
+  Tag,
+  Percent,
+  Plus,
+  Power,
 } from 'lucide-react';
 import { authService } from '../services/authService';
 import {
   UserAccount,
   CryptoPaymentRequest,
+  PromoCode,
+  PromoDiscountType,
   OFFICIAL_USDT_TRC20_ADDRESS,
   SubscriptionPlan,
   AccountStatus,
@@ -40,7 +46,7 @@ import {
 } from '../types';
 import { IQBotLogo } from './IQBotLogo';
 
-type AdminTab = 'overview' | 'crypto' | 'cards' | 'users' | 'revenue';
+type AdminTab = 'overview' | 'crypto' | 'cards' | 'users' | 'promos' | 'revenue';
 type UserFilterCategory = 'ALL' | 'ACTIVE' | 'PENDING' | 'UNPAID' | 'SUSPENDED';
 
 interface AdminDashboardViewProps {
@@ -55,6 +61,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [users, setUsers] = useState<UserAccount[]>(() => authService.getUsers());
   const [payments, setPayments] = useState<CryptoPaymentRequest[]>(() => authService.getPayments());
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>(() => authService.getPromoCodes());
   
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,6 +75,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [isSyncingCloud, setIsSyncingCloud] = useState(false);
   const [showCardNumbers, setShowCardNumbers] = useState<Record<string, boolean>>({});
+  const [adminNotice, setAdminNotice] = useState<string | null>(null);
+
+  // Promo Code Creation Form State
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [promoDiscountType, setPromoDiscountType] = useState<PromoDiscountType>('FIXED');
+  const [promoDiscountValue, setPromoDiscountValue] = useState<string>('15');
+  const [promoMaxUses, setPromoMaxUses] = useState<string>('');
+  const [promoDescription, setPromoDescription] = useState<string>('');
+  const [promoFormError, setPromoFormError] = useState<string | null>(null);
 
   // Inspection Modal (Detailed User/Payment Review)
   const [inspectUser, setInspectUser] = useState<UserAccount | null>(null);
@@ -89,6 +105,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     const syncData = () => {
       setUsers(authService.getUsers());
       setPayments(authService.getPayments());
+      setPromoCodes(authService.getPromoCodes());
     };
 
     authService.forceSyncFromFirestore().then(() => {
@@ -113,8 +130,10 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
     } finally {
       const refreshedUsers = authService.getUsers();
       const refreshedPayments = authService.getPayments();
+      const refreshedPromos = authService.getPromoCodes();
       setUsers(refreshedUsers);
       setPayments(refreshedPayments);
+      setPromoCodes(refreshedPromos);
       
       // Update currently inspected user if open
       if (inspectUser) {
@@ -158,19 +177,69 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
   };
 
   const handleDeleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user account?')) {
-      authService.deleteUser(userId);
-      if (inspectUser && (inspectUser.id === userId || inspectUser.uid === userId)) {
-        setInspectUser(null);
-      }
-      handleRefresh();
+    authService.deleteUser(userId);
+    if (inspectUser && (inspectUser.id === userId || inspectUser.uid === userId)) {
+      setInspectUser(null);
     }
+    setAdminNotice('User account deleted.');
+    setTimeout(() => setAdminNotice(null), 3000);
+    handleRefresh();
   };
 
   const handleActivateAll = () => {
     const count = authService.activateAllUsers();
-    alert(`Activated ${count} user(s) successfully!`);
+    setAdminNotice(`Activated ${count} user(s) successfully!`);
+    setTimeout(() => setAdminNotice(null), 3500);
     handleRefresh();
+  };
+
+  const handleCreatePromoCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPromoFormError(null);
+    const numVal = Number(promoDiscountValue);
+    if (!promoCodeInput.trim()) {
+      setPromoFormError('Please enter a promo code name (e.g. VIP20).');
+      return;
+    }
+    if (Number.isNaN(numVal) || numVal <= 0) {
+      setPromoFormError('Please enter a valid discount amount greater than 0.');
+      return;
+    }
+    const maxUsesNum = promoMaxUses.trim() ? Number(promoMaxUses) : 0;
+    const res = authService.createPromoCode({
+      code: promoCodeInput,
+      discountType: promoDiscountType,
+      discountValue: numVal,
+      maxUses: maxUsesNum > 0 ? maxUsesNum : 0,
+      description: promoDescription,
+    });
+    if (!res.success || !res.promo) {
+      setPromoFormError(res.error || 'Could not create promo code.');
+      return;
+    }
+    setPromoCodes(authService.getPromoCodes());
+    setPromoCodeInput('');
+    setPromoDescription('');
+    setPromoMaxUses('');
+    setAdminNotice(`Promo code "${res.promo.code}" saved!`);
+    setTimeout(() => setAdminNotice(null), 3500);
+  };
+
+  const handleGenerateRandomPromo = () => {
+    const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    setPromoCodeInput(`VIP${suffix}`);
+  };
+
+  const handleTogglePromo = (id: string) => {
+    authService.togglePromoCodeStatus(id);
+    setPromoCodes(authService.getPromoCodes());
+  };
+
+  const handleDeletePromo = (id: string) => {
+    authService.deletePromoCode(id);
+    setPromoCodes(authService.getPromoCodes());
+    setAdminNotice('Promo code deleted.');
+    setTimeout(() => setAdminNotice(null), 3000);
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -360,8 +429,28 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
             <UserPlus className="w-4 h-4" />
             <span>+ Direct User (Free / Direct)</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('promos')}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-extrabold shadow-lg shadow-cyan-600/20 transition cursor-pointer"
+          >
+            <Tag className="w-4 h-4" />
+            <span>+ Add Promo Code</span>
+          </button>
         </div>
       </div>
+
+      {adminNotice && (
+        <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            {adminNotice}
+          </span>
+          <button onClick={() => setAdminNotice(null)} className="text-slate-400 hover:text-white cursor-pointer">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 2. NAVIGATION BAR (SECTIONS & TABS) */}
       <div className="flex items-center gap-2 p-1.5 bg-slate-950/90 border border-slate-800/90 rounded-2xl overflow-x-auto shadow-inner backdrop-blur-md">
@@ -428,6 +517,22 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
           <span>All Users Directory</span>
           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">
             {totalUsers}
+          </span>
+        </button>
+
+        {/* Tab: Promo Codes & Discounts */}
+        <button
+          onClick={() => setActiveTab('promos')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition cursor-pointer shrink-0 ${
+            activeTab === 'promos'
+              ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+          }`}
+        >
+          <Tag className="w-4 h-4 text-cyan-400" />
+          <span>Promo Codes & Discounts</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300">
+            {promoCodes.filter(p => p.active).length}
           </span>
         </button>
 
@@ -719,7 +824,12 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
 
                       <td className="py-3 px-4 font-mono">
                         <span className="text-emerald-400 font-bold">${pay.amountUSDT} USDT</span>
-                        <span className="text-slate-400 text-[10px] ml-1.5 font-sans">({pay.plan})</span>
+                        <span className="text-slate-400 text-[10px] ml-1.5 font-sans">(LIFETIME)</span>
+                        {pay.promoCode && (
+                          <div className="text-[10px] text-cyan-400 font-mono mt-0.5">
+                            Promo: {pay.promoCode} (-${pay.discountAmountUSDT || 0})
+                          </div>
+                        )}
                       </td>
 
                       <td className="py-3 px-4 font-mono text-slate-300" onClick={(e) => e.stopPropagation()}>
@@ -1252,6 +1362,291 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
         </div>
       )}
 
+      {/* ======================= TAB: PROMO CODES & DISCOUNTS ======================= */}
+      {activeTab === 'promos' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Add Promo Code Form */}
+            <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900/95 border border-slate-800 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                    <Tag className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white">Add Promo Code</h3>
+                    <p className="text-[11px] text-slate-400">Set promo code & discount given on $50 VIP plan</p>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={handleCreatePromoCode} className="space-y-3.5 text-xs">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                      Promo Code Label
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleGenerateRandomPromo}
+                      className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 cursor-pointer"
+                    >
+                      Auto-Generate
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={promoCodeInput}
+                    onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase().replace(/\s+/g, ''))}
+                    placeholder="e.g. SOMFX15 or VIP20"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono font-bold uppercase text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Discount Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 border border-slate-800 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setPromoDiscountType('FIXED')}
+                      className={`py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                        promoDiscountType === 'FIXED'
+                          ? 'bg-cyan-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      <span>Fixed Amount ($ Off)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPromoDiscountType('PERCENT')}
+                      className={`py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                        promoDiscountType === 'PERCENT'
+                          ? 'bg-cyan-600 text-white shadow'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Percent className="w-3.5 h-3.5" />
+                      <span>Percentage (% Off)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                      {promoDiscountType === 'FIXED' ? 'Discount Amount ($ USDT)' : 'Discount Percent (%)'}
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max={promoDiscountType === 'FIXED' ? '50' : '100'}
+                      step="1"
+                      required
+                      value={promoDiscountValue}
+                      onChange={(e) => setPromoDiscountValue(e.target.value)}
+                      placeholder={promoDiscountType === 'FIXED' ? '15' : '30'}
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono font-bold text-emerald-400 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                      Max Uses (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={promoMaxUses}
+                      onChange={(e) => setPromoMaxUses(e.target.value)}
+                      placeholder="Unlimited"
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                    Note / Label (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={promoDescription}
+                    onChange={(e) => setPromoDescription(e.target.value)}
+                    placeholder="e.g. Special Telegram VIP Discount"
+                    className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Live Discount Preview */}
+                {(() => {
+                  const val = Math.max(0, Number(promoDiscountValue) || 0);
+                  const rawDisc = promoDiscountType === 'PERCENT' ? (50 * Math.min(100, val)) / 100 : Math.min(50, val);
+                  const disc = Number(rawDisc.toFixed(2));
+                  const userPays = Math.max(0, Number((50 - disc).toFixed(2)));
+                  return (
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 font-mono text-[11px]">
+                      <div className="flex items-center justify-between text-slate-400">
+                        <span>Base Lifetime VIP Plan:</span>
+                        <span className="text-slate-200 font-bold">$50.00 USDT</span>
+                      </div>
+                      <div className="flex items-center justify-between text-emerald-400">
+                        <span>Discount Given to User:</span>
+                        <span className="font-bold">-${disc.toFixed(2)} USDT</span>
+                      </div>
+                      <div className="flex items-center justify-between text-white border-t border-slate-800 pt-1.5 text-xs">
+                        <span className="font-sans font-bold">Final Amount User Pays:</span>
+                        <span className="text-cyan-300 font-black">${userPays.toFixed(2)} USDT</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {promoFormError && (
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[11px]">
+                    {promoFormError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs rounded-xl shadow-lg shadow-cyan-600/20 transition cursor-pointer flex items-center justify-center gap-1.5 uppercase tracking-wider"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Save Promo Code</span>
+                </button>
+              </form>
+            </div>
+
+            {/* Promo Codes Directory Table */}
+            <div className="lg:col-span-7 p-6 rounded-2xl bg-slate-900/95 border border-slate-800 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                  <h3 className="text-sm font-black text-white">Active & Saved Promo Codes</h3>
+                  <p className="text-[11px] text-slate-400">
+                    Users enter these codes in the $50 Payment Checkout to receive instant discounts
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-cyan-400 font-bold">
+                  {promoCodes.length} Total
+                </span>
+              </div>
+
+              {promoCodes.length === 0 ? (
+                <div className="py-12 text-center space-y-2 border border-dashed border-slate-800 rounded-2xl">
+                  <Tag className="w-8 h-8 text-slate-600 mx-auto" />
+                  <p className="text-xs font-bold text-slate-300">No Promo Codes Created Yet</p>
+                  <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                    Use the form on the left to add a promo code and set the discount amount users receive on the $50 Lifetime VIP plan.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-950 text-slate-400 text-[10px] uppercase tracking-wider border-b border-slate-800">
+                        <th className="py-3 px-3.5">Promo Code</th>
+                        <th className="py-3 px-3.5">Discount Given</th>
+                        <th className="py-3 px-3.5">User Pays</th>
+                        <th className="py-3 px-3.5">Uses</th>
+                        <th className="py-3 px-3.5">Status</th>
+                        <th className="py-3 px-3.5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/70 bg-slate-900/60">
+                      {promoCodes.map((promo) => {
+                        const rawDisc =
+                          promo.discountType === 'PERCENT'
+                            ? (50 * promo.discountValue) / 100
+                            : promo.discountValue;
+                        const discUSDT = Math.min(50, Math.max(0, Number(rawDisc.toFixed(2))));
+                        const finalUSDT = Math.max(0, Number((50 - discUSDT).toFixed(2)));
+                        return (
+                          <tr key={promo.id} className="hover:bg-slate-800/40 transition">
+                            <td className="py-3 px-3.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono font-black text-cyan-300 text-xs">
+                                  {promo.code}
+                                </span>
+                                <button
+                                  onClick={() => handleCopy(promo.code, `Promo ${promo.code}`)}
+                                  title="Copy Promo Code"
+                                  className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </div>
+                              {promo.description && (
+                                <div className="text-[10px] text-slate-500 mt-0.5 truncate max-w-[160px]">
+                                  {promo.description}
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-3.5 font-mono">
+                              <span className="text-emerald-400 font-bold">-${discUSDT} USDT</span>
+                              {promo.discountType === 'PERCENT' && (
+                                <span className="text-[10px] text-slate-400 ml-1">
+                                  ({promo.discountValue}%)
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-3.5 font-mono font-black text-white">
+                              ${finalUSDT} USDT
+                            </td>
+
+                            <td className="py-3 px-3.5 font-mono text-slate-300">
+                              {promo.usageCount || 0}
+                              {promo.maxUses && promo.maxUses > 0 ? ` / ${promo.maxUses}` : ' / ∞'}
+                            </td>
+
+                            <td className="py-3 px-3.5 font-mono text-[10px] font-bold">
+                              <span className={promo.active ? 'text-emerald-400' : 'text-slate-500'}>
+                                {promo.active ? 'ACTIVE' : 'PAUSED'}
+                              </span>
+                            </td>
+
+                            <td className="py-3 px-3.5 text-right">
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  onClick={() => handleTogglePromo(promo.id)}
+                                  title={promo.active ? 'Pause Promo Code' : 'Activate Promo Code'}
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1 ${
+                                    promo.active
+                                      ? 'bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
+                                      : 'bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'
+                                  }`}
+                                >
+                                  <Power className="w-3 h-3" />
+                                  <span>{promo.active ? 'Pause' : 'Enable'}</span>
+                                </button>
+                                <button
+                                  onClick={() => handleDeletePromo(promo.id)}
+                                  title="Delete Promo Code"
+                                  className="p-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 transition cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 4. COMPREHENSIVE PAYMENT & IDENTITY INSPECTION MODAL */}
       {(inspectUser || inspectPayment) && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
@@ -1431,7 +1826,15 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
                       <div className="text-[10px] text-slate-400 uppercase font-mono">Amount Required</div>
-                      <div className="text-sm font-black font-mono text-emerald-400 mt-0.5">$50.00 USDT</div>
+                      <div className="text-sm font-black font-mono text-emerald-400 mt-0.5">
+                        ${inspectPayment?.amountUSDT ?? inspectUser?.paymentAmountUSDT ?? 50} USDT
+                      </div>
+                      {(inspectPayment?.promoCode || inspectUser?.promoCode) && (
+                        <div className="text-[10px] font-mono text-cyan-400 mt-0.5">
+                          Promo: {inspectPayment?.promoCode || inspectUser?.promoCode} (-$
+                          {inspectPayment?.discountAmountUSDT || inspectUser?.discountAmountUSDT || 0} off $50)
+                        </div>
+                      )}
                     </div>
                     <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
                       <div className="text-[10px] text-slate-400 uppercase font-mono">Official Wallet Target</div>
@@ -1619,9 +2022,7 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({
                     onChange={(e) => setNewPlan(e.target.value as SubscriptionPlan)}
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none"
                   >
-                    <option value="LIFETIME">Lifetime Access ($50 / Free)</option>
-                    <option value="MONTHLY_1">1 Month</option>
-                    <option value="MONTHLY_3">3 Months</option>
+                    <option value="LIFETIME">Lifetime VIP ($50 / Free)</option>
                   </select>
                 </div>
 

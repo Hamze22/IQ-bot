@@ -1451,9 +1451,7 @@ export const ExtensionPopupView: React.FC<ExtensionPopupViewProps> = ({
                           onChange={(e) => setNewUserPlan(e.target.value as any)}
                           className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-100 font-mono text-[10px] focus:outline-none cursor-pointer"
                         >
-                          <option value="LIFETIME">LIFETIME ($50)</option>
-                          <option value="MONTHLY_1">1 MONTH ($15)</option>
-                          <option value="MONTHLY_3">3 MONTHS ($35)</option>
+                          <option value="LIFETIME">LIFETIME VIP ($50)</option>
                         </select>
                       </div>
 

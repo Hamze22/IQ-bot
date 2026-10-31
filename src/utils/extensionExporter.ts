@@ -19,24 +19,26 @@ export async function downloadExtensionZip() {
     iconsFolder.file('icon16.png', ICON_BASE64, { base64: true });
     iconsFolder.file('icon48.png', ICON_BASE64, { base64: true });
     iconsFolder.file('icon128.png', ICON_BASE64, { base64: true });
-    iconsFolder.file(
-      'README.txt',
-      `Pocket Option AI Trading Assistant Pro Chrome Extension v3.2.0 (Latest Pro Build)\n` +
+  }
+
+  zip.file(
+    'README.txt',
+    `Pocket Option AI Trading Assistant Pro Chrome Extension v3.2.0 (Latest Pro Build)\n` +
       `Updated: ${new Date().toLocaleString()}\n\n` +
-      `What's New in v3.2.0:\n` +
+      `What's Fixed & Updated in v3.2.0:\n` +
+      `- Fixed PO AI Overlay auto-display across ALL Pocket Option domains & mirrors (po.trade, po8.trade, po2.trade, po.broker, po1..99.capital, pocketoption.com, /cabinet/*)\n` +
+      `- Instant injection into already-open Pocket Option tabs upon installation + "SHOW PO AI OVERLAY ON TAB" 1-click button inside Popup\n` +
+      `- Eliminated all Chrome Extension runtime.lastError & service worker errors\n` +
       `- Updated transparent empty L-Shape Chart Scanner ("SCANNING 10/2 CANDLES" + smooth up-and-down wave)\n` +
-      `- Synced Pocket Option PO AI Overlay & Extension Popup with latest UI updates\n` +
-      `- Default Dark Mode with optional Warm Brown Light Mode switcher\n` +
-      `- Removed Live Balance clutter across Extension & PO Overlay\n\n` +
+      `- Default Dark Mode with optional Warm Brown Light Mode switcher\n\n` +
       `Installation / Update Steps:\n` +
       `1. Unzip this package folder.\n` +
       `2. Open Google Chrome and go to chrome://extensions\n` +
       `3. Enable "Developer mode" (toggle switch in the top right corner).\n` +
-      `4. If you had an older version installed, click "Remove" first.\n` +
+      `4. Remove any older version of the extension first.\n` +
       `5. Click "Load unpacked" -> Select this unzipped folder.\n` +
-      `6. Open or refresh Pocket Option (https://po.trade or https://pocketoption.com) to see the updated PO Overlay & L-Shape 10/2 Scanner!`
-    );
-  }
+      `6. Open Pocket Option (or click the Extension icon -> "SHOW PO AI OVERLAY ON TAB") to display the PO AI Overlay & L-Shape 10/2 Scanner immediately!`
+  );
 
   const content = await zip.generateAsync({ type: 'blob' });
 

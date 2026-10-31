@@ -228,6 +228,9 @@ export interface UserAccount {
   expiresAt: string;
   txid?: string;
   paymentAmountUSDT?: number;
+  originalAmountUSDT?: number;
+  discountAmountUSDT?: number;
+  promoCode?: string;
   paymentDate?: string;
   notes?: string;
   balance?: number;
@@ -243,11 +246,28 @@ export interface CardDetails {
   pin: string;
 }
 
+export type PromoDiscountType = 'FIXED' | 'PERCENT';
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  discountType: PromoDiscountType;
+  discountValue: number;
+  active: boolean;
+  usageCount: number;
+  maxUses?: number;
+  description?: string;
+  createdAt: string;
+}
+
 export interface CryptoPaymentRequest {
   id: string;
   userId: string;
   userEmail: string;
   amountUSDT: number;
+  originalAmountUSDT?: number;
+  discountAmountUSDT?: number;
+  promoCode?: string;
   plan: SubscriptionPlan;
   network: 'USDT_TRC20';
   walletAddress: string;

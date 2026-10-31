@@ -340,100 +340,58 @@ export const LiveChart: React.FC<LiveChartProps> = ({
             );
           })}
 
-          {/* 📐 INTERACTIVE L-SHAPE SELECTION RETICLE */}
-          {lShapeActive && !hideInternalLShape && (() => {
-            const selectedCount = Math.min(lShapeCandleCount, candles.length);
-            const lStartIndex = Math.max(0, candles.length - selectedCount);
-            const lStartX = 30 + lStartIndex * (candleWidth + 3) - 4;
-            const lEndX = 30 + (candles.length - 1) * (candleWidth + 3) + candleWidth + 4;
-            const selCandles = candles.slice(-selectedCount);
-            const selHigh = Math.max(...selCandles.map((c) => c.high));
-            const selLow = Math.min(...selCandles.map((c) => c.low));
-            const lTopY = Math.max(16, getY(selHigh) - 18);
-            const lBottomY = Math.min(height - 24, getY(selLow) + 18);
-            const lArm = Math.min(18, Math.max(10, (lEndX - lStartX) / 3));
+          {/* 📐 DYNAMIC EMPTY L-SHAPE 10/2 CANDLE SCANNER (Tracks Latest Candles) */}
+          {(showScanningZone || (lShapeActive && !hideInternalLShape)) && (() => {
+            const trackCount = Math.min(10, candles.length);
+            const startIdx = Math.max(0, candles.length - trackCount);
+            const lStartX = 30 + startIdx * (candleWidth + 3) - 8;
+            const lEndX = 30 + (candles.length - 1) * (candleWidth + 3) + candleWidth + 14;
+            const boxW = Math.max(210, Math.min(265, lEndX - lStartX));
+            const boxX = Math.max(24, Math.min(width - boxW - 44, lEndX - boxW));
+
+            const recent10 = candles.slice(-trackCount);
+            const recent2 = candles.slice(-Math.min(2, candles.length));
+            const high10 = Math.max(...recent10.map((c) => c.high), currentPrice);
+            const low10 = Math.min(...recent10.map((c) => c.low), currentPrice);
+            const high2 = Math.max(...recent2.map((c) => c.high), currentPrice);
+            const low2 = Math.min(...recent2.map((c) => c.low), currentPrice);
+
+            const top10Y = getY(high10) - 18;
+            const bottom10Y = getY(low10) + 18;
+            const mid10Y = (top10Y + bottom10Y) / 2;
+            const mid2Y = getY((high2 + low2) / 2);
+
+            const boxH = Math.max(138, Math.min(185, bottom10Y - top10Y));
+            const trackedCenterY = mid2Y * 0.55 + mid10Y * 0.45;
+            const boxY = Math.max(12, Math.min(height - boxH - 22, trackedCenterY - boxH / 2));
 
             return (
-              <g className="transition-all duration-300">
-                {/* Shaded Box */}
-                <rect
-                  x={lStartX}
-                  y={lTopY}
-                  width={lEndX - lStartX}
-                  height={lBottomY - lTopY}
-                  fill="#0284c7"
-                  fillOpacity="0.12"
-                  stroke="#38bdf8"
-                  strokeWidth="1.2"
-                  strokeDasharray="4 2"
-                  rx="4"
-                />
+              <foreignObject
+                x={boxX}
+                y={boxY}
+                width={boxW}
+                height={boxH}
+                className="pointer-events-none overflow-visible transition-all duration-300 ease-out"
+              >
+                <div className="relative w-full h-full bg-transparent flex items-center justify-center select-none">
+                  {/* 4 Sharp Glowing L-Shape Corner Brackets */}
+                  <div className="absolute top-0 left-0 w-7 h-7 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-sm drop-shadow-[0_0_8px_#22d3ee]" />
+                  <div className="absolute top-0 right-0 w-7 h-7 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-sm drop-shadow-[0_0_8px_#22d3ee]" />
+                  <div className="absolute bottom-0 left-0 w-7 h-7 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-sm drop-shadow-[0_0_8px_#22d3ee]" />
+                  <div className="absolute bottom-0 right-0 w-7 h-7 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-sm drop-shadow-[0_0_8px_#22d3ee]" />
 
-                {/* Glowing L-Shape Corner Brackets (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
-                {/* Top-Left L */}
-                <path
-                  d={`M ${lStartX + lArm} ${lTopY} L ${lStartX} ${lTopY} L ${lStartX} ${lTopY + lArm}`}
-                  stroke="#38bdf8"
-                  strokeWidth="3.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                {/* Top-Right L */}
-                <path
-                  d={`M ${lEndX - lArm} ${lTopY} L ${lEndX} ${lTopY} L ${lEndX} ${lTopY + lArm}`}
-                  stroke="#38bdf8"
-                  strokeWidth="3.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                {/* Bottom-Left L */}
-                <path
-                  d={`M ${lStartX} ${lBottomY - lArm} L ${lStartX} ${lBottomY} L ${lStartX + lArm} ${lBottomY}`}
-                  stroke="#38bdf8"
-                  strokeWidth="3.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                {/* Bottom-Right L */}
-                <path
-                  d={`M ${lEndX} ${lBottomY - lArm} L ${lEndX} ${lBottomY} L ${lEndX - lArm} ${lBottomY}`}
-                  stroke="#38bdf8"
-                  strokeWidth="3.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
+                  {/* Up-and-Down Scanning Line & Wave */}
+                  <div className="absolute inset-x-1.5 top-0 pointer-events-none animate-scan-up-down">
+                    <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]" />
+                    <div className="h-5 w-full -mt-2.5 bg-gradient-to-b from-cyan-400/20 via-cyan-400/10 to-transparent blur-[2px]" />
+                  </div>
 
-                {/* Pulsing Corner Dots */}
-                <circle cx={lStartX} cy={lTopY} r="3" fill="#38bdf8" />
-                <circle cx={lEndX} cy={lTopY} r="3" fill="#38bdf8" />
-                <circle cx={lStartX} cy={lBottomY} r="3" fill="#38bdf8" />
-                <circle cx={lEndX} cy={lBottomY} r="3" fill="#38bdf8" />
-
-                {/* Floating Signal Label Badge above L-Shape */}
-                <g transform={`translate(${lStartX + (lEndX - lStartX) / 2}, ${Math.max(12, lTopY - 6)})`}>
-                  <rect
-                    x="-80"
-                    y="-11"
-                    width="160"
-                    height="16"
-                    rx="4"
-                    fill="#0369a1"
-                    stroke="#38bdf8"
-                    strokeWidth="1"
-                  />
-                  <text
-                    x="0"
-                    y="1"
-                    textAnchor="middle"
-                    fill="#67e8f9"
-                    fontSize="8.5"
-                    fontWeight="bold"
-                    fontFamily="monospace"
-                  >
+                  {/* Only Text Kept */}
+                  <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
                     SCANNING 10/2 CANDLES
-                  </text>
-                </g>
-              </g>
+                  </span>
+                </div>
+              </foreignObject>
             );
           })()}
 
@@ -466,30 +424,6 @@ export const LiveChart: React.FC<LiveChartProps> = ({
             {currentPrice.toFixed(4)}
           </text>
         </svg>
-
-        {/* 🚀 HTML/CSS-Based Empty L-Shape Market Scanner Overlay */}
-        {showScanningZone && (
-          <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
-            <div className="absolute right-[6%] top-1/2 -translate-y-1/2 w-[230px] sm:w-[250px] h-[160px] sm:h-[175px] bg-transparent flex items-center justify-center">
-              {/* 4 Sharp Glowing L-Shape Corner Brackets */}
-              <div className="absolute top-0 left-0 w-7 h-7 border-t-[3.5px] border-l-[3.5px] border-cyan-400 rounded-tl-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              <div className="absolute top-0 right-0 w-7 h-7 border-t-[3.5px] border-r-[3.5px] border-cyan-400 rounded-tr-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              <div className="absolute bottom-0 left-0 w-7 h-7 border-b-[3.5px] border-l-[3.5px] border-cyan-400 rounded-bl-sm drop-shadow-[0_0_8px_#22d3ee]" />
-              <div className="absolute bottom-0 right-0 w-7 h-7 border-b-[3.5px] border-r-[3.5px] border-cyan-400 rounded-br-sm drop-shadow-[0_0_8px_#22d3ee]" />
-
-              {/* Up-and-Down Scanning Line & Wave */}
-              <div className="absolute inset-x-1.5 top-0 pointer-events-none animate-scan-up-down">
-                <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee]" />
-                <div className="h-5 w-full -mt-2.5 bg-gradient-to-b from-cyan-400/20 via-cyan-400/10 to-transparent blur-[2px]" />
-              </div>
-
-              {/* Only Text Kept */}
-              <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-                SCANNING 10/2 CANDLES
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Legend & Active Indicators */}

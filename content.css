@@ -1,12 +1,17 @@
-/* Pocket Option AI Floating Overlay & L-Shape Scanner Styles v3.0.0 */
+/* Pocket Option AI Floating Overlay & Empty L-Shape 10/2 Scanner Styles v3.2.0 */
 #po-ai-floating-widget {
-  position: fixed;
+  position: fixed !important;
   top: 75px;
   right: 20px;
-  z-index: 9999999;
-  width: 270px;
-  background: rgba(2, 6, 23, 0.94);
+  z-index: 2147483646 !important;
+  width: 270px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: rgba(2, 6, 23, 0.95);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid rgba(16, 185, 129, 0.85);
   border-radius: 14px;
   padding: 10px;
@@ -14,30 +19,63 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), 0 20px 40px rgba(0, 0, 0, 0.8);
   user-select: none;
-  transition: box-shadow 0.2s ease;
+  box-sizing: border-box !important;
+  line-height: 1.35;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #po-ai-floating-widget.minimized {
-  width: auto;
-  padding: 6px 10px;
+  width: auto !important;
+  padding: 6px 10px !important;
 }
 
-/* 📐 Pocket Option Chart L-Shape Candlestick Scanner Reticle */
+/* ☀️ Warm Brown Light Mode for PO Overlay Widget */
+#po-ai-floating-widget.po-theme-light {
+  background: #dfd2bf !important;
+  border-color: #b8a287 !important;
+  color: #0a0807 !important;
+  box-shadow: 0 10px 30px rgba(60, 40, 20, 0.22) !important;
+}
+
+#po-ai-floating-widget.po-theme-light #po-detected-pair {
+  color: #0a0807 !important;
+}
+
+#po-ai-floating-widget.po-theme-light .po-inner-card {
+  background: #ede5d8 !important;
+  border-color: #bfa98e !important;
+  color: #0a0807 !important;
+}
+
+/* 📐 Pocket Option Chart Empty/Transparent L-Shape 10/2 Candlestick Scanner Reticle */
 #po-lshape-chart-reticle {
-  position: absolute;
-  right: 60px;
-  top: 90px;
-  z-index: 9999990;
-  min-width: 240px;
-  max-width: 280px;
-  background: rgba(2, 6, 23, 0.88);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(34, 211, 238, 0.5);
-  border-radius: 16px;
-  padding: 12px 14px;
-  box-shadow: 0 0 35px rgba(6, 182, 212, 0.45);
+  position: fixed !important;
+  left: 340px;
+  top: 230px;
+  z-index: 2147483645 !important;
+  width: 245px !important;
+  height: 165px !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center;
+  justify-content: center;
   user-select: none;
   cursor: grab;
+  box-sizing: border-box !important;
+  transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1), top 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: left, top;
+}
+
+#po-lshape-chart-reticle.po-reticle-dragging {
+  transition: none !important;
+  cursor: grabbing !important;
 }
 
 #po-lshape-chart-reticle:active {
@@ -47,66 +85,94 @@
 /* 4 Sharp Glowing L-Shape Corner Brackets */
 .po-l-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   pointer-events: none;
 }
 
 .po-l-tl {
-  top: -10px;
-  left: -10px;
+  top: 0;
+  left: 0;
   border-top: 3.5px solid #22d3ee;
   border-left: 3.5px solid #22d3ee;
-  border-top-left-radius: 6px;
+  border-top-left-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-tr {
-  top: -10px;
-  right: -10px;
+  top: 0;
+  right: 0;
   border-top: 3.5px solid #22d3ee;
   border-right: 3.5px solid #22d3ee;
-  border-top-right-radius: 6px;
+  border-top-right-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-bl {
-  bottom: -10px;
-  left: -10px;
+  bottom: 0;
+  left: 0;
   border-bottom: 3.5px solid #22d3ee;
   border-left: 3.5px solid #22d3ee;
-  border-bottom-left-radius: 6px;
+  border-bottom-left-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
 .po-l-br {
-  bottom: -10px;
-  right: -10px;
+  bottom: 0;
+  right: 0;
   border-bottom: 3.5px solid #22d3ee;
   border-right: 3.5px solid #22d3ee;
-  border-bottom-right-radius: 6px;
+  border-bottom-right-radius: 3px;
   filter: drop-shadow(0 0 8px #22d3ee);
 }
 
-/* Scanning Laser Beam Sweep */
+/* Up-and-Down Scanning Line & Wave Sweep */
 @keyframes po-lshape-laser-sweep {
-  0% { top: 4px; opacity: 0.3; }
-  50% { top: 92%; opacity: 1; }
-  100% { top: 4px; opacity: 0.3; }
+  0%, 100% { top: 4%; }
+  50% { top: 94%; }
+}
+
+.po-lshape-laser-wrap {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  animation: po-lshape-laser-sweep 2.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .po-lshape-laser-beam {
-  position: absolute;
-  left: 8px;
-  right: 8px;
+  width: 100%;
   height: 2px;
   background: linear-gradient(90deg, transparent, #22d3ee, #38bdf8, #22d3ee, transparent);
   box-shadow: 0 0 12px #22d3ee;
-  animation: po-lshape-laser-sweep 2.2s ease-in-out infinite;
+}
+
+.po-lshape-laser-wave {
+  width: 100%;
+  height: 20px;
+  margin-top: -10px;
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.22), rgba(34, 211, 238, 0.08), transparent);
+  filter: blur(2px);
+}
+
+.po-lshape-only-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #67e8f9;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
   pointer-events: none;
 }
 
 @keyframes po-radar-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

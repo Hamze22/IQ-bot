@@ -1,22 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Pocket Option AI Trading Assistant Pro",
-  "version": "3.0.0",
-  "description": "v3.0.0 Latest Pro Build: Professional AI-powered binary trading assistant with 1-minute strategy (15s chart, EMA 10/25, MACD, RSI), automated risk controls, live Pocket Option DOM overlay badge, audio alerts, and instant signal scanning.",
+  "version": "3.3.0",
+  "description": "v3.3.0 Latest Pro Build: AI-powered Pocket Option trading assistant with real-time candle-tracking L-Shape 10/2 Candles wave scanner, live PO DOM overlay across all mirror domains, Dark/Warm-Light mode support, and instant signal scanning.",
   "permissions": [
     "storage",
     "notifications",
     "activeTab",
     "scripting",
-    "alarms"
+    "alarms",
+    "tabs"
   ],
   "host_permissions": [
-    "https://*.pocketoption.com/*",
-    "https://*.po.trade/*",
-    "https://*.po.broker/*",
-    "https://*.po8.trade/*",
-    "https://*.po2.trade/*",
-    "https://*.pocketoption.app/*"
+    "<all_urls>"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -38,28 +34,17 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.pocketoption.com/*",
-        "https://*.po.trade/*",
-        "https://*.po.broker/*",
-        "https://*.po8.trade/*",
-        "https://*.po2.trade/*",
-        "https://*.pocketoption.app/*"
+        "<all_urls>"
       ],
-      "js": [
-        "candle-selector/chart-detector.js",
-        "candle-selector/candle-detector.js",
-        "candle-selector/candle-mapper.js",
-        "candle-selector/candle-selector.js",
-        "candle-selector/chart-overlay.js",
-        "content.js"
-      ],
-      "css": ["candle-selector/selector.css", "content.css"],
-      "run_at": "document_idle"
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["popup.css", "content.css"],
+      "resources": ["popup.css", "content.css", "icons/*"],
       "matches": ["<all_urls>"]
     }
   ]

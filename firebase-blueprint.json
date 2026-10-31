@@ -33,12 +33,32 @@
         "userId": { "type": "string" },
         "userEmail": { "type": "string" },
         "amount": { "type": "number" },
+        "originalAmountUSDT": { "type": "number" },
+        "discountAmountUSDT": { "type": "number" },
+        "promoCode": { "type": "string" },
         "currency": { "type": "string" },
         "txid": { "type": "string" },
         "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
         "timestamp": { "type": "number" }
       },
       "required": ["userEmail", "txid", "status"]
+    },
+    "promo_codes": {
+      "title": "PromoCode",
+      "description": "Discount promo codes created by Admin for Lifetime VIP license checkout",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "type": "string", "enum": ["FIXED", "PERCENT"] },
+        "discountValue": { "type": "number" },
+        "active": { "type": "boolean" },
+        "usageCount": { "type": "number" },
+        "maxUses": { "type": "number" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["code", "discountType", "discountValue", "active"]
     }
   }
 }

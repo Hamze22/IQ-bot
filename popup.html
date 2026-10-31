@@ -6,11 +6,12 @@
   <title>Pocket Option AI Pro</title>
   <link rel="stylesheet" href="popup.css">
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans w-[380px] min-h-[580px] p-3 select-none">
+<body class="bg-slate-950 text-slate-100 font-sans select-none">
   <!-- Header Bar -->
-  <header class="flex items-center justify-between pb-3 border-b border-slate-800">
-    <div class="flex items-center gap-2.5">
-      <svg width="32" height="32" viewBox="0 0 100 100" fill="none" class="drop-shadow-[0_0_8px_rgba(37,99,235,0.6)]">
+  <header class="flex items-center justify-between pb-2 border-b border-slate-800">
+    <div class="flex items-center gap-2">
+      <!-- iQ Bot SVG Icon -->
+      <svg width="28" height="28" viewBox="0 0 100 100" fill="none" class="shrink-0">
         <circle cx="50" cy="50" r="46" stroke="#2563eb" stroke-width="6" fill="#020617"/>
         <circle cx="28" cy="28" r="4" fill="#f8fafc"/>
         <rect x="26" y="36" width="4" height="24" rx="2" fill="#f8fafc"/>
@@ -25,202 +26,517 @@
         <path d="M 76 30 L 80 26 L 70 26 Z" fill="#38bdf8"/>
       </svg>
       <div>
-        <h1 class="text-base font-black tracking-wide text-slate-100 flex items-center gap-1.5">
-          iQ <span class="text-blue-500">bot</span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-bold border border-blue-500/30">POCKET OPTION</span>
+        <h1 class="text-xs font-black tracking-wider text-slate-100 flex items-center gap-1.5">
+          POCKET OPTION
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-bold border border-blue-500/30">AI BOT</span>
         </h1>
-        <p class="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-          <span id="connectionDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="connectionText">Connected (PO Web)</span>
+        <p class="text-[9px] text-emerald-400 font-mono flex items-center gap-1 mt-0.5">
+          <span id="connectionDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="connectionText">PO Web Connected (Auto-Sync)</span>
         </p>
       </div>
     </div>
-    <div class="flex items-center gap-1">
-      <span class="text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">v3.0 PRO</span>
+
+    <!-- Active User & Theme Controls in Header -->
+    <div id="headerAuthControls" class="flex items-center gap-1">
+      <span id="headerUserEmail" class="text-[9px] font-mono text-cyan-300 font-bold max-w-[85px] overflow-hidden text-ellipsis whitespace-nowrap">trade.vip@gmail.com</span>
+      <span class="text-[7px] bg-emerald-500/20 text-emerald-400 font-mono font-extrabold px-1.5 py-0.5 rounded border border-emerald-500/30">VIP</span>
+      <button id="popupThemeToggleBtn" title="Switch Dark / Warm Light Mode" class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-bold cursor-pointer">🌙</button>
     </div>
   </header>
 
-  <!-- Bot Status & Account Performance Strip -->
-  <section class="mt-3 grid grid-cols-2 gap-2">
-    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 backdrop-blur-md">
-      <span class="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Bot Status & Pair</span>
-      <div class="mt-1 flex items-center justify-between">
-        <span id="botStatusBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          RUNNING
-        </span>
-        <span id="activePairText" class="text-[11px] font-mono font-bold text-emerald-400">EUR/USD</span>
-      </div>
+  <!-- 🟢 MAIN EXTENSION APP CONTAINER (Direct VIP Access - No Login Barrier) -->
+  <div id="mainExtensionAppContainer">
+    <!-- Instant PO AI Overlay Launcher Bar -->
+    <div class="flex items-center gap-1.5 my-1.5">
+      <button id="forceShowOverlayBtn" class="flex-1 bg-emerald-500 text-slate-950 font-black text-[10px] py-1.5 px-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-lg">
+        <span>🖥️</span>
+        <span id="forceShowOverlayBtnText">SHOW PO AI OVERLAY ON TAB</span>
+      </button>
+      <button id="geminiStrategyBanner" class="bg-slate-900 border border-cyan-500/40 rounded-xl px-2.5 py-1.5 flex items-center gap-1 text-[9px] text-cyan-300 font-bold cursor-pointer shrink-0">
+        <span>✨</span>
+        <span>AI AUDIT</span>
+      </button>
     </div>
 
-    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 backdrop-blur-md">
-      <span class="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Balance & Today P/L</span>
-      <div class="mt-1 flex items-baseline justify-between">
-        <span id="accountBalanceText" class="text-xs font-mono font-extrabold text-emerald-400">$2,450.80</span>
-        <span id="todayProfitText" class="text-xs font-mono font-bold text-emerald-400">+$156.80</span>
-      </div>
-    </div>
-  </section>
+    <!-- Inner Navigation Tabs -->
+    <nav id="extensionNavTabs" class="grid grid-cols-4 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[9px] font-semibold text-center my-1">
+      <button data-tab="botTab" class="nav-tab-btn py-1.5 rounded-lg flex items-center justify-center gap-1 transition bg-blue-600 text-white font-bold cursor-pointer">
+        <span>🤖</span>
+        <span>Bot</span>
+      </button>
+      <button data-tab="signalsTab" class="nav-tab-btn py-1.5 rounded-lg flex items-center justify-center gap-1 transition text-slate-400 hover:text-slate-200 cursor-pointer">
+        <span>⚡</span>
+        <span>Signals</span>
+      </button>
+      <button data-tab="historyTab" class="nav-tab-btn py-1.5 rounded-lg flex items-center justify-center gap-1 transition text-slate-400 hover:text-slate-200 cursor-pointer">
+        <span>🕒</span>
+        <span>History</span>
+      </button>
+      <button data-tab="settingsTab" class="nav-tab-btn py-1.5 rounded-lg flex items-center justify-center gap-1 transition text-slate-400 hover:text-slate-200 cursor-pointer">
+        <span>⚙️</span>
+        <span>Settings</span>
+      </button>
+      <button id="adminNavTabBtn" data-tab="adminTab" class="nav-tab-btn hidden py-1.5 rounded-lg flex items-center justify-center gap-1 transition text-amber-300 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 cursor-pointer font-bold">
+        <span>👑</span>
+        <span>Admin</span>
+      </button>
+    </nav>
 
-  <!-- Win / Loss & Win Rate Bar -->
-  <section class="mt-2 bg-slate-900/90 border border-slate-800 rounded-xl p-2 grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono">
-    <div class="bg-slate-950 p-1 rounded-lg border border-slate-800/80">
-      <span class="text-emerald-400 font-bold block">WINS</span>
-      <span id="statWinsText" class="font-black text-emerald-400 block">58</span>
-    </div>
-    <div class="bg-slate-950 p-1 rounded-lg border border-slate-800/80">
-      <span class="text-rose-400 font-bold block">LOSSES</span>
-      <span id="statLossesText" class="font-black text-rose-400 block">22</span>
-    </div>
-    <div class="bg-slate-950 p-1 rounded-lg border border-slate-800/80">
-      <span class="text-slate-400 font-bold block">TRADES</span>
-      <span id="statTotalText" class="font-black text-slate-100 block">80</span>
-    </div>
-    <div class="bg-slate-950 p-1 rounded-lg border border-slate-800/80">
-      <span class="text-cyan-400 font-bold block">WIN %</span>
-      <span id="statWinRateText" class="font-black text-cyan-400 block">73%</span>
-    </div>
-  </section>
-
-  <!-- Main AI Signal Card -->
-  <section class="mt-3 bg-gradient-to-b from-slate-900/90 to-slate-950 border border-slate-800 rounded-2xl p-3.5 relative overflow-hidden shadow-xl space-y-3">
-    <div class="flex items-center justify-between">
-      <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">AI Signal Indicators</span>
-      <span class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">2m Scalp</span>
-    </div>
-
-    <!-- Circular Confidence Graph & RSI Indicator Row -->
-    <div class="flex items-center gap-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-      <!-- Donut Circle Gauge -->
-      <div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
-        <svg class="w-16 h-16 transform -rotate-90">
-          <circle cx="32" cy="32" r="26" stroke="#1e293b" stroke-width="6" fill="transparent" />
-          <circle id="confidenceSvgRing" cx="32" cy="32" r="26" stroke="#10b981" stroke-width="6" stroke-dasharray="163.36" stroke-dashoffset="19.6" stroke-linecap="round" fill="transparent" />
-        </svg>
-        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span id="signalConfidenceValue" class="text-xs font-black font-mono text-emerald-400 leading-none">88%</span>
-          <span class="text-[7px] font-bold text-slate-400 uppercase">CONF</span>
+    <!-- TAB 1: BOT DASHBOARD TAB -->
+    <div id="botTab" class="tab-content space-y-2">
+      <!-- Extension Status Banner -->
+      <section class="bg-slate-900/90 border border-slate-800 rounded-xl p-2 flex items-center justify-between text-xs shadow-inner">
+        <div class="flex items-center gap-2">
+          <span id="popupAccountStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-extrabold text-slate-200 text-[10px]" id="popupActiveAccountBadge">Active Member</span>
         </div>
-      </div>
-
-      <!-- RSI Gauge -->
-      <div class="flex-1 bg-slate-900/90 border border-slate-800 p-2 rounded-lg">
-        <div class="flex items-center justify-between text-[10px]">
-          <span class="font-bold text-slate-400">RSI (14) MOMENTUM</span>
-          <span id="rsiValueText" class="font-black text-emerald-400">62.4</span>
-        </div>
-        <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-800">
-          <div id="rsiValueBar" class="bg-emerald-400 h-full rounded-full" style="width: 62.4%"></div>
-        </div>
-        <span id="rsiLabelText" class="text-[9px] text-emerald-400 font-semibold block mt-0.5">Bullish Momentum (&gt;50)</span>
-      </div>
-    </div>
-
-    <!-- ⏱️ 2-Minute Candle Timer & Target Price Badge -->
-    <div class="bg-slate-950 border border-cyan-500/30 p-2.5 rounded-xl text-xs space-y-1.5 shadow-inner">
-      <div class="flex items-center justify-between font-bold text-[10px]">
-        <span class="text-cyan-400 flex items-center gap-1 font-extrabold">⏱️ 2m CANDLE TIMER</span>
-        <div class="flex items-center gap-1.5">
-          <span id="candleTimerBadge" class="font-mono text-cyan-300 font-extrabold bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/40">
-            02:00
+        <div class="flex items-center gap-1">
+          <span id="popupLicenseBadge" class="text-[8px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded font-mono font-bold">
+            VIP ACTIVE
           </span>
-          <button id="scanNowBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded border border-blue-400/40 cursor-pointer transition active:scale-95 shadow">
-            ⚡ SCAN NOW
+          <button id="refreshAccountStatusBtn" title="Check / Refresh Activation Status" class="text-[9px] bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 px-1.5 py-0.5 rounded font-bold cursor-pointer transition">
+            🔄 Refresh
+          </button>
+        </div>
+      </section>
+
+      <!-- 🔒 SIGNAL LOCKED CARD (Shown only when user is PENDING / UNPAID) -->
+      <div id="signalLockedOverlay" class="hidden bg-gradient-to-b from-blue-950/80 via-slate-900 to-indigo-950/90 border-2 border-amber-500/40 rounded-2xl p-3 text-center space-y-2 shadow-2xl">
+        <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-base">
+          🔒
+        </div>
+        <div>
+          <h3 class="text-xs font-black text-amber-300">TRADING SIGNALS LOCKED 🔒</h3>
+          <p class="text-[9px] text-slate-300 mt-0.5 leading-snug">
+            Your account <span id="lockedUserEmailText" class="font-mono text-cyan-300 font-bold">user</span> is awaiting Admin Activation.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-1.5 pt-1">
+          <button id="checkLockedStatusBtn" class="flex-1 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black text-[10px] rounded-xl shadow transition cursor-pointer flex items-center justify-center gap-1">
+            <span>🔄 Check Status</span>
           </button>
         </div>
       </div>
-      <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
-        <div id="candleTimerProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full transition-all duration-1000 ease-linear rounded-full" style="width: 100%"></div>
+
+      <!-- Bot Status Card -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between shadow-lg">
+        <div>
+          <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">
+            BOT STATUS & POWER
+          </span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="botStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border bg-emerald-500/20 text-emerald-400 border-emerald-500/30 animate-pulse">
+              RUNNING
+            </span>
+          </div>
+        </div>
+
+        <button id="botPowerToggleBtn" class="w-8 h-8 rounded-full flex items-center justify-center transition border bg-emerald-500 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-500/30 cursor-pointer text-xs" title="Toggle Bot Power">
+          ⚡
+        </button>
       </div>
-      <div class="flex items-center justify-between text-[10px] pt-0.5 font-mono">
-        <span class="text-slate-400 font-sans font-semibold">Target Close Price:</span>
-        <span id="targetPriceBadge" class="font-bold text-emerald-400">
-          1.08588 (+3.8 pips)
-        </span>
+
+      <!-- Performance Stats Bar with Restore / Reset (0) Button -->
+      <section class="bg-slate-900/90 border border-slate-800 rounded-xl p-2 space-y-1.5 shadow-md">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs">📊</span>
+            <span class="text-[10px] font-black uppercase text-slate-200 tracking-wider">TRADE PERFORMANCE</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="statPnlText" class="text-[10px] font-mono font-black text-emerald-400">+$0.00</span>
+            <button id="resetTradeStatsBtn" class="text-[8px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-1.5 py-0.5 rounded font-bold transition flex items-center gap-1 cursor-pointer active:scale-95" title="Restore and reset all performance stats to 0">
+              ↺ Reset (0)
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-mono">
+          <div class="bg-slate-950 p-1 rounded-lg border border-emerald-500/30">
+            <span class="text-emerald-400 font-bold block text-[8px]">WINS</span>
+            <span id="statWinsText" class="font-black text-emerald-400 block text-xs">0</span>
+          </div>
+          <div class="bg-slate-950 p-1 rounded-lg border border-rose-500/30">
+            <span class="text-rose-400 font-bold block text-[8px]">LOSSES</span>
+            <span id="statLossesText" class="font-black text-rose-400 block text-xs">0</span>
+          </div>
+          <div class="bg-slate-950 p-1 rounded-lg border border-slate-800">
+            <span class="text-slate-400 font-bold block text-[8px]">TRADES</span>
+            <span id="statTotalText" class="font-black text-slate-100 block text-xs">0</span>
+          </div>
+          <div class="bg-slate-950 p-1 rounded-lg border border-cyan-500/30">
+            <span class="text-cyan-400 font-bold block text-[8px]">WIN %</span>
+            <span id="statWinRateText" class="font-black text-cyan-400 block text-xs">0%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main AI Signal Card Container (Unlocked for Active Users) -->
+      <div id="unlockedSignalsContainer" class="space-y-2">
+        <!-- Main AI Signal Card -->
+        <section class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2 shadow-lg">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI Signal Indicators</span>
+            <span class="text-[9px] font-mono text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/30">1m Scalp</span>
+          </div>
+
+          <!-- Circular Confidence Graph & RSI Indicator Row -->
+          <div class="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
+            <!-- Donut Circle Gauge -->
+            <div style="position: relative; width: 64px; height: 64px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+              <svg style="width: 64px; height: 64px; transform: rotate(-90deg); transform-origin: center;">
+                <circle cx="32" cy="32" r="26" stroke="#1e293b" stroke-width="6" fill="transparent" />
+                <circle id="confidenceSvgRing" cx="32" cy="32" r="26" stroke="#10b981" stroke-width="6" stroke-dasharray="163.36" stroke-dashoffset="19.6" stroke-linecap="round" fill="transparent" />
+              </svg>
+              <div style="position: absolute; top:0; right:0; bottom:0; left:0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
+                <span id="signalConfidenceValue" style="font-size: 11px; font-weight: 900; font-family: monospace; color: #10b981; line-height: 1;">88%</span>
+                <span style="font-size: 7px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 1px;">CONF</span>
+              </div>
+            </div>
+
+            <!-- RSI Gauge -->
+            <div class="flex-1 bg-slate-900/90 border border-slate-800 p-2 rounded-lg">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="font-bold text-slate-400">RSI (14) MOMENTUM</span>
+                <span id="rsiValueText" class="font-black text-emerald-400">62.4</span>
+              </div>
+              <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden mt-1 border border-slate-800">
+                <div id="rsiValueBar" class="bg-emerald-400 h-full rounded-full" style="width: 62.4%"></div>
+              </div>
+              <span id="rsiLabelText" class="text-[9px] text-emerald-400 font-semibold block mt-0.5">Bullish Momentum (>50)</span>
+            </div>
+          </div>
+
+          <!-- ⏱️ 1-Minute Candle Timer & Target Price Badge -->
+          <div class="bg-slate-950 border border-cyan-500/30 p-2 rounded-xl text-xs space-y-1 shadow-inner">
+            <div class="flex items-center justify-between font-bold text-[10px]">
+              <span class="text-cyan-400 flex items-center gap-1 font-extrabold">⏱️ 1m CANDLE TIMER</span>
+              <div class="flex items-center gap-1">
+                <span id="candleTimerBadge" class="font-mono text-cyan-300 font-extrabold bg-cyan-950 px-1.5 py-0.5 rounded border border-cyan-500/40 text-[10px]">
+                  00:60
+                </span>
+                <button id="scanNowBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-[9px] px-2 py-0.5 rounded border border-blue-400/40 cursor-pointer transition active:scale-95 shadow">
+                  ⚡ SCAN NOW
+                </button>
+              </div>
+            </div>
+            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+              <div id="candleTimerProgressBar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-full transition-all duration-1000 ease-linear rounded-full" style="width: 100%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[9px] pt-0.5 font-mono">
+              <span class="text-slate-400 font-sans font-semibold">Target Close Price:</span>
+              <span id="targetPriceBadge" class="font-bold text-emerald-400">
+                1.08588 (+3.8 pips)
+              </span>
+            </div>
+          </div>
+
+          <!-- 🔍 L-Shape 10/2 Candle Scanning Radar Banner -->
+          <div class="bg-slate-950/90 border border-blue-500/30 rounded-xl p-2 space-y-1.5 shadow-inner">
+            <div class="flex items-center justify-between text-[10px]">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span class="font-extrabold text-cyan-300">SCANNING 10/2 CANDLES</span>
+              </div>
+              <span id="candleStepPill" class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                L-Shape 10/2 Sync
+              </span>
+            </div>
+
+            <!-- Dynamic Scanning Message -->
+            <div class="flex items-center justify-between bg-slate-900/80 px-2 py-1 rounded-lg border border-slate-800 text-[9px] font-mono">
+              <span id="scanningMessageText" class="text-amber-300 flex items-center gap-1">
+                🔍 SCANNING 10/2 CANDLES: SMC Price Action & Support
+              </span>
+              <span class="text-[8px] text-slate-400 uppercase font-sans font-bold">1m OTC</span>
+            </div>
+          </div>
+
+          <!-- Signal Decision Banner -->
+          <div id="signalDecisionContainer" class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between">
+            <div>
+              <div id="signalBadge" class="text-lg font-black text-emerald-400 tracking-wider flex items-center gap-2">
+                CALL ▲
+              </div>
+              <div id="signalReasonText" class="text-[10px] text-slate-300 mt-0.5 max-w-[200px] line-clamp-2">
+                EMA 10 > EMA 25 + MACD (10,24,8) Green Histogram + Bullish Candle Close
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] text-slate-400 block">Expiry</span>
+              <span id="suggestedExpiryBadge" class="text-[10px] font-mono font-bold text-slate-100 bg-slate-800 px-2 py-0.5 rounded">1 MIN</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] text-slate-400 font-sans font-bold">PAIR:</span>
+              <select id="activePairSelect" class="bg-slate-900 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                <option value="EUR/USD OTC">EUR/USD OTC (92%)</option>
+                <option value="EUR/USD">EUR/USD (88%)</option>
+                <option value="GBP/USD OTC">GBP/USD OTC (93%)</option>
+                <option value="GBP/USD">GBP/USD (87%)</option>
+                <option value="USD/JPY">USD/JPY (86%)</option>
+                <option value="AUD/CAD">AUD/CAD (89%)</option>
+                <option value="BTC/USD OTC">BTC/USD OTC (95%)</option>
+              </select>
+            </div>
+            <span>Trend: <strong class="text-emerald-400">BULLISH</strong></span>
+          </div>
+        </section>
+
+        <!-- Manual Signal Execution & Bot Controls Panel -->
+        <section class="space-y-1.5">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2 space-y-1">
+            <span class="text-[9px] font-bold uppercase tracking-wider text-slate-300 block">
+              MANUAL SIGNAL EXECUTION ($25)
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="manualCallBtn" class="py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow transition flex items-center justify-center gap-1 cursor-pointer">
+                ▲ HIGHER (CALL)
+              </button>
+              <button id="manualPutBtn" class="py-2 px-3 bg-rose-500 hover:bg-rose-400 text-white font-black text-xs rounded-xl shadow transition flex items-center justify-center gap-1 cursor-pointer">
+                ▼ LOWER (PUT)
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1.5">
+            <button id="startBotBtn" class="py-2 px-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow transition flex items-center justify-center gap-1 cursor-pointer">
+              ▶ START
+            </button>
+            <button id="pauseBotBtn" class="py-2 px-2 bg-amber-500/20 border border-amber-500/30 text-amber-300 font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
+              ⏸️ PAUSE
+            </button>
+            <button id="stopBotBtn" class="py-2 px-2 bg-slate-800 border border-slate-700 text-slate-300 font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
+              ■ STOP
+            </button>
+          </div>
+        </section>
       </div>
     </div>
 
-    <div id="signalDecisionContainer" class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between">
+    <!-- TAB 2: SIGNALS STREAM TAB -->
+    <div id="signalsTab" class="tab-content hidden space-y-2">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2.5">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-1.5">
+            <span class="text-cyan-400 text-sm">⚡</span>
+            <span class="text-xs font-black uppercase text-slate-100">LIVE AI SIGNALS STREAM</span>
+          </div>
+          <button id="signalsTabScanBtn" class="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[9px] rounded border border-blue-400/40 cursor-pointer">
+            ⚡ SCAN NOW
+          </button>
+        </div>
+
+        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span id="signalsTabPairText" class="font-bold text-slate-200">EUR/USD OTC</span>
+            <span id="signalsTabConfText" class="text-[10px] font-mono text-emerald-400 font-extrabold">88% CONFIDENCE</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span id="signalsTabDecisionText" class="text-lg font-black text-emerald-400">
+              ▲ CALL (BUY)
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Expiry: 1 MIN</span>
+          </div>
+          <p id="signalsTabReasonText" class="text-[10px] text-slate-300 leading-snug">
+            EMA 10 &gt; EMA 25 Golden Cross + MACD Expansion + Stochastic RSI Bullish Momentum Trigger
+          </p>
+        </div>
+
+        <!-- Technical Indicators Grid -->
+        <div class="grid grid-cols-2 gap-1.5 text-[9px] font-mono">
+          <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400 block font-sans font-bold text-[8px]">EMA (10/25)</span>
+            <span class="text-emerald-400 font-bold">BULLISH CROSS</span>
+          </div>
+          <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400 block font-sans font-bold text-[8px]">RSI (14)</span>
+            <span class="text-emerald-400 font-bold">62.4 (STRONG BUY)</span>
+          </div>
+          <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400 block font-sans font-bold text-[8px]">MACD (10,24,8)</span>
+            <span class="text-emerald-400 font-bold">+0.00042 (EXPANSION)</span>
+          </div>
+          <div class="bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+            <span class="text-slate-400 block font-sans font-bold text-[8px]">BOLLINGER BANDS</span>
+            <span class="text-emerald-400 font-bold">LOWER REBOUND</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: HISTORY TAB -->
+    <div id="historyTab" class="tab-content hidden space-y-2">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-300 text-sm">🕒</span>
+            <span class="text-xs font-black uppercase text-slate-100">RECENT TRADING LOGS</span>
+          </div>
+          <span class="text-[9px] font-mono text-emerald-400 font-bold">+$156.80 Today</span>
+        </div>
+
+        <div id="historyListContainer" class="space-y-1.5 max-h-[340px] overflow-y-auto pr-0.5">
+          <!-- Dynamic Trade Cards populated via popup.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SETTINGS TAB -->
+    <div id="settingsTab" class="tab-content hidden space-y-2">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2.5 text-[10px]">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <span class="text-xs font-black uppercase text-slate-100">BOT CONFIGURATION</span>
+          <span class="text-[9px] text-emerald-400 font-bold">Auto-Saved</span>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <label class="block text-slate-400 font-semibold mb-0.5">Default Trade Amount ($)</label>
+            <input id="settingTradeAmount" type="number" value="25" min="1" max="1000" class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded font-mono outline-none focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-0.5">Expiry Time</label>
+            <select id="settingExpiryTime" class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded font-mono outline-none focus:border-blue-500">
+              <option value="1m">1 Minute (Turbo Scalping)</option>
+              <option value="2m">2 Minutes (Standard)</option>
+              <option value="5m">5 Minutes (Trend Ride)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-semibold mb-0.5">Minimum Signal Confidence (%)</label>
+            <select id="settingMinConfidence" class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded font-mono outline-none focus:border-blue-500">
+              <option value="75">75% (More Trades)</option>
+              <option value="80" selected>80% (Balanced)</option>
+              <option value="85">85% (High Precision)</option>
+              <option value="90">90% (Strict Sniper)</option>
+            </select>
+          </div>
+
+          <div class="pt-1 border-t border-slate-800 space-y-1.5">
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-slate-300">Auto Trade on Strong Signals</span>
+              <input id="settingAutoTrade" type="checkbox" checked class="accent-emerald-500" />
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-slate-300">Martingale Recovery (x2.2)</span>
+              <input id="settingMartingale" type="checkbox" checked class="accent-emerald-500" />
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-slate-300">Audio Sound Alerts</span>
+              <input id="settingSoundAlerts" type="checkbox" checked class="accent-emerald-500" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: ADMIN CONSOLE TAB (Only accessible by Admin) -->
+    <div id="adminTab" class="tab-content hidden space-y-2">
+      <div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/40 rounded-xl p-2.5 flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="text-sm">👑</span>
+          <div>
+            <h2 class="text-xs font-black text-amber-300">Admin Account Console</h2>
+            <p class="text-[8px] text-slate-400 font-mono" id="adminUserCountStats">Loading users...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Add Account Section Form -->
+      <div class="bg-slate-900/90 border border-blue-500/40 rounded-xl p-2.5 space-y-2 text-[10px] shadow-sm">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <span class="font-bold text-blue-300 flex items-center gap-1">
+            <span>➕</span> <span>Add Account to Firebase</span>
+          </span>
+          <span class="text-[8px] bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">
+            AUTO-SYNC
+          </span>
+        </div>
+
+        <form id="adminAddUserForm" class="space-y-1.5">
+          <div>
+            <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Trader Email Address</label>
+            <input
+              id="adminNewUserEmail"
+              type="email"
+              placeholder="trader@gmail.com"
+              required
+              class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Password</label>
+            <input
+              id="adminNewUserPassword"
+              type="text"
+              value="123456"
+              required
+              class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5">
+            <div>
+              <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Subscription Plan</label>
+              <select id="adminNewUserPlan" class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-1.5 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500">
+                <option value="LIFETIME" selected>LIFETIME VIP ($50)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[8px] font-semibold mb-0.5">Account Status</label>
+              <select id="adminNewUserStatus" class="w-full bg-slate-950 border border-slate-800 text-slate-100 px-1.5 py-1 rounded text-[9px] font-mono outline-none focus:border-blue-500">
+                <option value="ACTIVE" selected>ACTIVE (Unlocked)</option>
+                <option value="PENDING">PENDING</option>
+                <option value="UNPAID">UNPAID</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="adminAddUserSubmitBtn"
+            class="w-full py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-[9px] rounded-lg shadow-sm transition active:scale-95 cursor-pointer flex items-center justify-center gap-1 uppercase"
+          >
+            <span>💾 Create & Sync to Firebase</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Admin Fast Actions -->
+      <div class="flex items-center gap-1.5">
+        <button id="adminActivateAllBtn" class="flex-1 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-[9px] font-extrabold transition cursor-pointer flex items-center justify-center gap-1">
+          <span>🚀 Activate All Accounts</span>
+        </button>
+        <button id="adminSyncDbBtn" class="py-1.5 px-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-[9px] font-extrabold transition cursor-pointer flex items-center justify-center gap-1">
+          <span>🔄 Sync DB</span>
+        </button>
+      </div>
+
+      <div id="adminActionAlert" class="hidden bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-[9px] p-1.5 rounded-lg text-center font-bold"></div>
+
+      <!-- Search / Filter -->
       <div>
-        <div id="signalBadge" class="text-xl font-black text-emerald-400 tracking-wider flex items-center gap-2">
-          CALL ▲
-        </div>
-        <div id="signalReasonText" class="text-[11px] text-slate-300 mt-0.5 max-w-[210px] line-clamp-2">
-          EMA 10 &gt; EMA 25 + MACD (10,24,8) Green Histogram + Bullish Candle Close
-        </div>
+        <input
+          id="adminUserSearchInput"
+          type="text"
+          placeholder="Filter accounts by email or status..."
+          class="w-full bg-slate-950 border border-slate-800 text-slate-200 px-2 py-1 rounded text-[9px] font-mono outline-none focus:border-amber-500"
+        />
       </div>
-      <div class="text-right">
-        <span class="text-[10px] text-slate-400 block">Expiry</span>
-        <span id="suggestedExpiryBadge" class="text-xs font-mono font-bold text-slate-100 bg-slate-800 px-2 py-0.5 rounded">2 MIN</span>
+
+      <!-- Admin User List Scroll -->
+      <div id="adminUserListScroll" class="space-y-1.5 max-h-[260px] overflow-y-auto pr-0.5">
+        <!-- Dynamically populated user cards -->
       </div>
     </div>
-
-    <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
-      <span>Trend: <strong id="trendText" class="text-emerald-400">BULLISH</strong></span>
-      <span>Risk: <strong id="riskLevelText" class="text-emerald-400">LOW</strong></span>
-      <span>Payout: <strong class="text-slate-200">88%</strong></span>
-    </div>
-  </section>
-
-  <!-- Manual Signal Execution Panel -->
-  <section class="mt-3 bg-slate-900/80 border border-slate-800 rounded-xl p-2.5">
-    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
-      Manual Signal Execution ($25)
-    </span>
-    <div class="grid grid-cols-2 gap-2">
-      <button id="manualCallBtn" class="py-2 px-3 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1">
-        ▲ MANUAL CALL
-      </button>
-      <button id="manualPutBtn" class="py-2 px-3 bg-rose-500 hover:bg-rose-600 active:scale-[0.98] text-white font-black text-xs rounded-xl shadow-lg shadow-rose-500/20 transition flex items-center justify-center gap-1">
-        ▼ MANUAL PUT
-      </button>
-    </div>
-  </section>
-
-  <!-- Bot Controls -->
-  <section class="mt-3 grid grid-cols-2 gap-2">
-    <button id="startBotBtn" class="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1.5">
-      ▶ START BOT
-    </button>
-    <button id="stopBotBtn" class="py-2.5 px-3 bg-rose-500/20 border border-rose-500/40 hover:bg-rose-500/30 text-rose-400 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5">
-      ■ STOP BOT
-    </button>
-  </section>
-
-  <div class="mt-2 grid grid-cols-2 gap-2">
-    <button id="pauseBotBtn" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium rounded-lg transition text-center">
-      ⏸ Pause
-    </button>
-    <button id="emergencyStopBtn" class="py-2 px-2 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded-lg transition text-center">
-      🚨 Emergency Stop
-    </button>
   </div>
-
-  <!-- Settings Quick Form -->
-  <section class="mt-3 bg-slate-900/60 border border-slate-800/80 rounded-xl p-3">
-    <h3 class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-2">Trading Parameters</h3>
-    <div class="grid grid-cols-2 gap-2.5 text-[11px]">
-      <div>
-        <label class="block text-slate-400 mb-1">Trade Amount ($)</label>
-        <input id="inputTradeAmount" type="number" value="25" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-100 font-mono focus:border-emerald-500 focus:outline-none">
-      </div>
-      <div>
-        <label class="block text-slate-400 mb-1">Expiry Time</label>
-        <select id="selectExpiry" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-100 font-mono focus:border-emerald-500 focus:outline-none">
-          <option value="30s">30 Seconds</option>
-          <option value="1m" selected>1 Minute</option>
-          <option value="5m">5 Minutes</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-slate-400 mb-1">Max Daily Loss ($)</label>
-        <input id="inputMaxLoss" type="number" value="100" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-100 font-mono focus:border-emerald-500 focus:outline-none">
-      </div>
-      <div>
-        <label class="block text-slate-400 mb-1">Min AI Confidence (%)</label>
-        <input id="inputMinConfidence" type="number" value="80" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-100 font-mono focus:border-emerald-500 focus:outline-none">
-      </div>
-    </div>
-  </section>
 
   <script src="popup.js" type="module"></script>
 </body>
